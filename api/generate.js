@@ -24,10 +24,10 @@ export default async function handler(req, res) {
     });
 
     // Veo 3.1 모델을 불러와 영상을 요청합니다.
-    const generativeModel = vertexAI.getGenerativeModel({
-      model: 'veo-3.1-v001',
-    });
-
+   const generativeModel = vertexAI.getGenerativeModel({
+  // 현재 구글 클라우드에서 가장 널리 쓰이는 비디오 모델명으로 변경합니다.
+  model: 'veo-001', 
+});
     const refinedPrompt = `한국 문학의 서정적인 분위기, 4k 시네마틱 연출: ${prompt}`;
 
     const request = {
