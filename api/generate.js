@@ -1,4 +1,5 @@
 import { VertexAI } from '@google-cloud/vertexai';
+import { GoogleAuth } from 'google-auth-library';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -16,25 +17,25 @@ export default async function handler(req, res) {
     const serviceAccountKey = JSON.parse(jsonKeyString);
     const { prompt } = req.body;
 
-    // Vertex AI 초기화
-    const vertexAI = new VertexAI({
-      project: projectId,
-      location: 'us-central1',
-      googleAuthOptions: { credentials: serviceAccountKey }
+    // 1. GoogleAuth를 사용하여 직접 인증 클라이언트를 생성합니다.
+    const auth = new GoogleAuth({
+      credentials: serviceAccountKey,
+      scopes: 'https://www.googleapis.com/auth/cloud-platform',
     });
 
-    /**
-     * 🎯 Veo 3.1 전용 '촬영 예약' 로직
-     * Veo는 generateContent 대신 전용 예측(Prediction) 엔드포인트를 사용해야 합니다.
-     * 이를 위해 직접 REST API 형태의 요청을 보냅니다.
-     */
+    // 2. 인증 토큰을 가져옵니다.
+    const client = await auth.getClient();
+    const tokenResponse = await client.getAccessToken();
+    const token = tokenResponse.token;
+
+    if (!token) {
+      throw new Error("인증 토큰을 가져오는 데 실패했습니다.");
+    }
+
     const location = 'us-central1';
     const modelId = 'veo-3.1-fast-generate-001';
     
-    // 구글 클라우드 인증 토큰 가져오기
-    const client = await vertexAI.googleAuthOptions.authClient;
-    const token = await client.getAccessToken();
-
+    // 3. Veo 전용 Predict API 엔드포인트 설정
     const endpoint = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${modelId}:predict`;
 
     const payload = {
@@ -50,7 +51,7 @@ export default async function handler(req, res) {
       }
     };
 
-    // 구글 Predict API 호출 (Long Running Operation 시작)
+    // 4. fetch를 사용하여 구글 서버에 직접 요청을 보냅니다.
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
@@ -68,13 +69,12 @@ export default async function handler(req, res) {
 
     /**
      * 🎬 Veo 응답 처리
-     * 성공하면 'name'이라는 작업 번호(Operation ID)가 옵니다.
-     * 이 번호가 있다는 건 구글 서버에서 촬영이 "진짜로 시작됐다"는 뜻입니다.
+     * 성공하면 'name'이라는 작업 번호(Operation ID)가 포함된 응답이 옵니다.
      */
     res.status(200).json({
       success: true,
       message: "레디, 액션! 구글 서버에서 영상 촬영(LRO)이 시작되었습니다.",
-      operationId: data.name, // 촬영 작업 고유 번호
+      operationId: data.name, 
       result: "영상 생성이 진행 중입니다. (약 1~2분 소요)",
       debug: { modelId: modelId }
     });
