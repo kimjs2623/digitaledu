@@ -44,11 +44,12 @@ export default async function handler(req, res) {
       result: resultText
     });
 
-  } catch (error) {
+ } catch (error) {
     console.error("서버 에러:", error);
     res.status(500).json({
       success: false,
-      message: "오류가 발생했습니다. Vercel이나 구글 인증을 다시 확인해주세요."
+      // 구글이 뱉어낸 진짜 에러 메시지를 화면에 그대로 보여주도록 수정!
+      message: "진짜 에러 원인: " + error.message 
     });
   }
 }
