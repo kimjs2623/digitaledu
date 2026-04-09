@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>내 머릿속 오스카</title>
+  <!-- 폰트와 스타일(Tailwind CSS)을 불러옵니다 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Noto Serif KR', serif; }
+    .bg-movie-texture {
+      background-color: #1a202c;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232d3748' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+  </style>
+</head>
+<body class="bg-movie-texture text-gray-100 min-h-screen flex flex-col items-center p-4 sm:p-8">
+
+  <!-- 메인 컨테이너 -->
+  <main class="w-full max-w-2xl bg-gray-900 bg-opacity-90 rounded-2xl shadow-2xl overflow-hidden border border-gray-700 mt-10">
+    
+    <!-- 헤더 영역 -->
+    <header class="p-8 text-center border-b border-gray-700">
+      <h1 class="text-4xl sm:text-5xl font-bold text-yellow-500 mb-2 tracking-wider">내 머릿속 오스카</h1>
+      <p class="text-gray-400 text-lg">소설 속 문장을 당신만의 시네마틱 영상으로.</p>
+    </header>
+
+    <!-- 입력 및 컨트롤 영역 -->
+    <section class="p-8">
+      <div class="mb-6">
+        <label for="scenarioInput" class="block text-sm font-medium text-gray-300 mb-2">
+          영상으로 만들고 싶은 장면을 묘사해주세요:
+        </label>
+        <textarea 
+          id="scenarioInput" 
+          rows="4" 
+          class="w-full p-4 bg-gray-800 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all placeholder-gray-500"
+          placeholder="예) 소나기가 내리는 징검다리 위, 소년이 소녀를 향해 조심스럽게 손을 내미는 장면. 수채화 같은 서정적인 분위기."
+        ></textarea>
+      </div>
+
+      <!-- 액션 버튼 -->
+      <button 
+        id="generateBtn"
+        onclick="generateVideo()"
+        class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-gray-900 font-bold text-lg py-4 px-6 rounded-lg shadow-lg transform transition-transform active:scale-95 flex justify-center items-center gap-2"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clapperboard"><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/><path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 4"/><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg>
+        레디, 액션! (영상 생성하기)
+      </button>
+    </section>
+
+    <!-- 상태 표시 및 결과 영역 (처음엔 숨겨둠) -->
+    <section id="resultSection" class="p-8 bg-gray-800 hidden border-t border-gray-700">
+      
+      <!-- 로딩 애니메이션 -->
+      <div id="loadingStatus" class="flex flex-col items-center justify-center py-8 hidden">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500 mb-4"></div>
+        <p class="text-yellow-400 font-medium animate-pulse">구글 감독님이 영상을 제작 중입니다... (약 1~2분 소요)</p>
+      </div>
+
+      <!-- 결과 메시지 표시 영역 -->
+      <div id="messageBox" class="text-center p-4 rounded-lg hidden"></div>
+
+    </section>
+  </main>
+
+  <footer class="mt-12 text-gray-500 text-sm">
+    &copy; 2026 Jinsung Director. All rights reserved.
+  </footer>
+
+  <!-- 백엔드와 통신하는 자바스크립트 로직 -->
+  <script>
+    async function generateVideo() {
+      const input = document.getElementById('scenarioInput').value;
+      const resultSection = document.getElementById('resultSection');
+      const loadingStatus = document.getElementById('loadingStatus');
+      const messageBox = document.getElementById('messageBox');
+      const generateBtn = document.getElementById('generateBtn');
+
+      // 1. 입력값이 비어있는지 확인
+      if (!input.trim()) {
+        showStatus('error', '시나리오를 먼저 작성해주세요 감독님!');
+        return;
+      }
+
+      // 2. UI 상태 변경 (로딩 시작)
+      resultSection.classList.remove('hidden');
+      loadingStatus.classList.remove('hidden');
+      messageBox.classList.add('hidden');
+      generateBtn.disabled = true;
+      generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+      try {
+        // 3. 진성 감독님의 Vercel 백엔드로 요청 보내기 (비밀 통로)
+        // 주의: Vercel 배포 시에는 /api/generate 주소가 백엔드 코드로 연결됩니다.
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt: input }),
+        });
+
+        const data = await response.json();
+
+        // 4. 결과 처리
+        if (response.ok && data.success) {
+          showStatus('success', `
+            <h3 class="font-bold text-xl mb-2 text-green-400">요청 성공!</h3>
+            <p class="text-gray-300">"${data.receivedPrompt}"</p>
+            <p class="text-sm text-gray-400 mt-4">(백엔드 통신 테스트 완료. 실제 영상은 Veo 연동 후 이곳에 표시됩니다.)</p>
+          `);
+        } else {
+          showStatus('error', data.message || "서버 통신에 실패했습니다.");
+        }
+      } catch (error) {
+        showStatus('error', "네트워크 오류가 발생했습니다. 구글 감독님과 연결이 끊겼습니다.");
+        console.error("통신 에러:", error);
+      } finally {
+        // 5. 로딩 종료 및 버튼 원상복구
+        loadingStatus.classList.add('hidden');
+        generateBtn.disabled = false;
+        generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+    }
+
+    // 상태 메시지를 예쁘게 띄워주는 헬퍼 함수
+    function showStatus(type, htmlContent) {
+      const messageBox = document.getElementById('messageBox');
+      messageBox.innerHTML = htmlContent;
+      messageBox.classList.remove('hidden', 'bg-red-900', 'bg-green-900', 'text-red-200', 'text-green-200');
+      
+      if (type === 'error') {
+        messageBox.classList.add('bg-red-900', 'text-red-200');
+      } else {
+        messageBox.classList.add('bg-green-900', 'text-green-200');
+      }
+    }
+  </script>
+</body>
+</html>
