@@ -1,142 +1,150 @@
-import React, { useState } from 'react';
-import { Film, Play, Loader2, Video, CheckCircle2, AlertCircle } from 'lucide-react';
-
-export default function App() {
-  const [prompt, setPrompt] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState(null); // 'idle', 'generating', 'success', 'error'
-  const [resultData, setResultData] = useState(null);
-
-  const handleAction = async () => {
-    if (!prompt.trim()) return;
-    
-    setLoading(true);
-    setStatus('generating');
-    setResultData(null);
-
-    try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setStatus('success');
-        setResultData(data);
-      } else {
-        throw new Error(data.message);
-      }
-    } catch (error) {
-      console.error(error);
-      setStatus('error');
-      setResultData({ message: error.message });
-    } finally {
-      setLoading(false);
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>내 머릿속 오스카</title>
+  <!-- 폰트와 스타일(Tailwind CSS)을 불러옵니다 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Noto Serif KR', serif; }
+    .bg-movie-texture {
+      background-color: #1a202c;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232d3748' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     }
-  };
+  </style>
+</head>
+<!-- 
+  [수정 포인트] 
+  min-h-screen flex flex-col items-center justify-center p-4 sm:p-8
+  - justify-center 클래스를 추가하여 화면 중앙에 배치했습니다.
+-->
+<body class="bg-movie-texture text-gray-100 min-h-screen flex flex-col items-center justify-center p-4 sm:p-8">
 
-  return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 font-sans p-6 flex flex-col items-center">
-      {/* Header */}
-      <header className="w-full max-w-4xl flex items-center justify-between mb-12">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-amber-500 rounded-lg">
-            <Film className="text-neutral-900 w-6 h-6" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tighter italic">MY OSCAR</h1>
-        </div>
-        <div className="text-xs text-neutral-500 uppercase tracking-widest bg-neutral-900 px-3 py-1 rounded-full border border-neutral-800">
-          Director's Monitor v3.1
-        </div>
-      </header>
+  <!-- 
+    [수정 포인트] 
+    mt-10을 제거하고, 대신 body 태그의 justify-center로 중앙 정렬을 맞췄습니다. 
+  -->
+  <main class="w-full max-w-2xl bg-gray-900 bg-opacity-90 rounded-2xl shadow-2xl overflow-hidden border border-gray-700">
+    
+    <!-- 헤더 영역 -->
+    <header class="p-8 text-center border-b border-gray-700">
+      <h1 class="text-4xl sm:text-5xl font-bold text-yellow-500 mb-2 tracking-wider">내 머릿속 오스카</h1>
+      <p class="text-gray-400 text-lg">소설 속 문장을 당신만의 시네마틱 영상으로.</p>
+    </header>
 
-      <main className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left: Script Input */}
-        <section className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-400 ml-1">상상 속 시나리오를 입력하세요</label>
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="예: 안개 낀 새벽, 남산타워가 보이는 한강 다리 위를 달리는 사이버펑크 스타일의 자동차..."
-              className="w-full h-48 bg-neutral-900 border border-neutral-800 rounded-2xl p-4 text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all resize-none"
-            />
-          </div>
-          <button
-            onClick={handleAction}
-            disabled={loading || !prompt}
-            className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all ${
-              loading 
-                ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed' 
-                : 'bg-amber-500 text-neutral-900 hover:bg-amber-400 active:scale-[0.98]'
-            }`}
-          >
-            {loading ? <Loader2 className="animate-spin w-5 h-5" /> : <Play className="w-5 h-5 fill-current" />}
-            {loading ? '촬영 중...' : '레디, 액션!'}
-          </button>
-        </section>
+    <!-- 입력 및 컨트롤 영역 -->
+    <section class="p-8">
+      <div class="mb-6">
+        <label for="scenarioInput" class="block text-sm font-medium text-gray-300 mb-2">
+          영상으로 만들고 싶은 장면을 묘사해주세요:
+        </label>
+        <textarea 
+          id="scenarioInput" 
+          rows="4" 
+          class="w-full p-4 bg-gray-800 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all placeholder-gray-500"
+          placeholder="예) 소나기가 내리는 징검다리 위, 소년이 소녀를 향해 조심스럽게 손을 내미는 장면. 수채화 같은 서정적인 분위기."
+        ></textarea>
+      </div>
 
-        {/* Right: Preview Monitor */}
-        <section className="bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden flex flex-col relative min-h-[300px]">
-          <div className="p-4 border-bottom border-neutral-800 bg-neutral-900/50 flex items-center justify-between">
-            <span className="text-xs font-bold text-neutral-500 flex items-center gap-2">
-              <span className="w-2 h-2 bg-red-600 rounded-full animate-pulse" /> REC
-            </span>
-            <span className="text-[10px] font-mono text-neutral-600">PROD_ID: {resultData?.operationId?.split('/').pop() || 'WAITING'}</span>
-          </div>
+      <!-- 액션 버튼 -->
+      <button 
+        id="generateBtn"
+        onclick="generateVideo()"
+        class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-gray-900 font-bold text-lg py-4 px-6 rounded-lg shadow-lg transform transition-transform active:scale-95 flex justify-center items-center gap-2"
+      >
+        <!-- 아이콘 svg 코드 생략 -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clapperboard"><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/><path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 4"/><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg>
+        레디, 액션! (영상 생성하기)
+      </button>
+    </section>
 
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-            {status === 'idle' || !status ? (
-              <div className="space-y-4 opacity-30">
-                <Video className="w-16 h-16 mx-auto mb-2" />
-                <p className="text-sm">시나리오를 전송하면<br/>이곳에 촬영 로그가 표시됩니다.</p>
-              </div>
-            ) : status === 'generating' ? (
-              <div className="space-y-6">
-                <div className="relative">
-                  <Loader2 className="w-16 h-16 text-amber-500 animate-spin mx-auto" />
-                  <Film className="w-6 h-6 text-amber-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                </div>
-                <div className="space-y-2">
-                  <p className="text-lg font-bold text-amber-500">영상을 렌더링하고 있습니다</p>
-                  <p className="text-xs text-neutral-500">구글 Veo 3.1 Fast 엔진 가동 중...</p>
-                </div>
-              </div>
-            ) : status === 'success' ? (
-              <div className="space-y-6">
-                <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto" />
-                <div className="space-y-3">
-                  <p className="text-xl font-bold">촬영 접수 성공!</p>
-                  <div className="bg-neutral-800 p-4 rounded-xl text-left text-xs font-mono text-neutral-400 space-y-1">
-                    <p className="text-green-400 font-bold mb-1">✓ {resultData.result}</p>
-                    <p>ID: {resultData.operationId}</p>
-                    <p className="mt-2 text-neutral-500">※ 실제 영상은 구글 클라우드 스토리지 버킷에서 생성 완료 후 확인할 수 있습니다.</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4 text-red-500">
-                <AlertCircle className="w-12 h-12 mx-auto" />
-                <p className="font-bold text-sm">에러 발생</p>
-                <p className="text-xs opacity-70 px-4">{resultData?.message}</p>
-              </div>
-            )}
-          </div>
+    <!-- 상태 표시 및 결과 영역 -->
+    <section id="resultSection" class="p-8 bg-gray-800 hidden border-t border-gray-700">
+      <!-- 로딩 애니메이션 -->
+      <div id="loadingStatus" class="flex flex-col items-center justify-center py-8 hidden">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500 mb-4"></div>
+        <p class="text-yellow-400 font-medium animate-pulse">구글 감독님이 영상을 제작 중입니다... (약 1~2분 소요)</p>
+      </div>
+      <!-- 결과 메시지 표시 영역 -->
+      <div id="messageBox" class="text-center p-4 rounded-lg hidden"></div>
+    </section>
+  </main>
 
-          <div className="p-3 bg-neutral-950/50 flex justify-around border-t border-neutral-800">
-             <div className="w-1 h-1 bg-neutral-700 rounded-full" />
-             <div className="w-1 h-1 bg-neutral-700 rounded-full" />
-             <div className="w-1 h-1 bg-neutral-700 rounded-full" />
-          </div>
-        </section>
-      </main>
+  <footer class="mt-12 text-gray-500 text-sm">
+    &copy; 2026 Jinsung Director. All rights reserved.
+  </footer>
 
-      <footer className="mt-auto py-8 text-neutral-600 text-[10px] uppercase tracking-[0.2em]">
-        Powered by Google Veo 3.1 & Vertex AI
-      </footer>
-    </div>
-  );
-}
+  <!-- 백엔드와 통신하는 자바스크립트 로직 -->
+  <script>
+    async function generateVideo() {
+      const input = document.getElementById('scenarioInput').value;
+      const resultSection = document.getElementById('resultSection');
+      const loadingStatus = document.getElementById('loadingStatus');
+      const messageBox = document.getElementById('messageBox');
+      const generateBtn = document.getElementById('generateBtn');
+
+      if (!input.trim()) {
+        showStatus('error', '시나리오를 먼저 작성해주세요 감독님!');
+        return;
+      }
+
+      resultSection.classList.remove('hidden');
+      loadingStatus.classList.remove('hidden');
+      messageBox.classList.add('hidden');
+      generateBtn.disabled = true;
+      generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt: input }),
+        });
+
+        // 응답이 JSON이 아닐 경우를 대비한 방어 코드
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          const data = await response.json();
+          if (response.ok && data.success) {
+            showStatus('success', `
+              <h3 class="font-bold text-xl mb-2 text-green-400">요청 성공!</h3>
+              <p class="text-gray-300">촬영 작업 ID: <span class="font-mono bg-gray-900 px-2 py-1 rounded">${data.operationId.split('/').pop()}</span></p>
+              <p class="text-sm text-gray-400 mt-4">(실제 영상은 구글 클라우드 스토리지에서 확인 가능합니다.)</p>
+            `);
+          } else {
+            showStatus('error', data.message || "서버 통신에 실패했습니다.");
+          }
+        } else {
+           const text = await response.text();
+           console.error("비정상 응답:", text);
+           showStatus('error', "서버에서 알 수 없는 응답이 왔습니다. (HTML 에러 페이지 등)");
+        }
+
+      } catch (error) {
+        showStatus('error', "네트워크 오류가 발생했습니다. 구글 감독님과 연결이 끊겼습니다.");
+        console.error("통신 에러:", error);
+      } finally {
+        loadingStatus.classList.add('hidden');
+        generateBtn.disabled = false;
+        generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+    }
+
+    function showStatus(type, htmlContent) {
+      const messageBox = document.getElementById('messageBox');
+      messageBox.innerHTML = htmlContent;
+      messageBox.classList.remove('hidden', 'bg-red-900', 'bg-green-900', 'text-red-200', 'text-green-200');
+      
+      if (type === 'error') {
+        messageBox.classList.add('bg-red-900', 'text-red-200');
+      } else {
+        messageBox.classList.add('bg-green-900', 'text-green-200');
+      }
+    }
+  </script>
+</body>
+</html>
