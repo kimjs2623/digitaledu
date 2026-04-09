@@ -15,6 +15,9 @@
     .video-container {
       aspect-ratio: 16 / 9;
       background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   </style>
 </head>
@@ -27,13 +30,13 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 8 6 4-6 4Z"/></svg>
       </div>
       <h1 class="text-4xl font-black text-yellow-500 mb-2 tracking-tighter italic">MY OSCAR</h1>
-      <p class="text-zinc-400">당신의 문장이 살아 움직이는 순간</p>
+      <p class="text-zinc-400">감독님의 문장이 시네마틱 영상으로 탄생합니다</p>
     </header>
 
     <section class="p-8">
       <div class="mb-6">
         <label for="scenarioInput" class="block text-xs font-bold text-zinc-500 mb-2 uppercase tracking-widest">
-          Scenario Script
+          Director's Script
         </label>
         <textarea 
           id="scenarioInput" 
@@ -73,32 +76,38 @@
         </div>
       </div>
 
-      <!-- 비디오 플레이어 영역 (성공 시 노출) -->
-      <div id="videoArea" class="hidden space-y-4">
+      <!-- 비디오 플레이어 영역 -->
+      <div id="videoArea" class="hidden space-y-6">
         <div class="video-container rounded-2xl border border-zinc-800 overflow-hidden shadow-2xl relative">
-            <video id="outputVideo" controls class="w-full h-full">
+            <video id="outputVideo" controls class="w-full h-full bg-black">
                 <source src="" type="video/mp4">
                 브라우저가 비디오 재생을 지원하지 않습니다.
             </video>
+            <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900 text-zinc-500 text-center p-6">
+                <svg class="w-12 h-12 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                <p class="text-sm">영상이 생성되었습니다!<br>아래 버튼을 눌러 구글 클라우드에서 확인하세요.</p>
+            </div>
         </div>
-        <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-green-500/10 rounded-full flex items-center justify-center">
-                    <svg class="text-green-500 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 text-left w-full">
+                <div class="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="text-green-500 w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                 </div>
-                <div>
-                    <p class="text-white font-bold text-sm">촬영 완료!</p>
-                    <p class="text-zinc-500 text-[10px] font-mono" id="finalOpId"></p>
+                <div class="overflow-hidden">
+                    <p class="text-white font-bold text-base">촬영 본부에서 영상 확인 가능</p>
+                    <p class="text-zinc-500 text-[10px] font-mono truncate" id="finalOpId"></p>
                 </div>
             </div>
-            <a id="downloadBtn" href="#" target="_blank" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-xs font-bold transition-colors">원본 다운로드</a>
+            <a id="downloadBtn" href="#" target="_blank" class="w-full sm:w-auto bg-white text-black hover:bg-zinc-200 px-6 py-3 rounded-xl text-sm font-black transition-all text-center">
+                클라우드 저장소 열기
+            </a>
         </div>
       </div>
 
       <!-- 에러 메시지 -->
       <div id="errorDisplay" class="hidden p-6 bg-red-900/20 border border-red-900/50 rounded-2xl text-center">
           <p id="errorText" class="text-red-400 font-medium"></p>
-          <button onclick="location.reload()" class="mt-4 text-xs text-red-400 underline opacity-70 hover:opacity-100">다시 시도하기</button>
+          <button onclick="location.reload()" class="mt-4 text-xs text-red-400 underline opacity-70 hover:opacity-100 font-bold">새로운 씬 촬영하기</button>
       </div>
 
     </section>
@@ -121,16 +130,15 @@
       const videoArea = document.getElementById('videoArea');
 
       if (!input.trim()) {
-        alert('시나리오를 입력해주세요!');
+        alert('시나리오를 입력해주세요 감독님!');
         return;
       }
 
-      // 초기화
       resultSection.classList.remove('hidden');
       statusDisplay.classList.remove('hidden');
       errorDisplay.classList.add('hidden');
       videoArea.classList.add('hidden');
-      statusText.innerText = "구글 본사에 촬영 요청 중...";
+      statusText.innerText = "구글 본사에 촬영 요청을 전송 중...";
       generateBtn.disabled = true;
       generateBtn.style.opacity = "0.5";
 
@@ -144,12 +152,10 @@
         const data = await response.json();
         
         if (response.ok && data.success) {
-          statusText.innerText = "촬영 시작! 영상을 굽고 있습니다...";
-          const opId = data.operationId;
-          // 10초마다 상태 체크 시작
-          startPolling(opId);
+          statusText.innerText = "촬영 승인! 이제 구글이 영상을 굽고 있습니다...";
+          startPolling(data.operationId);
         } else {
-          throw new Error(data.message || "연결 실패");
+          throw new Error(data.message || "촬영 요청 거절됨");
         }
       } catch (err) {
         showError(err.message);
@@ -162,7 +168,7 @@
 
       pollInterval = setInterval(async () => {
         count++;
-        subStatusText.innerText = `진행 중... (${count * 10}초 경과)`;
+        subStatusText.innerText = `진행 중... (${count * 10}초 경과 / 최대 120초)`;
 
         try {
           const response = await fetch('/api/check-status', {
@@ -179,7 +185,7 @@
         } catch (err) {
           console.error("상태 체크 오류:", err);
         }
-      }, 10000); // 10초마다 체크
+      }, 10000);
     }
 
     function handleSuccess(data, opId) {
@@ -187,18 +193,17 @@
       document.getElementById('videoArea').classList.remove('hidden');
       document.getElementById('finalOpId').innerText = "OP_ID: " + opId.split('/').pop();
       
-      const videoInfo = data.response?.outputs?.[0] || data.response?.videos?.[0];
-      if (videoInfo) {
-          const videoElement = document.getElementById('outputVideo');
-          const downloadBtn = document.getElementById('downloadBtn');
-          
-          // gs:// 주소는 브라우저에서 바로 못 보므로, GCS 콘솔 링크나 공개 URL로 연결해야 함
-          const uri = videoInfo.uri || videoInfo.gcsUri;
-          downloadBtn.href = uri.replace('gs://', 'https://storage.googleapis.com/');
-          
-          // 주의: GCS 버킷이 공개되어 있거나 Signed URL이어야 영상이 여기서 바로 재생됩니다.
-          videoElement.src = downloadBtn.href;
-          videoElement.load();
+      // 결과 데이터 파싱
+      const outputUri = data.response?.outputConfig?.gcsDestination?.outputUriPrefix || "";
+      const downloadBtn = document.getElementById('downloadBtn');
+      
+      if (outputUri) {
+          // gs:// 주소를 콘솔에서 볼 수 있는 링크로 변환
+          const bucketPath = outputUri.replace('gs://', '');
+          downloadBtn.href = `https://console.cloud.google.com/storage/browser/${bucketPath}`;
+      } else {
+          // 주소를 못 찾으면 일반 버킷 페이지로 보냄
+          downloadBtn.href = "https://console.cloud.google.com/storage/browser";
       }
       
       const generateBtn = document.getElementById('generateBtn');
@@ -208,9 +213,8 @@
 
     function showError(msg) {
       document.getElementById('statusDisplay').classList.add('hidden');
-      const errorDisplay = document.getElementById('errorDisplay');
-      errorDisplay.classList.remove('hidden');
-      document.getElementById('errorText').innerText = "에러 발생: " + msg;
+      document.getElementById('errorDisplay').classList.remove('hidden');
+      document.getElementById('errorText').innerText = "촬영 중단: " + msg;
       
       const generateBtn = document.getElementById('generateBtn');
       generateBtn.disabled = false;
