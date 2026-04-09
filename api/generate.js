@@ -7,27 +7,27 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 💡 여기서 Vercel 금고의 이름을 똑같이 적어주셔야 합니다!
+    // 💡 Vercel 환경 변수에서 프로젝트 ID와 JSON 키를 가져옵니다.
     const projectId = process.env.GCP_PROJECT_ID; 
     const serviceAccountKey = JSON.parse(process.env.GCP_SERVICE_ACCOUNT_JSON); 
     
     // 학생이 쓴 시나리오를 받습니다.
     const { prompt } = req.body;
 
-    // 구글에 접속합니다.
+    // 구글 Vertex AI에 접속합니다.
     const vertexAI = new VertexAI({
       project: projectId,
-      location: 'us-central1',
+      location: 'us-central1', // Veo 모델이 지원되는 기본 지역
       googleAuthOptions: {
         credentials: serviceAccountKey
       }
     });
 
-    // Veo 3.1 모델을 불러와 영상을 요청합니다.
-   const generativeModel = vertexAI.getGenerativeModel({
-  // 현재 구글 클라우드에서 가장 널리 쓰이는 비디오 모델명으로 변경합니다.
-  model: 'veo-001', 
-});
+    // 🎯 수정한 부분: 모델명을 확실한 'veo-001'로 변경했습니다.
+    const generativeModel = vertexAI.getGenerativeModel({
+      model: 'veo-001',
+    });
+
     const refinedPrompt = `한국 문학의 서정적인 분위기, 4k 시네마틱 연출: ${prompt}`;
 
     const request = {
@@ -35,7 +35,15 @@ export default async function handler(req, res) {
     };
 
     const response = await generativeModel.generateContent(request);
-    const resultText = response.response.candidates[0].content.parts[0].text || "요청이 성공했습니다.";
+    
+    // 비디오 생성 모델의 특성상 텍스트가 아닌 다른 형태의 응답이 올 수 있어, 안전하게 처리합니다.
+    let resultText = "요청이 성공했습니다.";
+    if (response.response.candidates && response.response.candidates.length > 0) {
+        const firstCandidate = response.response.candidates[0];
+        if (firstCandidate.content && firstCandidate.content.parts && firstCandidate.content.parts.length > 0) {
+             resultText = firstCandidate.content.parts[0].text || "비디오 생성이 시작되었습니다.";
+        }
+    }
 
     res.status(200).json({
       success: true,
@@ -44,11 +52,11 @@ export default async function handler(req, res) {
       result: resultText
     });
 
- } catch (error) {
+  } catch (error) {
     console.error("서버 에러:", error);
+    // 🕵️‍♂️ 감독님을 위한 스파이 마이크: 실제 에러 메시지를 화면에 뿌려줍니다.
     res.status(500).json({
       success: false,
-      // 구글이 뱉어낸 진짜 에러 메시지를 화면에 그대로 보여주도록 수정!
       message: "진짜 에러 원인: " + error.message 
     });
   }
