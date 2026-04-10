@@ -17,7 +17,6 @@
 <body class="bg-movie-texture text-zinc-100 min-h-screen flex flex-col items-center justify-center p-6">
 
   <main class="w-full max-w-2xl bg-zinc-900 bg-opacity-95 rounded-[2.5rem] shadow-2xl border border-zinc-800 overflow-hidden transition-all duration-500 hover:border-zinc-700">
-    
     <header class="p-10 text-center border-b border-zinc-800">
       <div class="inline-block p-3 bg-yellow-500 rounded-2xl mb-5 shadow-lg shadow-yellow-500/20">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 8 6 4-6 4Z"/></svg>
@@ -31,42 +30,49 @@
         <label for="scenarioInput" class="block text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] ml-1">
           Scenario Script
         </label>
-        <textarea 
-          id="scenarioInput" 
-          rows="4" 
-          class="w-full p-6 bg-zinc-950 text-white border border-zinc-800 rounded-3xl focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all placeholder-zinc-800 text-lg font-light leading-relaxed outline-none"
-          placeholder="장면을 구체적으로 묘사해 보세요..."
-        ></textarea>
+        <textarea id="scenarioInput" rows="4" class="w-full p-6 bg-zinc-950 text-white border border-zinc-800 rounded-3xl focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all placeholder-zinc-800 text-lg font-light leading-relaxed outline-none" placeholder="장면을 구체적으로 묘사해 보세요..."></textarea>
       </div>
 
-      <button 
-        id="generateBtn"
-        onclick="generateVideo()"
-        class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black text-xl py-6 rounded-3xl shadow-xl transform transition-all active:scale-95 flex justify-center items-center gap-3"
-      >
+      <button id="generateBtn" onclick="generateVideo()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black text-xl py-6 rounded-3xl shadow-xl transform transition-all active:scale-95 flex justify-center items-center gap-3">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 20 20"/><path d="m8 11 3 3"/></svg>
         레디, 액션!
       </button>
 
-      <!-- 상태 및 결과 창 -->
       <div id="statusBox" class="hidden pt-6 border-t border-zinc-800 animate-in fade-in duration-700">
-        <div id="loadingUI" class="flex flex-col items-center py-6 space-y-4">
-          <div class="relative">
-            <div class="animate-spin rounded-full h-16 w-16 border-4 border-zinc-800 border-t-yellow-500"></div>
-            <div class="absolute inset-0 flex items-center justify-center"><div class="w-2 h-2 bg-red-500 rounded-full animate-ping"></div></div>
+        <div id="loadingUI" class="flex flex-col items-center py-4 space-y-6 w-full">
+          <div class="text-center space-y-2">
+             <p id="statusText" class="text-yellow-500 font-bold text-lg">구글 서버로 씬(Scene) 전송 중...</p>
+             <p id="timer" class="text-zinc-500 text-xs font-mono">00:00 경과</p>
           </div>
-          <p id="statusText" class="text-yellow-500 font-bold">촬영 요청 전송 중...</p>
-          <p id="timer" class="text-zinc-600 text-xs font-mono">00:00</p>
+          <div class="w-full max-w-md space-y-2">
+            <div class="flex justify-between text-xs text-zinc-400 font-bold px-1">
+              <span id="progressText">0%</span>
+              <span id="estimatedText">예상 렌더링 시간: ~90초</span>
+            </div>
+            <div class="w-full bg-zinc-950 border border-zinc-800 rounded-full h-3 overflow-hidden p-0.5">
+              <div id="progressBar" class="bg-gradient-to-r from-yellow-600 to-yellow-400 h-full rounded-full transition-all duration-1000 ease-linear relative" style="width: 0%">
+                <div class="absolute inset-0 bg-white/20 animate-pulse rounded-full"></div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div id="resultUI" class="hidden space-y-4">
+        <div id="resultUI" class="hidden space-y-6">
           <div class="bg-zinc-800/50 p-6 rounded-3xl border border-zinc-700 text-center">
-            <p class="text-green-400 font-bold mb-2">촬영 완료!</p>
-            <p class="text-xs text-zinc-500 mb-6">영상 파일이 구글 클라우드 스토리지에 저장되었습니다.</p>
-            <a id="downloadBtn" href="#" target="_blank" class="inline-block bg-zinc-100 text-zinc-900 px-6 py-3 rounded-2xl text-xs font-black uppercase hover:bg-white transition-all">
-              클라우드 저장소 확인
+            <p class="text-green-400 font-bold text-xl mb-4">🎬 촬영 완료!</p>
+            <video id="finalVideo" controls class="w-full rounded-xl hidden mb-4 bg-black" style="aspect-ratio: 16/9;"></video>
+            <a id="downloadBtn" href="#" class="inline-flex items-center gap-2 bg-yellow-500 text-black px-6 py-3 rounded-2xl text-sm font-black uppercase hover:bg-yellow-400 transition-all">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              <span id="downloadBtnText">영상 바로 다운로드</span>
             </a>
           </div>
+        </div>
+
+        <div id="errorUI" class="hidden space-y-6">
+           <div class="bg-red-900/20 p-6 rounded-3xl border border-red-900/50 text-center">
+              <p class="text-red-400 font-bold text-lg mb-2">촬영 중단 ㅠㅠ</p>
+              <p id="errorMessage" class="text-red-300 text-sm opacity-80 break-all"></p>
+           </div>
         </div>
       </div>
     </section>
@@ -79,21 +85,23 @@
   <script>
     let startTime;
     let timerInterval;
+    let pollInterval;
+    const EXPECTED_DURATION = 90; 
 
     async function generateVideo() {
       const input = document.getElementById('scenarioInput').value;
-      const statusBox = document.getElementById('statusBox');
-      const loadingUI = document.getElementById('loadingUI');
-      const resultUI = document.getElementById('resultUI');
-      const generateBtn = document.getElementById('generateBtn');
-
       if (!input.trim()) return alert('시나리오를 입력해주세요!');
 
-      statusBox.classList.remove('hidden');
-      loadingUI.classList.remove('hidden');
-      resultUI.classList.add('hidden');
-      generateBtn.disabled = true;
-      generateBtn.style.opacity = "0.5";
+      document.getElementById('statusBox').classList.remove('hidden');
+      document.getElementById('loadingUI').classList.remove('hidden');
+      document.getElementById('resultUI').classList.add('hidden');
+      document.getElementById('errorUI').classList.add('hidden');
+      
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = true;
+      btn.style.opacity = "0.5";
+      document.getElementById('progressBar').style.width = "0%";
+      document.getElementById('progressText').innerText = "0%";
 
       startTimer();
 
@@ -106,61 +114,127 @@
         const data = await response.json();
 
         if (data.success) {
-          document.getElementById('statusText').innerText = "촬영 중... (약 1~2분 소요)";
+          document.getElementById('statusText').innerText = "🎥 스튜디오 렌더링 진행 중...";
           checkStatus(data.operationId);
         } else {
-          throw new Error(data.message);
+          throw new Error(data.message || "API 요청 실패");
         }
       } catch (err) {
-        alert("에러: " + err.message);
-        resetUI();
+        showError(err.message);
       }
     }
 
     function startTimer() {
       startTime = Date.now();
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      const estimatedText = document.getElementById('estimatedText');
+
       timerInterval = setInterval(() => {
         const diff = Math.floor((Date.now() - startTime) / 1000);
         const min = String(Math.floor(diff / 60)).padStart(2, '0');
         const sec = String(diff % 60).padStart(2, '0');
-        document.getElementById('timer').innerText = `${min}:${sec}`;
+        document.getElementById('timer').innerText = `${min}:${sec} 경과`;
+
+        let percent = Math.floor((diff / EXPECTED_DURATION) * 100);
+        if (percent > 99) percent = 99;
+
+        progressBar.style.width = `${percent}%`;
+        progressText.innerText = `${percent}%`;
+
+        if (percent === 99) {
+           estimatedText.innerText = "마무리 인코딩 중... 잠시만요!";
+           document.getElementById('statusText').innerText = "최종 검수 중...";
+        } else {
+           estimatedText.innerText = `예상 렌더링 시간: ~90초`;
+        }
       }, 1000);
     }
 
     async function checkStatus(opId) {
-      const interval = setInterval(async () => {
+      let failCount = 0;
+
+      pollInterval = setInterval(async () => {
         try {
           const res = await fetch('/api/check-status', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ operationId: opId }),
           });
-          const data = await res.json();
-          if (data.done) {
-            clearInterval(interval);
-            clearInterval(timerInterval);
-            showSuccess(opId);
+          
+          if (!res.ok) {
+             throw new Error(`서버 응답 오류 (${res.status})`);
           }
-        } catch (e) { console.error(e); }
+
+          const data = await res.json();
+          
+          if (!data.success) throw new Error(data.message);
+
+          if (data.done) {
+            clearInterval(pollInterval);
+            clearInterval(timerInterval);
+            
+            if (data.error) {
+                showError("구글 렌더링 에러: " + (data.error.message || "알 수 없는 오류"));
+                return;
+            }
+
+            document.getElementById('progressBar').style.width = "100%";
+            document.getElementById('progressText').innerText = "100%";
+            setTimeout(() => showSuccess(data), 500);
+          }
+        } catch (e) { 
+          console.error("폴링 에러:", e);
+          failCount++;
+          if(failCount > 5) {
+             clearInterval(pollInterval);
+             clearInterval(timerInterval);
+             showError("서버와의 연결이 5회 이상 실패하여 추적을 중단합니다: " + e.message);
+          }
+        }
       }, 10000);
     }
 
-    function showSuccess(opId) {
+    function showSuccess(data) {
       document.getElementById('loadingUI').classList.add('hidden');
       document.getElementById('resultUI').classList.remove('hidden');
       
-      // 🎯 다운로드 링크를 정확히 지정된 버킷 이름으로 연결합니다.
-      document.getElementById('downloadBtn').href = `https://console.cloud.google.com/storage/browser/digitaledu_storage/outputs`;
+      const downloadBtn = document.getElementById('downloadBtn');
+      const downloadBtnText = document.getElementById('downloadBtnText');
+      const finalVideo = document.getElementById('finalVideo');
+
+      const predictions = data.response?.predictions;
+      if (predictions && predictions.length > 0 && predictions[0].bytesBase64Encoded) {
+        const videoDataUri = "data:video/mp4;base64," + predictions[0].bytesBase64Encoded;
+        downloadBtn.href = videoDataUri;
+        downloadBtn.download = "my_oscar_video.mp4";
+        downloadBtnText.innerText = "영상 바로 다운로드";
+        finalVideo.src = videoDataUri;
+        finalVideo.classList.remove('hidden');
+      } else {
+        let uri = predictions?.[0]?.gcsUri || "https://console.cloud.google.com/storage/browser/digitaledu_storage";
+        if(uri.startsWith('gs://')) uri = uri.replace('gs://', 'https://console.cloud.google.com/storage/browser/');
+        downloadBtn.href = uri;
+        downloadBtn.removeAttribute('download');
+        downloadBtnText.innerText = "클라우드 저장소 확인";
+      }
       
-      document.getElementById('generateBtn').disabled = false;
-      document.getElementById('generateBtn').style.opacity = "1";
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = false;
+      btn.style.opacity = "1";
     }
 
-    function resetUI() {
+    function showError(msg) {
       clearInterval(timerInterval);
-      document.getElementById('statusBox').classList.add('hidden');
-      document.getElementById('generateBtn').disabled = false;
-      document.getElementById('generateBtn').style.opacity = "1";
+      if(pollInterval) clearInterval(pollInterval);
+      
+      document.getElementById('loadingUI').classList.add('hidden');
+      document.getElementById('errorUI').classList.remove('hidden');
+      document.getElementById('errorMessage').innerText = msg;
+      
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = false;
+      btn.style.opacity = "1";
     }
   </script>
 </body>
