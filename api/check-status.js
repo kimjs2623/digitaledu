@@ -1,20 +1,20 @@
 import { GoogleAuth } from 'google-auth-library';
 
 export default async function handler(req, res) {
-  // 프론트엔드가 에러 내용을 바로 읽을 수 있도록 500 대신 200 OK 안에 에러를 담아 보냅니다.
   if (req.method !== 'POST') {
     return res.status(200).json({ success: false, message: 'POST 요청만 가능합니다.' });
   }
 
   try {
     const jsonKeyString = process.env.GCP_SERVICE_ACCOUNT_JSON;
+    const projectId = process.env.GCP_PROJECT_ID;
     const { operationId } = req.body;
 
-    if (!jsonKeyString) {
-      return res.status(200).json({ success: false, message: "환경변수(JSON 키)가 Vercel에 설정되지 않았습니다." });
+    if (!jsonKeyString || !projectId) {
+      return res.status(200).json({ success: false, message: "환경변수(JSON 키 또는 프로젝트 ID)가 비어있습니다." });
     }
     if (!operationId) {
-      return res.status(200).json({ success: false, message: "구글로부터 작업 번호(operationId)를 받지 못했습니다." });
+      return res.status(200).json({ success: false, message: "작업 번호(operationId)를 받지 못했습니다." });
     }
 
     // 1. 인증 토큰 발급
@@ -22,45 +22,52 @@ export default async function handler(req, res) {
       credentials: JSON.parse(jsonKeyString),
       scopes: 'https://www.googleapis.com/auth/cloud-platform',
     });
-
     const client = await auth.getClient();
     const tokenResponse = await client.getAccessToken();
     const token = tokenResponse.token;
 
-    // 2. 주소 정리 (혹시 모를 슬래시 중복 방지)
-    const cleanOpId = operationId.startsWith('/') ? operationId.slice(1) : operationId;
-    const endpoint = `https://us-central1-aiplatform.googleapis.com/v1beta1/${cleanOpId}`;
+    // 2. 🎯 구글 본사 주소를 절대 틀리지 않게 안전하게 조립합니다.
+    let endpoint = "";
+    
+    // 만약 구글이 준 값이 이미 완벽한 주소 형태(projects/...)라면 그대로 씁니다.
+    if (operationId.includes("projects/")) {
+        const cleanPath = operationId.startsWith('/') ? operationId.slice(1) : operationId;
+        endpoint = `https://us-central1-aiplatform.googleapis.com/v1beta1/${cleanPath}`;
+    } 
+    // 구글이 난수(UUID)만 달랑 줬거나 잘린 값이 왔다면 강제로 표준 주소를 만듭니다.
+    else {
+        const uuid = operationId.split('/').pop();
+        endpoint = `https://us-central1-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/us-central1/operations/${uuid}`;
+    }
 
     // 3. 구글에 작업 상태 문의 (GET 방식)
     const response = await fetch(endpoint, {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+      headers: { 'Authorization': `Bearer ${token}` }
     });
 
-    // 4. 구글의 응답이 JSON이 아닐 경우(에러 페이지)를 대비한 방어막
     const text = await response.text();
     let data;
+    
     try {
       data = JSON.parse(text);
     } catch (e) {
+      // 또 HTML 에러 페이지가 오더라도, 우리가 어떤 주소로 찾아갔는지 화면에 띄워줍니다.
       return res.status(200).json({
         success: false,
-        message: `구글 서버가 예상치 못한 HTML을 반환했습니다. (상태 코드: ${response.status})`,
-        debug: text.substring(0, 300) // 에러 원인 분석을 위해 앞부분 텍스트 전달
+        message: `구글 통신 경로 오류 (404). [우리가 찾아간 주소: ${endpoint}]`
       });
     }
 
-    // 구글 API 자체가 에러 메시지를 줬을 경우
+    // 구글 API가 정상적으로 에러 메시지를 줬을 경우
     if (!response.ok) {
       return res.status(200).json({
         success: false,
-        message: data.error?.message || `구글 상태 확인 API 실패 (상태 코드: ${response.status})`
+        message: data.error?.message || `상태 확인 API 오류 (${response.status}) [우리가 찾아간 주소: ${endpoint}]`
       });
     }
 
-    // 5. 성공적으로 상태를 받아온 경우 프론트엔드로 전달
+    // 4. 성공적으로 상태를 받아온 경우 프론트엔드로 전달
     return res.status(200).json({
       success: true,
       done: data.done || false,
@@ -69,11 +76,9 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    // 백엔드 내부 로직 에러가 발생해도 서버를 죽이지 않고 사유를 보냅니다.
-    console.error("체크 로직 내부 에러:", error);
     return res.status(200).json({
       success: false,
-      message: "상태 확인 백엔드 내부 에러: " + error.message
+      message: "상태 확인 백엔드 내부 로직 에러: " + error.message
     });
   }
 }
