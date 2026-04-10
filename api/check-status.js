@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
   try {
     const jsonKeyString = process.env.GCP_SERVICE_ACCOUNT_JSON;
-    const { operationId } = req.body; // 프론트엔드에서 작업 번호를 보내줍니다.
+    const { operationId } = req.body;
 
     if (!operationId) throw new Error("작업 번호가 없습니다.");
 
@@ -27,13 +27,20 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     
-    // data.done이 true면 촬영 끝!
-    // 결과는 보통 data.response.videos[0].uri 등에 담겨 있습니다.
+    // HTTP 요청 자체가 실패했을 경우
+    if (!response.ok) {
+      return res.status(response.status).json({ 
+        success: false, 
+        message: data.error?.message || "구글 상태 확인 API 에러" 
+      });
+    }
+
+    // 성공적으로 상태를 가져온 경우 (작업 완료여부 포함)
     res.status(200).json({
       success: true,
       done: data.done || false,
       response: data.response || null,
-      error: data.error || null
+      error: data.error || null // 구글 렌더링 중 발생한 에러
     });
 
   } catch (error) {
