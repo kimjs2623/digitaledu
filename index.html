@@ -14,32 +14,51 @@
     }
     .cinema-glow { box-shadow: 0 0 80px -20px rgba(234, 179, 8, 0.3); }
     .style-chip {
-      @apply px-4 py-2 bg-zinc-800 text-zinc-400 rounded-full text-xs font-bold hover:bg-yellow-500/20 hover:text-yellow-500 transition-all cursor-pointer border border-zinc-700;
+      @apply px-4 py-2 bg-zinc-800 text-zinc-400 rounded-full text-[11px] font-bold hover:bg-yellow-500/20 hover:text-yellow-500 transition-all cursor-pointer border border-zinc-700;
     }
+    .input-label { @apply block text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1 mb-2; }
+    .input-field { @apply w-full p-5 bg-zinc-950 text-white border border-zinc-800 rounded-2xl focus:ring-2 focus:ring-yellow-500 outline-none text-sm font-light transition-all; }
   </style>
 </head>
-<body class="bg-movie-texture text-zinc-100 min-h-screen flex flex-col items-center justify-center p-4 sm:p-8">
+<body class="bg-movie-texture text-zinc-100 min-h-screen flex flex-col items-center py-10 px-4 sm:px-8">
 
-  <main class="w-full max-w-4xl bg-zinc-900/90 backdrop-blur-2xl rounded-[3rem] shadow-2xl overflow-hidden border border-zinc-800/50 transition-all">
+  <main class="w-full max-w-4xl bg-zinc-900/95 backdrop-blur-2xl rounded-[3rem] shadow-2xl overflow-hidden border border-zinc-800/50 transition-all">
     <!-- Header -->
     <header class="p-8 text-center border-b border-zinc-800/30">
       <h1 class="text-4xl font-black text-yellow-500 mb-2 tracking-tighter italic uppercase">My Oscar</h1>
       <p class="text-zinc-500 text-[10px] tracking-[0.4em] font-bold uppercase opacity-60">AI Cinematic Director</p>
     </header>
 
-    <section id="mainSection" class="p-8 sm:p-12 space-y-10">
+    <section id="mainSection" class="p-8 sm:p-12 space-y-12">
       <!-- 입력 화면 -->
-      <div id="inputBox" class="space-y-8">
+      <div id="inputBox" class="space-y-10">
         
-        <!-- 단계 1: 시나리오 -->
-        <div class="space-y-3">
-          <label class="block text-xs font-bold text-zinc-600 uppercase tracking-widest ml-1">Step 1. 소설 속 장면 (시나리오)</label>
-          <textarea id="scenarioInput" rows="3" class="w-full p-6 bg-zinc-950 text-white border border-zinc-800 rounded-3xl focus:ring-2 focus:ring-yellow-500 outline-none text-lg font-light leading-relaxed" placeholder="영상의 중심이 될 소설 문장을 입력하세요."></textarea>
+        <!-- 단계 1: 시나리오 및 요소 -->
+        <div class="space-y-6">
+          <div class="space-y-3">
+            <label class="input-label">Step 1. 소설 속 장면 (시나리오)</label>
+            <textarea id="scenarioInput" rows="3" class="input-field text-lg leading-relaxed" placeholder="영상의 중심이 될 소설 문장을 입력하세요."></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="space-y-2">
+              <label class="input-label">인물 (Who)</label>
+              <input id="charInput" type="text" class="input-field" placeholder="누가 등장하나요?">
+            </div>
+            <div class="space-y-2">
+              <label class="input-label">사건 (What)</label>
+              <input id="eventInput" type="text" class="input-field" placeholder="무엇을 하나요?">
+            </div>
+            <div class="space-y-2">
+              <label class="input-label">배경 (Where)</label>
+              <input id="placeInput" type="text" class="input-field" placeholder="장소와 시간은?">
+            </div>
+          </div>
         </div>
 
         <!-- 단계 2: 연출 노트 -->
         <div class="space-y-4">
-          <label class="block text-xs font-bold text-zinc-600 uppercase tracking-widest ml-1">Step 2. 연출 디테일 (감독의 지시)</label>
+          <label class="input-label">Step 2. 연출 디테일 (감독의 지시)</label>
           <div class="flex flex-wrap gap-2 mb-3">
             <span class="style-chip" onclick="addStyle('화사하고 밝은 햇살')">☀️ 화사함</span>
             <span class="style-chip" onclick="addStyle('아름답고 서정적인')">🌸 아름다움</span>
@@ -48,7 +67,7 @@
             <span class="style-chip" onclick="addStyle('영화 같은 웅장한')">🎬 웅장함</span>
             <span class="style-chip" onclick="addStyle('색감이 선명한')">🎨 선명함</span>
           </div>
-          <textarea id="noteInput" rows="2" class="w-full p-6 bg-zinc-950 text-white border border-zinc-800 rounded-3xl focus:ring-2 focus:ring-yellow-500 outline-none text-sm font-light" placeholder="위 버튼을 누르거나 직접 원하는 연출을 입력하세요 (예: 비가 내리는, 슬픈 표정 등)"></textarea>
+          <textarea id="noteInput" rows="2" class="input-field" placeholder="원하는 분위기나 카메라 연출을 추가하세요."></textarea>
         </div>
 
         <button onclick="generateVideo()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black text-xl py-7 rounded-[2.5rem] shadow-2xl transition-all active:scale-95 flex justify-center items-center gap-3">
@@ -61,7 +80,8 @@
       <div id="statusBox" class="hidden">
         <div id="loadingUI" class="flex flex-col items-center py-12 space-y-8 w-full animate-in fade-in duration-700">
            <div class="text-center space-y-3">
-              <p id="statusText" class="text-yellow-500 font-bold text-xl tracking-tight">AI가 연출 노트를 분석하고 있습니다...</p>
+              <p id="statusText" class="text-yellow-500 font-bold text-xl tracking-tight">AI가 장면을 분석하고 있습니다...</p>
+              <p id="sceneInfo" class="text-zinc-500 text-xs font-bold uppercase tracking-widest"></p>
               <p id="timer" class="text-zinc-600 text-xs font-mono tracking-widest uppercase">00:00 elapsed</p>
            </div>
            <div class="w-full max-w-xs bg-zinc-950 border border-zinc-800 rounded-full h-3 p-1 overflow-hidden">
@@ -70,30 +90,33 @@
         </div>
 
         <!-- 🎯 결과 및 수정 UI -->
-        <div id="resultUI" class="hidden space-y-10 animate-in zoom-in-95 duration-1000">
-          <div class="text-center space-y-6">
-             <div class="cinema-glow rounded-[3rem] overflow-hidden bg-black aspect-video border border-zinc-800 shadow-2xl relative group">
-                <video id="cinemaVideo" controls class="w-full h-full object-cover">
-                   <source id="videoSrc" src="" type="video/mp4">
-                </video>
+        <div id="resultUI" class="hidden space-y-12 animate-in zoom-in-95 duration-1000">
+          <div id="videoContainer" class="space-y-10">
+             <!-- 영상 플레이어들이 여기에 동적으로 추가됩니다 -->
+          </div>
+
+          <!-- 수정(Edit) 영역 -->
+          <div class="bg-zinc-950/50 p-8 rounded-[3rem] border border-zinc-800 space-y-8">
+             <div class="text-center space-y-2">
+               <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Director's Studio</p>
+               <h2 class="text-xl font-bold text-white">작품을 수정하시겠습니까?</h2>
              </div>
 
-             <!-- 수정(Edit) 영역 -->
-             <div class="bg-zinc-950/50 p-8 rounded-[2.5rem] border border-zinc-800 space-y-6">
-                <div class="space-y-2">
-                  <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Mastering Note</p>
-                  <p class="text-sm text-zinc-400">영상이 마음에 드시나요? 아쉬운 부분이 있다면 수정해 보세요.</p>
-                </div>
-                <div class="flex gap-3">
-                  <input id="editInput" type="text" class="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-yellow-500 outline-none transition-all" placeholder="예: 조금 더 어둡게 해줘, 인물을 더 가까이 보여줘...">
-                  <button onclick="modifyVideo()" class="bg-yellow-500 text-black px-8 py-4 rounded-2xl font-black text-sm hover:bg-yellow-400 transition-all active:scale-95 whitespace-nowrap">수정 촬영</button>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="scrollToInput()" class="bg-zinc-800 text-zinc-300 py-5 rounded-2xl font-bold hover:bg-zinc-700 transition-all border border-zinc-700">
+                  처음 썼던 시나리오 수정하기
+                </button>
+                <div class="flex gap-2">
+                  <input id="editInput" type="text" class="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="추가 수정 사항 피드백...">
+                  <button onclick="modifyVideo()" class="bg-yellow-500 text-black px-6 py-4 rounded-2xl font-black text-sm hover:bg-yellow-400">피드백 반영</button>
                 </div>
              </div>
+          </div>
 
-             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a id="downloadBtn" href="#" download class="bg-zinc-100 text-black px-10 py-4 rounded-2xl text-sm font-black uppercase hover:bg-white shadow-xl">파일 다운로드</a>
-                <button onclick="location.reload()" class="bg-zinc-800 text-zinc-400 px-10 py-4 rounded-2xl text-sm font-bold uppercase border border-zinc-700 hover:bg-zinc-700 transition-all">처음부터 다시</button>
-             </div>
+          <div class="flex justify-center">
+             <button onclick="location.reload()" class="text-zinc-600 text-[10px] font-black uppercase tracking-widest hover:text-yellow-500 transition-all">
+                완전히 새로 시작하기
+             </button>
           </div>
         </div>
 
@@ -110,7 +133,9 @@
   </footer>
 
   <script>
-    let currentPrompt = "";
+    let scenePrompts = [];
+    let currentSceneIndex = 0;
+    let completedVideos = [];
     let startTime;
     let timerInterval;
     let pollInterval;
@@ -121,54 +146,92 @@
       noteInput.value += (noteInput.value ? ", " : "") + style;
     }
 
-    // 🎯 한글을 AI가 잘 알아듣는 영어 프롬프트로 변환하는 핵심 브레인
-    function craftEnglishPrompt(scenario, note) {
-      // 한글이 영상 내부에 나타나지 않도록 "No text in video" 등을 명시
+    function scrollToInput() {
+      document.getElementById('statusBox').classList.add('hidden');
+      document.getElementById('inputBox').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 🎯 한글을 영어 프롬프트로 변환하며 인물/사건/배경 결합
+    function craftEnglishPrompt(scenario, char, event, place, note) {
       return `A high quality cinematic video clip (approx 8 seconds). 
-              Subject: ${scenario}. 
-              Style/Atmosphere: ${note || "Cinematic, professional lighting"}. 
-              No text, no watermarks, no subtitles, no hangul characters. 
-              Ultra-realistic, 8k, professional cinematography.`.trim();
+              Subject Context: [Characters: ${char || 'unnamed'}], [Action: ${event || 'moving'}], [Setting: ${place || 'cinematic world'}]. 
+              Main Scenario: ${scenario}. 
+              Style: ${note || "Cinematic, professional lighting"}. 
+              No text, no watermarks, no hangul characters. 
+              Visual Excellence: 8k, professional cinematography.`.trim();
     }
 
     async function generateVideo() {
       const scenario = document.getElementById('scenarioInput').value;
+      const char = document.getElementById('charInput').value;
+      const event = document.getElementById('eventInput').value;
+      const place = document.getElementById('placeInput').value;
       const note = document.getElementById('noteInput').value;
       
       if (!scenario.trim()) return alert('시나리오를 입력해주세요!');
 
-      currentPrompt = craftEnglishPrompt(scenario, note);
-      executeProduction();
+      // 🎯 텍스트 길이에 따른 장면 분할 (약 100자 기준)
+      const segments = scenario.match(/[^.!?]+[.!?]+/g) || [scenario];
+      scenePrompts = [];
+      let currentGroup = "";
+      
+      segments.forEach(seg => {
+        if ((currentGroup + seg).length > 120) {
+          scenePrompts.push(craftEnglishPrompt(currentGroup.trim(), char, event, place, note));
+          currentGroup = seg;
+        } else {
+          currentGroup += " " + seg;
+        }
+      });
+      if (currentGroup) scenePrompts.push(craftEnglishPrompt(currentGroup.trim(), char, event, place, note));
+
+      currentSceneIndex = 0;
+      completedVideos = [];
+      document.getElementById('videoContainer').innerHTML = "";
+      
+      startProduction();
     }
 
     async function modifyVideo() {
       const editRequest = document.getElementById('editInput').value;
       if (!editRequest.trim()) return alert('수정할 내용을 입력해주세요!');
 
-      // 기존 프롬프트에 수정 사항을 결합
-      currentPrompt = `Original scene: ${currentPrompt}. Modification: ${editRequest}. Please maintain the consistency. No text in video.`;
-      executeProduction();
+      // 현재 모든 장면 프롬프트에 수정 사항 반영
+      scenePrompts = scenePrompts.map(p => `${p}. Modification: ${editRequest}. No text in video.`);
+      
+      currentSceneIndex = 0;
+      completedVideos = [];
+      document.getElementById('videoContainer').innerHTML = "";
+      startProduction();
     }
 
-    async function executeProduction() {
+    function startProduction() {
       document.getElementById('inputBox').classList.add('hidden');
       document.getElementById('statusBox').classList.remove('hidden');
       document.getElementById('loadingUI').classList.remove('hidden');
       document.getElementById('resultUI').classList.add('hidden');
       document.getElementById('errorUI').classList.add('hidden');
       
-      startTime = Date.now();
-      timerInterval = setInterval(() => {
-        const diff = Math.floor((Date.now() - startTime) / 1000);
-        document.getElementById('timer').innerText = `${String(Math.floor(diff/60)).padStart(2,'0')}:${String(diff%60).padStart(2,'0')} ELAPSED`;
-        document.getElementById('progressBar').style.width = Math.min(Math.floor((diff/90)*100), 99) + '%';
-      }, 1000);
+      processNextScene();
+    }
+
+    async function processNextScene() {
+      if (currentSceneIndex >= scenePrompts.length) {
+        finishProduction();
+        return;
+      }
+
+      document.getElementById('sceneInfo').innerText = `현재 촬영 중: Scene ${currentSceneIndex + 1} / ${scenePrompts.length}`;
+      document.getElementById('progressBar').style.width = "0%";
+      
+      startTimer();
 
       try {
         const res = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: currentPrompt }),
+          body: JSON.stringify({ prompt: scenePrompts[currentSceneIndex] }),
         });
         const data = await res.json();
         if (data.success) checkStatus(data.operationId);
@@ -176,7 +239,18 @@
       } catch (err) { showError(err.message); }
     }
 
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      startTime = Date.now();
+      timerInterval = setInterval(() => {
+        const diff = Math.floor((Date.now() - startTime) / 1000);
+        document.getElementById('timer').innerText = `${String(Math.floor(diff/60)).padStart(2,'0')}:${String(diff%60).padStart(2,'0')} ELAPSED`;
+        document.getElementById('progressBar').style.width = Math.min(Math.floor((diff/90)*100), 99) + '%';
+      }, 1000);
+    }
+
     async function checkStatus(opId) {
+      if (pollInterval) clearInterval(pollInterval);
       pollInterval = setInterval(async () => {
         try {
           const res = await fetch('/api/check-status', {
@@ -193,16 +267,39 @@
             const gcsUri = data.response?.videos?.[0]?.gcsUri || data.response?.predictions?.[0]?.gcsUri;
             if (gcsUri) {
               const webUrl = gcsUri.replace('gs://', 'https://storage.googleapis.com/');
-              const video = document.getElementById('cinemaVideo');
-              document.getElementById('videoSrc').src = webUrl;
-              video.load();
-              document.getElementById('downloadBtn').href = webUrl;
-              document.getElementById('loadingUI').classList.add('hidden');
-              document.getElementById('resultUI').classList.remove('hidden');
+              completedVideos.push({ scene: currentSceneIndex + 1, url: webUrl });
+              
+              currentSceneIndex++;
+              processNextScene();
             }
           }
         } catch (e) { console.error(e); }
       }, 10000);
+    }
+
+    function finishProduction() {
+      document.getElementById('loadingUI').classList.add('hidden');
+      document.getElementById('resultUI').classList.remove('hidden');
+      
+      const container = document.getElementById('videoContainer');
+      completedVideos.forEach(v => {
+        const videoCard = document.createElement('div');
+        videoCard.className = "space-y-4 animate-in fade-in duration-1000";
+        videoCard.innerHTML = `
+          <div class="flex items-center gap-3 px-4">
+            <span class="bg-yellow-500 text-black text-[10px] font-black px-3 py-1 rounded-full uppercase">Scene ${v.scene}</span>
+          </div>
+          <div class="cinema-glow rounded-[2.5rem] overflow-hidden bg-black aspect-video border border-zinc-800 shadow-2xl relative">
+            <video controls class="w-full h-full object-cover">
+               <source src="${v.url}" type="video/mp4">
+            </video>
+          </div>
+          <div class="text-right">
+             <a href="${v.url}" download class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest hover:text-white transition-all underline">Download This Scene</a>
+          </div>
+        `;
+        container.appendChild(videoCard);
+      });
     }
 
     function showError(m) {
