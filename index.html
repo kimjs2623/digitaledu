@@ -1,572 +1,607 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>내 머릿속 오스카 - 연속 촬영 스튜디오</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&family=Noto+Serif+KR:wght@400;700;900&display=swap" rel="stylesheet">
-  <style>
-    :root { --amber-glow: rgba(245, 158, 11, 0.4); }
-    body { 
-      font-family: 'Noto Sans KR', sans-serif; 
-      background-color: #030303;
-      background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #030303 70%);
-      background-attachment: fixed;
-    }
-    h1, .serif-text { font-family: 'Noto Serif KR', serif; }
-    
-    .glass-panel {
-      background: rgba(15, 15, 15, 0.6); backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
-    }
-    .glow-amber { box-shadow: 0 0 80px -20px var(--amber-glow); }
-    
-    .input-pro { 
-      background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); color: #f4f4f5;
-      transition: all 0.4s ease; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
-    }
-    .input-pro:focus { 
-      background: rgba(0, 0, 0, 0.8); border-color: rgba(245, 158, 11, 0.5);
-      box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 0 0 2px rgba(245, 158, 11, 0.1); outline: none;
-    }
-    .input-pro::placeholder { color: rgba(255,255,255,0.3); }
-    
-    .label-pro { @apply block text-[11px] font-black text-amber-500 uppercase tracking-[0.3em] mb-3 ml-1; }
-    
-    .btn-action-sleek {
-      background: transparent; border: 1px solid rgba(245, 158, 11, 0.4); color: #f59e0b;
-      box-shadow: 0 0 15px rgba(245, 158, 11, 0.05), inset 0 0 15px rgba(245, 158, 11, 0.02);
-      transition: all 0.4s ease;
-      @apply w-full font-black text-xl py-6 rounded-[2rem] tracking-[0.4em] uppercase flex justify-center items-center gap-4 relative overflow-hidden;
-    }
-    .btn-action-sleek:hover:not(:disabled) {
-      background: rgba(245, 158, 11, 0.1); border-color: #f59e0b;
-      box-shadow: 0 0 30px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(245, 158, 11, 0.1); color: #fff;
-    }
-    .btn-action-sleek:disabled { opacity: 0.3; cursor: not-allowed; border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); }
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Film, 
+  Play, 
+  Loader2, 
+  CheckCircle2, 
+  AlertCircle, 
+  MonitorPlay, 
+  History, 
+  Plus, 
+  X, 
+  Image as ImageIcon, 
+  Camera, 
+  ArrowRight,
+  RefreshCw,
+  Download
+} from 'lucide-react';
 
-    /* 이미지 선택용 라디오 스타일 */
-    .img-radio:checked + label img {
-      border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); transform: scale(1.05); opacity: 1; z-index: 10;
-    }
-    .img-radio:checked + label .pick-badge { display: block; }
-    
-    .concept-img {
-      transition: all 0.3s ease; opacity: 0.5; cursor: pointer; border: 2px solid transparent;
-    }
-    .concept-img:hover { opacity: 0.8; transform: scale(1.02); }
+/**
+ * My Oscar - 최종 프론트엔드 애플리케이션
+ * 1. 입력 단계: 시나리오 및 인물 설정 (테스트 데이터 포함)
+ * 2. 시안 선택 단계: 각 요소별 3장의 시안 중 최적의 이미지 선택
+ * 3. 렌더링 단계: Veo 3.1을 이용한 최종 영상 제작 및 모니터링
+ */
 
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
-    ::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.3); border-radius: 4px; }
-  </style>
-</head>
-<body class="text-zinc-100 min-h-screen flex flex-col items-center py-10 px-4 sm:px-6 md:py-16">
-
-  <main class="w-full max-w-5xl glass-panel rounded-[2.5rem] overflow-hidden transition-all duration-700 glow-amber relative">
-    
-    <header class="p-8 sm:p-12 text-center relative border-b border-white/5">
-      <h1 class="text-4xl sm:text-5xl font-black mb-2 tracking-tighter italic text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-500 to-amber-600">My Oscar</h1>
-      <p class="text-zinc-500 text-[10px] tracking-[0.5em] font-black uppercase">Continuous Shooting Studio</p>
-    </header>
-
-    <div class="p-8 sm:p-12 space-y-12 relative">
-      
-      <!-- ==================== [섹션 1] 설정 및 씬 입력 ==================== -->
-      <div id="inputBox" class="space-y-10 animate-in fade-in duration-700">
-        
-        <div class="flex items-center justify-between border-b border-white/5 pb-4">
-          <h2 class="text-lg font-black text-amber-500 tracking-widest uppercase flex items-center gap-3">
-            <span id="sceneTitle">SCENE 1</span> 
-            <span class="text-zinc-600 text-xs">Shooting Prep</span>
-          </h2>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div class="space-y-6">
-            <div class="space-y-3 min-w-0">
-              <label class="label-pro !mb-0">인물 설정 (Characters)</label>
-              <div id="characterList" class="space-y-2">
-                <div class="flex gap-2 char-entry items-center w-full">
-                  <input type="text" class="input-pro w-1/4 !rounded-xl !p-4 text-sm char-name min-w-0" value="김 첨지" placeholder="이름 (예: A)">
-                  <input type="text" class="input-pro flex-1 !rounded-xl !p-4 text-sm char-desc min-w-0" value="하루 벌어 하루 먹고사는 인력거꾼. 아내를 걱정하는 마음이 돈에 대한 욕심보다 커진 상태." placeholder="성격/특징 (예: 차갑고 냉소적임)">
-                  <button type="button" onclick="this.parentElement.remove()" class="text-zinc-600 hover:text-red-500 px-2 font-bold text-lg">&times;</button>
-                </div>
-                <div class="flex gap-2 char-entry items-center w-full mt-2 animate-in fade-in slide-in-from-top-2">
-                  <input type="text" class="input-pro w-1/4 !rounded-xl !p-4 text-sm char-name min-w-0" value="학생" placeholder="이름 (예: A)">
-                  <input type="text" class="input-pro flex-1 !rounded-xl !p-4 text-sm char-desc min-w-0" value="김 첨지에게 '일 원'이라는 파격적인 조건을 제시하며 내적 갈등을 유발하는 인물." placeholder="성격/특징 (예: 차갑고 냉소적임)">
-                  <button type="button" onclick="this.parentElement.remove()" class="text-zinc-600 hover:text-red-500 px-2 font-bold text-lg">&times;</button>
-                </div>
-              </div>
-              <button type="button" onclick="addCharacter()" class="text-amber-500 hover:text-amber-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 transition-all flex items-center gap-1 mt-2">
-                + 인물 추가
-              </button>
-            </div>
-            <div class="space-y-3 min-w-0">
-              <label class="label-pro">배경 설정 (Setting & Era)</label>
-              <input id="placeInput" type="text" class="input-pro w-full rounded-2xl p-5 text-sm" value="일제강점기 거리" placeholder="예: 조선시대 한양의 번화가, 노을 지는 시간">
-            </div>
-          </div>
-
-          <div class="space-y-6">
-            <div class="space-y-3">
-              <label class="label-pro">현재 씬의 대사 및 행동 (Scenario)</label>
-              <textarea id="scenarioInput" rows="7" class="input-pro w-full rounded-3xl p-6 text-lg font-light leading-relaxed serif-text" placeholder="이 씬에서 벌어질 일과 대사를 적어주세요.&#10;(AI가 각 인물의 대사를 자동 분리합니다)">"학생님, 어디까지 가시나요?"
+export default function App() {
+  // --- 상태 관리 ---
+  const [stage, setStage] = useState('input'); // 'input', 'picking', 'rendering', 'completed'
+  const [characters, setCharacters] = useState([
+    { id: 'char_0', name: '김 첨지', desc: "하루 벌어 하루 먹고사는 인력거꾼. 아내를 걱정하는 마음이 돈에 대한 욕심보다 커진 상태." },
+    { id: 'char_1', name: '학생', desc: "김 첨지에게 '일 원'이라는 파격적인 조건을 제시하며 내적 갈등을 유발하는 인물." }
+  ]);
+  const [place, setPlace] = useState('일제강점기 거리');
+  const [scenario, setScenario] = useState(`"학생님, 어디까지 가시나요?"
 "남대문 정거장까지 가오."
 "아이구, 거긴 너무 멉니다."
 "멀긴 무엇이 멀어. 돈 일 원 줄 테니 갑시다."
-일 원이란 말에 김 첨지는 눈이 번쩍 뜨였다. 하지만 그와 동시에 머릿속에는 아침에 본 아내의 해쓱한 얼굴이 떠올라 가슴이 철렁했다. "아니, 일 원은 고맙지만... 오늘은 이만 들어가 봐야 해서요."</textarea>
-            </div>
-            <div class="space-y-3">
-              <label class="label-pro">연출 스타일 (Style)</label>
-              <textarea id="noteInput" rows="2" class="input-pro w-full rounded-2xl p-5 text-sm" placeholder="예: 시네마틱 조명, 극적인 줌인, 인물 클로즈업">어둡고 쓸쓸한 분위기, 김 첨지의 내적 갈등을 보여주는 클로즈업 샷</textarea>
-            </div>
-          </div>
-        </div>
-
-        <button id="prepBtn" type="button" onclick="prepareConceptArt()" class="btn-action-sleek">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          캐릭터 도안 및 배경 시안 추출
-        </button>
-      </div>
-
-      <!-- ==================== [섹션 1.5] 시안 추출 로딩 ==================== -->
-      <div id="prepLoadingUI" class="hidden flex-col items-center py-16 space-y-8 w-full animate-in fade-in duration-1000">
-        <div class="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-        <div class="text-center space-y-3">
-          <p id="prepStatusText" class="text-amber-500 font-black text-2xl tracking-tight serif-text animate-pulse">AI가 세계관을 분석하여 시안을 설계 중입니다...</p>
-          <p class="text-zinc-500 text-sm">설정하신 시대와 상황에 맞는 의상과 배경을 준비하고 있습니다.</p>
-        </div>
-      </div>
-
-      <!-- ==================== [섹션 2] 다중 컨셉 아트 선택 보드 ==================== -->
-      <div id="conceptBoardUI" class="hidden flex-col items-center space-y-10 w-full animate-in fade-in duration-1000">
-        
-        <div class="text-center space-y-3">
-          <p class="text-amber-500 font-black text-2xl tracking-tight serif-text">Director's Pick: 컨셉 시안 선택</p>
-          <p class="text-zinc-500 text-sm">각 인물과 배경에 가장 어울리는 이미지를 하나씩 선택(Pick) 하세요.</p>
-        </div>
-
-        <div id="conceptBoardContainer" class="w-full space-y-8 bg-black/40 border border-amber-500/20 rounded-3xl p-8">
-           <!-- JS에서 동적으로 채워집니다 -->
-        </div>
-
-        <button id="renderBtn" type="button" onclick="startFinalRender()" disabled class="btn-action-sleek">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          선택 완료! 영상 촬영 시작
-        </button>
-      </div>
-
-      <!-- ==================== [섹션 3] 영상 렌더링 로딩 대기실 ==================== -->
-      <div id="loadingUI" class="hidden flex-col items-center py-4 space-y-10 w-full animate-in fade-in duration-1000">
-        
-        <div class="text-center space-y-3">
-          <p id="statusText" class="text-amber-500 font-black text-2xl tracking-tight serif-text animate-pulse">선택된 컨셉으로 영상을 촬영 중입니다...</p>
-          <p id="timer" class="text-zinc-500 text-xs font-mono tracking-[0.3em]">00:00 ELAPSED</p>
-        </div>
-        <div class="w-full max-w-lg bg-black/50 border border-white/5 rounded-full h-3 p-0.5 shadow-inner">
-          <div id="progressBar" class="bg-gradient-to-r from-amber-700 to-amber-500 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
-        </div>
-
-        <div class="bg-gradient-to-br from-zinc-900 to-black border border-white/5 rounded-3xl p-8 w-full max-w-2xl">
-          <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2 text-center">Director's Waiting Room</p>
-          <h3 class="text-xl font-bold text-white mb-2 text-center">렌더링 대기 미션</h3>
-          <p class="text-sm text-zinc-400 mb-6 text-center">영상이 만들어지는 약 90초 동안 다음 씬을 준비하세요.</p>
-          <input type="text" class="input-pro w-full rounded-xl p-4 text-sm mb-4" placeholder="내 영화의 멋진 제목 짓기...">
-          <textarea rows="3" class="input-pro w-full rounded-xl p-4 text-sm" placeholder="다음 씬(Scene)의 아이디어를 미리 메모해 두세요."></textarea>
-        </div>
-      </div>
-
-      <!-- ==================== [섹션 4] 시퀀스 플레이어 & 스토리보드 ==================== -->
-      <div id="playerUI" class="hidden space-y-12 animate-in zoom-in duration-1000">
-        
-        <div class="space-y-4">
-          <div class="flex items-center justify-between">
-            <h2 class="text-lg font-black text-amber-500 tracking-widest uppercase">Sequence Player</h2>
-            <button type="button" onclick="playAllScenes()" class="bg-amber-500 text-black px-4 py-2 rounded-lg text-xs font-bold hover:bg-amber-400 flex items-center gap-2 transition-all">
-              전체 연속 재생
-            </button>
-          </div>
-          <div class="rounded-3xl overflow-hidden bg-black aspect-video border border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] relative group">
-            <video id="sequencePlayer" controls class="w-full h-full object-cover">
-               <source id="sequenceSrc" src="" type="video/mp4">
-            </video>
-            <div id="nowPlayingBadge" class="absolute top-4 left-4 bg-black/80 text-amber-500 px-3 py-1 rounded-md text-[10px] font-black tracking-widest hidden border border-amber-500/30 backdrop-blur-sm">
-              NOW PLAYING: SCENE 1
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-black/40 p-8 rounded-3xl border border-white/5 space-y-6">
-          <h3 class="text-sm font-bold text-white uppercase tracking-widest border-b border-white/10 pb-4">🎬 Storyboard Timeline</h3>
-          <div id="timelineContainer" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <!-- 씬 썸네일 -->
-          </div>
-          <div class="flex justify-center pt-6">
-            <button type="button" onclick="prepareNextScene()" class="btn-action-sleek !w-auto !py-4 !px-8">
-              + 다음 씬(SCENE) 이어서 촬영하기
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-  </main>
+일 원이란 말에 김 첨지는 눈이 번쩍 뜨였다. 하지만 그와 동시에 머릿속에는 아침에 본 아내의 해쓱한 얼굴이 떠올라 가슴이 철렁했다. "아니, 일 원은 고맙지만... 오늘은 이만 들어가 봐야 해서요."`);
+  const [note, setNote] = useState('어둡고 쓸쓸한 분위기, 김 첨지의 내적 갈등을 보여주는 클로즈업 샷');
   
-  <footer class="mt-8 text-zinc-700 text-[9px] font-bold uppercase tracking-[0.5em] text-center pb-8">
-    © 2026 JINSUNG DIRECTOR • CONTINUOUS CINEMATIC STUDIO
-  </footer>
+  const [conceptData, setConceptData] = useState({ charImages: {}, bgImages: [] });
+  const [picks, setPicks] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [prepStatus, setPrepStatus] = useState('');
+  const [operationId, setOperationId] = useState(null);
+  const [videoUrl, setVideoUrl] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [progress, setProgress] = useState(0);
+  
+  const pollTimer = useRef(null);
 
-  <script>
-    let sceneCount = 1;
-    let timelineScenes = []; 
-    let currentFinalPrompt = "";
-    let startTime;
-    let timerInterval;
-    let pollInterval;
+  // --- 인물 설정 로직 ---
+  const addCharacter = () => {
+    const newId = `char_${Date.now()}`;
+    setCharacters([...characters, { id: newId, name: '', desc: '' }]);
+  };
+
+  const removeCharacter = (id) => {
+    if (characters.length <= 1) return;
+    setCharacters(characters.filter(c => c.id !== id));
+  };
+
+  const updateCharacter = (id, field, value) => {
+    setCharacters(characters.map(c => c.id === id ? { ...c, [field]: value } : c));
+  };
+
+  // --- 1단계: 시안 추출 (Gemini 2.5 분석 -> Imagen 4.0 생성) ---
+  const prepareConcepts = async () => {
+    setLoading(true);
+    setErrorMessage('');
+    setPrepStatus('AI가 시나리오와 시대상을 분석하고 있습니다...');
     
-    // 픽(Pick) 상태 관리
-    let picksStatus = {}; 
+    try {
+      // 1. 시각적 프롬프트 설계 (expand-concept)
+      const expandRes = await fetch('/api/expand-concept', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chars: characters, place, scenario })
+      });
+      const expandData = await expandRes.json();
+      if (!expandRes.ok || !expandData.success) throw new Error(expandData.message || "시안 분석 실패");
+
+      const { charPrompts, bgPrompt } = expandData.prompts;
+
+      // 2. 인물 및 배경 시안 생성 (generate-image)
+      const newCharImages = {};
+      setStage('picking'); // 미리 화면 전환
+
+      for (const charId of Object.keys(charPrompts)) {
+        setPrepStatus(`${characters.find(c => c.id === charId)?.name || '인물'} 시안을 그리는 중...`);
+        const imgRes = await fetch('/api/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: charPrompts[charId] })
+        });
+        const imgData = await imgRes.json();
+        if (imgData.success) newCharImages[charId] = imgData.imagesBase64;
+      }
+
+      setPrepStatus('배경 컨셉을 그리는 중...');
+      const bgRes = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: bgPrompt })
+      });
+      const bgData = await bgRes.json();
+      const newBgImages = bgData.success ? bgData.imagesBase64 : [];
+
+      setConceptData({ charImages: newCharImages, bgImages: newBgImages });
+    } catch (err) {
+      setErrorMessage(err.message);
+      setStage('input');
+    } finally {
+      setLoading(false);
+      setPrepStatus('');
+    }
+  };
+
+  // --- 2단계: 최종 영상 촬영 (Analyze -> Generate -> Polling) ---
+  const startFilming = async () => {
+    setLoading(true);
+    setStage('rendering');
+    setProgress(0);
+    setErrorMessage('');
+
+    try {
+      // 1. 최종 연출 프롬프트 분석
+      const analyzeRes = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          chars: characters.map(c => `${c.name}(${c.desc})`).join(','), 
+          place, 
+          scenario, 
+          note 
+        })
+      });
+      const analyzeData = await analyzeRes.json();
+      if (!analyzeRes.ok) throw new Error("연출 분석 오류");
+
+      // 2. 촬영 요청
+      const genRes = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: analyzeData.prompt })
+      });
+      const genData = await genRes.json();
+      if (!genData.success) throw new Error(genData.message);
+
+      setOperationId(genData.operationId);
+      startStatusPolling(genData.operationId);
+    } catch (err) {
+      setErrorMessage(err.message);
+      setLoading(false);
+      setStage('picking');
+    }
+  };
+
+  const startStatusPolling = (opId) => {
+    if (pollTimer.current) clearInterval(pollTimer.current);
     
-    let currentPlayIndex = 0;
-    const player = document.getElementById('sequencePlayer');
-    const playerSrc = document.getElementById('sequenceSrc');
-    const badge = document.getElementById('nowPlayingBadge');
-
-    function addCharacter() {
-      const list = document.getElementById('characterList');
-      const div = document.createElement('div');
-      div.className = 'flex gap-2 char-entry items-center w-full mt-2 animate-in fade-in slide-in-from-top-2';
-      div.innerHTML = `
-        <input type="text" class="input-pro w-1/4 !rounded-xl !p-4 text-sm char-name min-w-0" placeholder="이름">
-        <input type="text" class="input-pro flex-1 !rounded-xl !p-4 text-sm char-desc min-w-0" placeholder="성격/특징">
-        <button type="button" onclick="this.parentElement.remove()" class="text-zinc-600 hover:text-red-500 px-2 font-bold text-lg">&times;</button>
-      `;
-      list.appendChild(div);
-    }
-
-    function getCharactersData() {
-      const entries = document.querySelectorAll('.char-entry');
-      let chars = [];
-      entries.forEach((entry, idx) => {
-         const name = entry.querySelector('.char-name').value.trim() || `Character ${idx+1}`;
-         const desc = entry.querySelector('.char-desc').value.trim() || `Main character`;
-         chars.push({ id: `char_${idx}`, name, desc });
-      });
-      return chars;
-    }
-
-    function getCharactersCombinedText(charsArray) {
-      return charsArray.map(c => `${c.name} (${c.desc})`).join(', ');
-    }
-
-    // 🎯 [1단계] 오류를 강건하게 처리하는 시안 추출 (Fallback 적용)
-    async function prepareConceptArt() {
-      const scenario = document.getElementById('scenarioInput').value;
-      if (!scenario.trim()) return alert('현재 씬의 대사나 행동을 입력해주세요!');
-
-      const chars = getCharactersData();
-      const place = document.getElementById('placeInput').value || "cinematic environment";
-
-      document.getElementById('inputBox').classList.add('hidden');
-      document.getElementById('prepLoadingUI').classList.remove('hidden');
-      document.getElementById('prepLoadingUI').classList.add('flex');
-
-      let charPrompts = {};
-      let bgPrompt = "";
+    pollTimer.current = setInterval(async () => {
+      setProgress(prev => Math.min(prev + 8, 98)); // 시각적 진행률
 
       try {
-        const expandRes = await fetch('/api/expand-concept', {
+        const res = await fetch('/api/check-status', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chars, place, scenario })
-        });
-        
-        const expandData = await expandRes.json();
-        
-        if (expandData.success && expandData.prompts) {
-          charPrompts = expandData.prompts.charPrompts || {};
-          bgPrompt = expandData.prompts.bgPrompt || "";
-        } else {
-          console.warn("API 분석 응답 구조 오류, 대체 프롬프트를 사용합니다.", expandData);
-        }
-      } catch (e) {
-        // 백엔드 연결 실패, 500 에러 등 모든 오류를 잡아냅니다.
-        console.error("Concept Expansion Error:", e);
-        console.warn("AI 프롬프트 설계 응답 오류 - 기본 설정으로 대체하여 추출을 계속합니다.");
-      }
-
-      // 에러가 나더라도 무조건 UI를 다음 화면으로 전환하여 사용자 경험을 유지합니다.
-      document.getElementById('prepLoadingUI').classList.add('hidden');
-      document.getElementById('prepLoadingUI').classList.remove('flex');
-      document.getElementById('conceptBoardUI').classList.remove('hidden');
-      document.getElementById('conceptBoardUI').classList.add('flex');
-
-      const boardContainer = document.getElementById('conceptBoardContainer');
-      boardContainer.innerHTML = '';
-      
-      picksStatus = { bg: false };
-      chars.forEach(c => picksStatus[c.id] = false);
-      checkRenderReady();
-
-      // 인물 이미지 추출 (API가 실패했더라도 기본 프롬프트 Fallback이 작동함)
-      chars.forEach(c => {
-        boardContainer.innerHTML += createSectionHTML(c.id, `Character Concept: ${c.name}`);
-        const safeCharPrompt = (charPrompts[c.id] || `Solo portrait of ${c.name}. Characteristics: ${c.desc}.`) + " SOLID PLAIN WHITE BACKGROUND, NO ENVIRONMENTAL DETAILS.";
-        fetchMultipleImages(safeCharPrompt, c.id);
-      });
-
-      // 배경 이미지 추출
-      boardContainer.innerHTML += createSectionHTML('bg', 'Background Concept (No Characters)');
-      const safeBgPrompt = (bgPrompt || `Cinematic background of ${place}`) + " ABSOLUTELY NO PEOPLE, NO CHARACTERS, EMPTY SCENERY.";
-      fetchMultipleImages(safeBgPrompt, 'bg');
-    }
-
-    function createSectionHTML(id, title) {
-      return `
-        <div class="space-y-3 pt-6 border-t border-white/5 first:border-0 first:pt-0">
-          <div class="flex justify-between items-end">
-            <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest">${title}</p>
-            <span id="${id}-loader" class="text-[10px] text-amber-500 animate-pulse">Drawing 3 Samples...</span>
-          </div>
-          <div class="grid grid-cols-3 gap-4" id="${id}-grid"></div>
-        </div>
-      `;
-    }
-
-    async function fetchMultipleImages(prompt, sectionId) {
-      const grid = document.getElementById(`${sectionId}-grid`);
-      const loader = document.getElementById(`${sectionId}-loader`);
-      
-      try {
-        const response = await fetch('/api/generate-image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: prompt })
-        });
-        const data = await response.json();
-        
-        if (data.success && data.imagesBase64) {
-          loader.innerText = "Complete";
-          
-          data.imagesBase64.forEach((base64, index) => {
-            const imageUrl = `data:image/png;base64,${base64}`;
-            const radioId = `${sectionId}-img-${index}`;
-            
-            const div = document.createElement('div');
-            div.className = "relative aspect-square";
-            div.innerHTML = `
-              <input type="radio" name="${sectionId}Pick" id="${radioId}" value="${imageUrl}" class="hidden img-radio" onchange="pickImage('${sectionId}')">
-              <label for="${radioId}" class="w-full h-full block">
-                <img src="${imageUrl}" class="w-full h-full object-cover rounded-2xl concept-img bg-zinc-900 border border-white/10">
-                <div class="pick-badge absolute top-2 right-2 bg-amber-500 text-black text-[9px] font-black px-2 py-0.5 rounded shadow-xl hidden">PICK</div>
-              </label>
-            `;
-            grid.appendChild(div);
-          });
-        } else {
-          throw new Error("생성 실패");
-        }
-      } catch (e) {
-        console.error("Concept Art Error:", e);
-        loader.innerText = "Failed";
-        loader.classList.replace('text-amber-500', 'text-red-500');
-        pickImage(sectionId); // 이미지 생성 에러시 렌더링 버튼이 잠기는 것을 막기 위한 강제 통과
-      }
-    }
-
-    function pickImage(sectionId) {
-      picksStatus[sectionId] = true;
-      checkRenderReady();
-    }
-
-    function checkRenderReady() {
-      const renderBtn = document.getElementById('renderBtn');
-      const allPicked = Object.values(picksStatus).every(status => status === true);
-      
-      if(allPicked) {
-        renderBtn.disabled = false;
-        renderBtn.classList.add('animate-pulse');
-        renderBtn.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          선택 완료! 영상 촬영 시작
-        `;
-      } else {
-        renderBtn.disabled = true;
-        renderBtn.classList.remove('animate-pulse');
-        renderBtn.innerHTML = "모든 시안을 하나씩 선택(Pick) 해주세요";
-      }
-    }
-
-    // 🎯 [2단계] 대사 분리 백엔드 호출 및 최종 렌더링
-    async function startFinalRender() {
-      const charsArray = getCharactersData();
-      const charsCombined = getCharactersCombinedText(charsArray);
-      const place = document.getElementById('placeInput').value;
-      const scenario = document.getElementById('scenarioInput').value;
-      const note = document.getElementById('noteInput').value;
-
-      document.getElementById('conceptBoardUI').classList.add('hidden');
-      document.getElementById('conceptBoardUI').classList.remove('flex');
-      document.getElementById('loadingUI').classList.remove('hidden');
-      document.getElementById('loadingUI').classList.add('flex');
-      
-      startTimer();
-
-      try {
-        const analyzeRes = await fetch('/api/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chars: charsCombined, place, scenario, note })
-        });
-        
-        const analyzeData = await analyzeRes.json();
-        if(!analyzeData.success) throw new Error(analyzeData.message);
-
-        let promptText = analyzeData.prompt;
-        currentFinalPrompt = `${promptText}. Ultra realistic 8k video. Authentic Korean Lip-Sync for dialogue. No text overlays.`;
-        
-        sendToVEO();
-      } catch (e) {
-        console.error("Gemini Parsing Error", e);
-        currentFinalPrompt = `Characters: ${charsCombined}. Setting: ${place}. Action: ${scenario}. Style: ${note}. Spoken language MUST be Korean. No text on screen. 8k realistic video.`;
-        sendToVEO();
-      }
-    }
-
-    async function sendToVEO() {
-      try {
-        const res = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: currentFinalPrompt }),
+          body: JSON.stringify({ operationId: opId })
         });
         const data = await res.json();
-        if (data.success) checkStatus(data.operationId);
-        else throw new Error(data.message);
-      } catch (err) { showError(err.message); }
-    }
 
-    function startTimer() {
-      if (timerInterval) clearInterval(timerInterval);
-      startTime = Date.now();
-      timerInterval = setInterval(() => {
-        const diff = Math.floor((Date.now() - startTime) / 1000);
-        document.getElementById('timer').innerText = `${String(Math.floor(diff/60)).padStart(2,'0')}:${String(diff%60).padStart(2,'0')} ELAPSED`;
-        document.getElementById('progressBar').style.width = Math.min(Math.floor((diff/95)*100), 99) + '%';
-      }, 1000);
-    }
+        if (data.done) {
+          if (pollTimer.current) clearInterval(pollTimer.current);
+          setLoading(false);
+          setProgress(100);
+          setStage('completed');
 
-    async function checkStatus(opId) {
-      if (pollInterval) clearInterval(pollInterval);
-      pollInterval = setInterval(async () => {
-        try {
-          const res = await fetch('/api/check-status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ operationId: opId }),
-          });
-          const data = await res.json();
-          if (data.done) {
-            clearInterval(pollInterval);
-            clearInterval(timerInterval);
-            if (data.error) throw new Error(data.error.message);
-            
-            const gcsUri = data.response?.videos?.[0]?.gcsUri || data.response?.predictions?.[0]?.gcsUri;
-            if (gcsUri) {
-              const webUrl = gcsUri.replace('gs://', 'https://storage.googleapis.com/');
-              
-              timelineScenes.push({ sceneNum: sceneCount, url: webUrl });
-              updateStoryboard();
-              
-              document.getElementById('loadingUI').classList.add('hidden');
-              document.getElementById('loadingUI').classList.remove('flex');
-              document.getElementById('playerUI').classList.remove('hidden');
-              
-              playSpecificScene(timelineScenes.length - 1);
-            }
+          const videoInfo = data.response?.videos?.[0] || data.response?.predictions?.[0];
+          if (videoInfo?.gcsUri) {
+            setVideoUrl(videoInfo.gcsUri.replace('gs://', 'https://storage.googleapis.com/'));
           }
-        } catch (e) { console.error(e); }
-      }, 10000);
-    }
+        }
+      } catch (e) {
+        console.error("Status check failed", e);
+      }
+    }, 10000);
+  };
 
-    function updateStoryboard() {
-      const container = document.getElementById('timelineContainer');
-      container.innerHTML = "";
-      timelineScenes.forEach((scene, index) => {
-        const div = document.createElement('div');
-        div.className = "bg-zinc-900 rounded-xl overflow-hidden border border-white/10 relative cursor-pointer hover:border-amber-500 transition-all group";
-        div.onclick = () => playSpecificScene(index);
-        div.innerHTML = `
-          <div class="aspect-video bg-black relative">
-            <video src="${scene.url}" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all"></video>
-            <div class="absolute inset-0 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" class="opacity-50 group-hover:opacity-100" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+  const handlePick = (section, index) => {
+    setPicks({ ...picks, [section]: index });
+  };
+
+  const isAllPicked = characters.every(c => picks[c.id] !== undefined) && picks['bg'] !== undefined;
+
+  useEffect(() => {
+    return () => {
+      if (pollTimer.current) clearInterval(pollTimer.current);
+    };
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-black text-white font-sans selection:bg-amber-500/30">
+      <div className="max-w-6xl mx-auto p-6 md:p-12 space-y-10">
+        
+        {/* 헤더 섹션 */}
+        <header className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-8 gap-6">
+          <div className="flex items-center gap-5">
+            <div className="bg-gradient-to-br from-amber-400 to-amber-600 p-3 rounded-2xl shadow-xl shadow-amber-500/20">
+              <Film className="text-black w-7 h-7" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-black italic tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-400 to-zinc-600">MY OSCAR</h1>
+              <p className="text-[10px] text-zinc-500 uppercase tracking-[0.4em] font-black mt-1">Cinematic AI Studio</p>
             </div>
           </div>
-          <div class="p-3 bg-zinc-950 flex justify-between items-center">
-            <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest">Scene ${scene.sceneNum}</p>
-            <a href="${scene.url}" download class="text-[10px] text-zinc-500 hover:text-white underline">SAVE</a>
+          <div className="flex items-center gap-3">
+             <div className="px-4 py-2 rounded-xl border border-white/10 bg-zinc-900/50 text-[10px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-3">
+                <span className={`w-2 h-2 rounded-full ${stage === 'rendering' ? 'bg-red-500 animate-pulse' : 'bg-zinc-700'}`} />
+                Stage: <span className="text-white">{stage.toUpperCase()}</span>
+             </div>
           </div>
-        `;
-        container.appendChild(div);
-      });
-    }
+        </header>
 
-    function playSpecificScene(index) {
-      currentPlayIndex = index;
-      const scene = timelineScenes[index];
-      playerSrc.src = scene.url;
-      player.load();
-      player.play();
-      badge.innerText = `NOW PLAYING: SCENE ${scene.sceneNum}`;
-      badge.classList.remove('hidden');
-      player.onended = null; 
-    }
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          
+          {/* 메인 편집기 (좌측 7) */}
+          <div className="lg:col-span-7 space-y-10">
+            
+            {stage === 'input' && (
+              <div className="space-y-10 animate-in fade-in slide-in-from-left-6 duration-700">
+                <section className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-black text-amber-500 uppercase tracking-widest">Character Profiles</label>
+                    <button onClick={addCharacter} className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 hover:text-white transition-colors">
+                      <Plus size={14} /> 인물 추가
+                    </button>
+                  </div>
+                  <div className="space-y-4">
+                    {characters.map(char => (
+                      <div key={char.id} className="group relative flex flex-col sm:flex-row gap-3 bg-zinc-900/40 p-2 rounded-2xl border border-white/5 focus-within:border-amber-500/40 transition-all">
+                        <input 
+                          value={char.name}
+                          onChange={(e) => updateCharacter(char.id, 'name', e.target.value)}
+                          className="sm:w-32 bg-zinc-950/50 p-3 rounded-xl text-sm font-bold focus:outline-none border border-white/5"
+                          placeholder="이름"
+                        />
+                        <textarea 
+                          value={char.desc}
+                          onChange={(e) => updateCharacter(char.id, 'desc', e.target.value)}
+                          className="flex-1 bg-transparent p-3 text-sm focus:outline-none resize-none min-h-[44px]"
+                          placeholder="특징 및 외형 고증 (예: 낡은 갓, 지친 표정)"
+                          rows="1"
+                        />
+                        <button onClick={() => removeCharacter(char.id)} className="p-3 text-zinc-700 hover:text-red-500 transition-colors self-end sm:self-center">
+                          <X size={18} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </section>
 
-    function playAllScenes() {
-      if (timelineScenes.length === 0) return;
-      currentPlayIndex = 0;
-      playSequence();
-    }
+                <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <label className="text-xs font-black text-amber-500 uppercase tracking-widest">Setting & Era</label>
+                    <input 
+                      value={place}
+                      onChange={(e) => setPlace(e.target.value)}
+                      className="w-full bg-zinc-900/40 p-5 rounded-2xl border border-white/5 focus:border-amber-500/40 focus:outline-none text-sm transition-all"
+                      placeholder="시대적 배경과 장소"
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <label className="text-xs font-black text-amber-500 uppercase tracking-widest">Director's Note</label>
+                    <input 
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                      className="w-full bg-zinc-900/40 p-5 rounded-2xl border border-white/5 focus:border-amber-500/40 focus:outline-none text-sm transition-all"
+                      placeholder="분위기, 카메라 워킹 등"
+                    />
+                  </div>
+                </section>
 
-    function playSequence() {
-      if (currentPlayIndex >= timelineScenes.length) {
-        badge.classList.add('hidden');
-        return; 
-      }
-      const scene = timelineScenes[currentPlayIndex];
-      playerSrc.src = scene.url;
-      player.load();
-      player.play();
-      badge.innerText = `NOW PLAYING: SCENE ${scene.sceneNum}`;
-      badge.classList.remove('hidden');
-      
-      player.onended = () => {
-        currentPlayIndex++;
-        playSequence();
-      };
-    }
+                <section className="space-y-4">
+                  <label className="text-xs font-black text-amber-500 uppercase tracking-widest">Scenario Script</label>
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500/20 to-transparent rounded-[2.5rem] blur opacity-50 group-hover:opacity-100 transition duration-1000"></div>
+                    <div className="relative bg-zinc-950/80 p-8 rounded-[2.5rem] border border-white/10 shadow-2xl">
+                      <textarea 
+                        value={scenario}
+                        onChange={(e) => setScenario(e.target.value)}
+                        className="w-full bg-transparent text-xl font-light leading-relaxed placeholder:text-zinc-800 focus:outline-none resize-none font-serif min-h-[220px]"
+                        placeholder="시나리오를 입력하세요..."
+                      />
+                    </div>
+                  </div>
+                </section>
 
-    function prepareNextScene() {
-      sceneCount++;
-      document.getElementById('sceneTitle').innerText = `SCENE ${sceneCount}`;
-      document.getElementById('scenarioInput').value = ""; 
-      
-      document.getElementById('playerUI').classList.add('hidden');
-      document.getElementById('inputBox').classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+                <button 
+                  onClick={prepareConcepts}
+                  disabled={loading || !scenario.trim()}
+                  className="group w-full py-7 rounded-[2rem] bg-white text-black font-black text-xl tracking-[0.4em] uppercase hover:bg-amber-400 transition-all active:scale-[0.98] flex items-center justify-center gap-4 disabled:opacity-20 shadow-2xl shadow-white/5 overflow-hidden relative"
+                >
+                  {loading ? <Loader2 className="animate-spin" /> : <Camera className="group-hover:rotate-12 transition-transform" />}
+                  {loading ? '시안 설계 중...' : '컨셉 아트 추출하기'}
+                </button>
+              </div>
+            )}
 
-    function showError(m) {
-      clearInterval(timerInterval); clearInterval(pollInterval);
-      document.getElementById('loadingUI').classList.add('hidden');
-      document.getElementById('errorUI').classList.remove('hidden');
-      document.getElementById('errorMessage').innerText = m;
-    }
-  </script>
-</body>
-</html>
+            {stage === 'picking' && (
+              <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700">
+                <div className="flex items-center justify-between border-b border-white/5 pb-6">
+                   <h2 className="text-2xl font-black italic text-amber-500 tracking-tighter">Director's Selection</h2>
+                   <button onClick={() => setStage('input')} className="text-[10px] font-bold text-zinc-500 hover:text-white flex items-center gap-2 uppercase tracking-widest">
+                     <RefreshCw size={12} /> Re-Edit Script
+                   </button>
+                </div>
+
+                <div className="space-y-12">
+                  {/* 캐릭터 시안 */}
+                  {characters.map(char => (
+                    <div key={char.id} className="space-y-5">
+                      <div className="flex items-center gap-4">
+                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">Character</span>
+                        <h3 className="text-lg font-bold border-l-2 border-amber-500 pl-3">{char.name}</h3>
+                      </div>
+                      <div className="grid grid-cols-3 gap-5">
+                        {(conceptData.charImages[char.id] || [1,2,3]).map((img, idx) => (
+                          <div 
+                            key={idx}
+                            onClick={() => typeof img === 'string' && handlePick(char.id, idx)}
+                            className={`group relative aspect-square rounded-[2rem] overflow-hidden border-2 transition-all duration-500 cursor-pointer ${picks[char.id] === idx ? 'border-amber-500 scale-105 shadow-2xl shadow-amber-500/30' : 'border-white/5 grayscale hover:grayscale-0 opacity-40 hover:opacity-100 hover:scale-105'}`}
+                          >
+                            {typeof img === 'string' ? (
+                              <img src={`data:image/png;base64,${img}`} className="w-full h-full object-cover" alt="concept" />
+                            ) : (
+                              <div className="w-full h-full bg-zinc-900/50 flex flex-col items-center justify-center gap-3">
+                                <Loader2 className="animate-spin text-zinc-800" />
+                                <span className="text-[8px] font-black text-zinc-800 uppercase tracking-widest">Generating...</span>
+                              </div>
+                            )}
+                            {picks[char.id] === idx && (
+                              <div className="absolute top-4 right-4 bg-amber-500 text-black text-[9px] font-black px-3 py-1 rounded-full shadow-xl animate-in fade-in zoom-in">PICKED</div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* 배경 시안 */}
+                  <div className="space-y-5 pt-8 border-t border-white/5">
+                    <div className="flex items-center gap-4">
+                      <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">Scenery</span>
+                      <h3 className="text-lg font-bold border-l-2 border-amber-500 pl-3">Background Concept</h3>
+                    </div>
+                    <div className="grid grid-cols-3 gap-5">
+                      {(conceptData.bgImages.length > 0 ? conceptData.bgImages : [1,2,3]).map((img, idx) => (
+                        <div 
+                          key={idx}
+                          onClick={() => typeof img === 'string' && handlePick('bg', idx)}
+                          className={`group relative aspect-square rounded-[2rem] overflow-hidden border-2 transition-all duration-500 cursor-pointer ${picks['bg'] === idx ? 'border-amber-500 scale-105 shadow-2xl shadow-amber-500/30' : 'border-white/5 grayscale hover:grayscale-0 opacity-40 hover:opacity-100 hover:scale-105'}`}
+                        >
+                          {typeof img === 'string' ? (
+                            <img src={`data:image/png;base64,${img}`} className="w-full h-full object-cover" alt="background" />
+                          ) : (
+                            <div className="w-full h-full bg-zinc-900/50 flex flex-col items-center justify-center gap-3">
+                               <Loader2 className="animate-spin text-zinc-800" />
+                               <span className="text-[8px] font-black text-zinc-800 uppercase tracking-widest">Generating...</span>
+                            </div>
+                          )}
+                          {picks['bg'] === idx && (
+                            <div className="absolute top-4 right-4 bg-amber-500 text-black text-[9px] font-black px-3 py-1 rounded-full shadow-xl animate-in fade-in zoom-in">PICKED</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={startFilming}
+                  disabled={!isAllPicked || loading}
+                  className="w-full py-7 rounded-[2.5rem] bg-amber-500 text-black font-black text-xl tracking-[0.4em] uppercase hover:bg-amber-400 transition-all disabled:opacity-20 shadow-2xl shadow-amber-500/20 flex items-center justify-center gap-4"
+                >
+                  <ArrowRight /> 촬영 시작 (Ready, Action!)
+                </button>
+              </div>
+            )}
+
+            {(stage === 'rendering' || stage === 'completed') && (
+              <div className="space-y-10 animate-in fade-in duration-1000">
+                 <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-amber-500/30 via-red-500/30 to-amber-500/30 rounded-[3rem] blur-xl opacity-70 group-hover:opacity-100 transition duration-1000"></div>
+                    <div className="relative bg-zinc-950 rounded-[3rem] border border-white/10 aspect-video flex flex-col items-center justify-center text-center overflow-hidden shadow-2xl">
+                      {stage === 'rendering' ? (
+                        <div className="space-y-8 p-12 w-full max-w-md">
+                          <div className="relative flex justify-center">
+                            <div className="w-32 h-32 border-4 border-amber-500/10 border-t-amber-500 rounded-full animate-spin" />
+                            <Film className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-amber-500 w-10 h-10" />
+                          </div>
+                          <div className="space-y-4">
+                            <p className="text-3xl font-black italic tracking-tighter text-white animate-pulse">RENDERING FINAL CUT...</p>
+                            <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+                               <div className="bg-amber-500 h-full transition-all duration-1000 ease-out" style={{ width: `${progress}%` }} />
+                            </div>
+                            <div className="flex justify-between text-[10px] font-mono text-zinc-600 uppercase tracking-widest">
+                               <span>{progress}% Processing</span>
+                               <span>OP: {operationId?.split('/').pop().substring(0, 8)}...</span>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-full h-full animate-in zoom-in-110 duration-1000">
+                          {videoUrl ? (
+                            <video src={videoUrl} controls autoPlay className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="text-zinc-700 flex flex-col items-center gap-6">
+                              <AlertCircle size={64} className="opacity-20" />
+                              <p className="font-black uppercase tracking-[0.3em]">No Video Data Found</p>
+                            </div>
+                          )}
+                          <div className="absolute top-8 left-8 bg-black/80 px-4 py-1.5 rounded-lg text-[10px] font-black text-amber-500 border border-amber-500/30 backdrop-blur-md">MASTER QUALITY • SCENE 1</div>
+                        </div>
+                      )}
+                    </div>
+                 </div>
+
+                 {stage === 'completed' && (
+                   <div className="grid grid-cols-2 gap-6 animate-in slide-in-from-bottom-6 duration-700 delay-500">
+                     <button 
+                      onClick={() => setStage('input')} 
+                      className="group py-5 rounded-2xl bg-zinc-900/50 border border-white/10 font-black text-xs uppercase tracking-widest hover:bg-zinc-800 transition-all flex items-center justify-center gap-3"
+                     >
+                       <RefreshCw size={14} className="group-hover:rotate-180 transition-transform duration-700" /> 다음 씬 촬영하기
+                     </button>
+                     <a 
+                      href={videoUrl} 
+                      download 
+                      className="py-5 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-widest text-center hover:bg-amber-400 transition-all flex items-center justify-center gap-3 shadow-xl shadow-white/10"
+                     >
+                       <Download size={14} /> 영상 다운로드
+                     </a>
+                   </div>
+                 )}
+              </div>
+            )}
+
+          </div>
+
+          {/* 서브 사이드바 (우측 5) */}
+          <div className="lg:col-span-5 space-y-10">
+            
+            {/* 프로덕션 로그 */}
+            <div className="bg-zinc-900/50 rounded-[2.5rem] border border-white/5 flex flex-col h-full min-h-[600px] overflow-hidden backdrop-blur-3xl shadow-2xl relative">
+               <div className="p-6 border-b border-white/5 flex justify-between items-center bg-black/20">
+                  <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-3">
+                    <MonitorPlay size={16} className="text-amber-500" /> Production Log
+                  </span>
+                  <div className="flex gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
+                  </div>
+               </div>
+               
+               <div className="flex-1 p-8 space-y-10 overflow-y-auto font-mono text-xs text-zinc-500 scrollbar-hide">
+                  {stage === 'input' && (
+                    <div className="space-y-8 animate-in fade-in duration-500">
+                      <div className="space-y-4">
+                        <p className="text-amber-500/60 leading-relaxed italic border-l-2 border-amber-500/20 pl-4">
+                          "좋은 영화는 탄탄한 시나리오에서 시작됩니다. 인물들의 고유한 특징과 시대 배경을 정확히 입력할수록 AI의 고증 능력이 극대화됩니다."
+                        </p>
+                      </div>
+                      <div className="p-8 bg-black/40 rounded-[2rem] border border-white/5 space-y-6 shadow-inner">
+                        <p className="text-[10px] text-zinc-700 font-black tracking-widest">MISSION: PRE-PRODUCTION</p>
+                        <ul className="space-y-4">
+                          <li className="flex gap-3">
+                            <CheckCircle2 size={14} className={scenario ? 'text-green-500' : 'text-zinc-800'} />
+                            <span className={scenario ? 'text-zinc-300' : ''}>'운수 좋은 날' 텍스트 분석</span>
+                          </li>
+                          <li className="flex gap-3">
+                            <CheckCircle2 size={14} className={characters.length >= 2 ? 'text-green-500' : 'text-zinc-800'} />
+                            <span className={characters.length >= 2 ? 'text-zinc-300' : ''}>인물 간의 내적 갈등 관계 설정</span>
+                          </li>
+                          <li className="flex gap-3">
+                            <span className="w-3.5 h-3.5 border border-zinc-800 rounded-full flex items-center justify-center text-[8px]">3</span>
+                            <span>비주얼 시안 추출 대기 중</span>
+                          </li>
+                        </ul>
+                      </div>
+                      <div className="pt-10 flex flex-col items-center gap-4 opacity-10">
+                         <Film size={60} />
+                         <p className="text-[10px] font-black tracking-[0.5em]">STUDIO READY</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {stage === 'picking' && (
+                    <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
+                      <div className="space-y-3">
+                         <p className="text-green-500 font-bold flex items-center gap-2">
+                           <CheckCircle2 size={14} /> SCENARIO PARSED
+                         </p>
+                         <p className="text-zinc-600 pl-6 leading-relaxed">Gemini 2.5 Flash가 시대적 배경(일제강점기)과 인물 김 첨지의 고증 자료를 분석했습니다.</p>
+                      </div>
+                      <div className="space-y-3">
+                         <p className="text-green-500 font-bold flex items-center gap-2">
+                           <CheckCircle2 size={14} /> VISUAL CONCEPTS GENERATED
+                         </p>
+                         <p className="text-zinc-600 pl-6 leading-relaxed">Imagen 4.0 Fast를 통해 인물 도안과 배경 시안 각각 3장씩 렌더링을 마쳤습니다.</p>
+                      </div>
+                      <div className="p-8 bg-amber-500/5 rounded-[2rem] border border-amber-500/10 space-y-4">
+                        <p className="text-amber-500 font-black text-[10px] tracking-widest">DIRECTOR'S ACTION</p>
+                        <p className="text-zinc-400 leading-relaxed text-[11px]">감독님, 이 시나리오의 비극적 분위기를 가장 잘 표현하는 인물과 배경을 골라주세요. 선택된 이미지는 최종 영상의 비주얼 가이드가 됩니다.</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {stage === 'rendering' && (
+                    <div className="space-y-8 animate-in fade-in duration-500">
+                      <div className="flex items-center gap-4 text-red-500 font-black text-[11px] animate-pulse">
+                        <div className="w-2 h-2 rounded-full bg-red-500" />
+                        LIVE RENDERING STATUS
+                        <div className="flex-1 h-px bg-red-500/20" />
+                      </div>
+                      <div className="space-y-4 text-zinc-300">
+                        <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
+                           <span>Model</span>
+                           <span className="text-white font-bold">Veo 3.1 Fast</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
+                           <span>Language</span>
+                           <span className="text-white font-bold">Korean (Lip-Sync)</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
+                           <span>Status</span>
+                           <span className="text-amber-500 animate-pulse">Processing Frames...</span>
+                        </div>
+                      </div>
+                      <div className="p-6 rounded-2xl bg-zinc-950 border border-white/5 text-[10px] leading-loose text-zinc-600 italic">
+                         "영상이 제작되는 약 90초 동안 인물들의 내면 심리를 다시 한번 묵상해보세요. 소설 속 묘사가 어떻게 시각화될지 기대해 주십시오."
+                      </div>
+                    </div>
+                  )}
+
+                  {stage === 'completed' && (
+                    <div className="space-y-8 animate-in fade-in duration-1000">
+                      <div className="text-center space-y-4 pt-10">
+                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/10 border border-green-500/20 mb-4">
+                           <CheckCircle2 className="text-green-500 w-10 h-10" />
+                        </div>
+                        <h4 className="text-white font-black text-xl tracking-tighter italic">FINALLY CUT RELEASED</h4>
+                        <p className="text-zinc-500 leading-relaxed">성공적으로 촬영을 마쳤습니다. 제작된 영상은 '운수 좋은 날'의 비극적 정서를 효과적으로 전달합니다.</p>
+                      </div>
+                      <div className="p-6 bg-white/5 rounded-2xl border border-white/10 space-y-4">
+                         <p className="text-[10px] font-black tracking-widest">NEXT MISSION</p>
+                         <p className="text-zinc-400 text-[11px] leading-relaxed">생성된 영상을 기반으로 김 첨지의 심리 변화를 서술하는 감상문을 작성해 보세요.</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {errorMessage && (
+                    <div className="p-6 bg-red-500/5 border border-red-500/20 rounded-[2rem] flex items-start gap-4 animate-in shake duration-500">
+                      <AlertCircle className="text-red-500 shrink-0 mt-1" size={20} />
+                      <div className="space-y-2">
+                        <p className="text-red-500 font-black text-[10px] tracking-widest">CRITICAL SYSTEM ERROR</p>
+                        <p className="text-[11px] leading-relaxed text-zinc-500">{errorMessage}</p>
+                        <button onClick={() => setStage('input')} className="text-red-500/50 hover:text-red-500 text-[10px] font-bold underline transition-colors">리셋 후 다시 시도</button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 시안 추출 중 나타나는 미니 로더 */}
+                  {prepStatus && (
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-10 text-center space-y-6 animate-in fade-in duration-300">
+                       <div className="relative">
+                          <div className="w-16 h-16 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+                          <RefreshCw size={20} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-amber-500 animate-pulse" />
+                       </div>
+                       <p className="text-amber-500 font-black text-sm tracking-tighter italic animate-pulse">{prepStatus}</p>
+                    </div>
+                  )}
+               </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* 푸터 */}
+        <footer className="pt-20 pb-12 text-center border-t border-white/5">
+           <div className="flex flex-col items-center gap-6">
+              <div className="flex gap-10 opacity-20">
+                 <img src="https://storage.googleapis.com/tf-model-hosting-assets/imagen/google_logo.svg" className="h-4 invert" alt="Google" />
+                 <span className="text-[10px] font-black tracking-[0.4em] text-white">VERTEX AI</span>
+                 <span className="text-[10px] font-black tracking-[0.4em] text-white">VEO 3.1</span>
+              </div>
+              <p className="text-[9px] font-black text-zinc-800 uppercase tracking-[0.8em] transition-all hover:text-zinc-500 cursor-default">
+                © 2026 DIGITAL EDU • FILM PRODUCTION PLATFORM • BUILT FOR NATIONAL LANGUAGE CLASS
+              </p>
+           </div>
+        </footer>
+
+      </div>
+    </div>
+  );
+}
