@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>내 머릿속 오스카 - 시네마틱 모니터</title>
+  <title>내 머릿속 오스카 - 고교 국어 수업용</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
   <style>
@@ -12,146 +12,180 @@
       background-color: #0a0a0a;
       background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     }
+    /* 분위기 선택 버튼 스타일 */
+    .vibe-btn {
+      @apply bg-zinc-950/40 border-2 border-zinc-800 p-5 rounded-3xl transition-all cursor-pointer text-zinc-500 hover:border-yellow-500/50 flex items-center justify-center text-center text-sm sm:text-base;
+    }
+    /* 선택되었을 때 스타일 */
+    .vibe-btn.active {
+      @apply border-yellow-500 bg-yellow-500/10 text-yellow-500 font-bold shadow-[0_0_20px_rgba(234,179,8,0.2)];
+    }
     .cinema-glow {
       box-shadow: 0 0 80px -20px rgba(234, 179, 8, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    .loading-shimmer {
-      background: linear-gradient(90deg, transparent, rgba(234, 179, 8, 0.2), transparent);
-      background-size: 200% 100%;
-      animation: shimmer 2s infinite;
-    }
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
     }
   </style>
+  <script>
+    // 전역 변수 및 함수 선언
+    let selectedVibe = "peaceful";
+
+    function setVibe(vibe) {
+      selectedVibe = vibe;
+      
+      // 모든 버튼에서 active 클래스 제거
+      const buttons = document.querySelectorAll('.vibe-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // 선택한 버튼에 active 클래스 추가
+      const targetBtn = document.getElementById('vibe-' + vibe);
+      if (targetBtn) {
+        targetBtn.classList.add('active');
+      }
+      
+      console.log("선택된 분위기:", selectedVibe);
+    }
+  </script>
 </head>
-<body class="bg-movie-texture text-zinc-100 min-h-screen flex flex-col items-center justify-center p-4 sm:p-8">
+<body class="bg-movie-texture text-zinc-100 min-h-screen flex flex-col items-center justify-center p-4">
 
   <main class="w-full max-w-4xl bg-zinc-900/90 backdrop-blur-2xl rounded-[3.5rem] shadow-2xl overflow-hidden border border-zinc-800/50">
     <!-- Header -->
-    <header class="p-10 sm:p-14 text-center border-b border-zinc-800/30">
-      <div class="inline-block p-5 bg-yellow-500 rounded-[2rem] mb-6 shadow-2xl shadow-yellow-500/20">
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 8 6 4-6 4Z"/></svg>
+    <header class="p-10 text-center border-b border-zinc-800/30">
+      <div class="inline-block p-4 bg-yellow-500 rounded-3xl mb-4 shadow-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 8 6 4-6 4Z"/></svg>
       </div>
-      <h1 class="text-6xl sm:text-7xl font-black text-yellow-500 mb-4 tracking-tighter italic uppercase">My Oscar</h1>
-      <p class="text-zinc-500 text-sm tracking-[0.6em] font-bold uppercase opacity-50">Visual Masterpiece Generator</p>
+      <h1 class="text-5xl font-black text-yellow-500 mb-2 tracking-tighter italic uppercase">My Oscar</h1>
+      <p class="text-zinc-500 text-[10px] tracking-[0.6em] font-bold uppercase">AI 시각화 창작 도구</p>
     </header>
 
-    <section class="p-10 sm:p-14 space-y-12">
-      <!-- Input Area -->
-      <div id="inputBox" class="space-y-8 transition-all duration-700">
+    <section class="p-8 sm:p-12 space-y-12">
+      <div id="inputBox" class="space-y-12">
+        
+        <!-- 단계 1: 글 입력 -->
         <div class="space-y-4">
-          <label class="block text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em] ml-3">Director's Scenario Script</label>
-          <textarea id="scenarioInput" rows="4" class="w-full p-10 bg-zinc-950/50 text-white border border-zinc-800 rounded-[3rem] focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500/50 transition-all text-2xl font-light leading-relaxed outline-none resize-none shadow-inner" placeholder="영상의 한 장면을 상세히 묘사해 보세요..."></textarea>
+          <label class="block text-xs font-bold text-zinc-600 uppercase tracking-[0.3em] ml-2">Step 1. 소설 속 장면 입력</label>
+          <textarea id="scenarioInput" rows="5" class="w-full p-8 bg-zinc-950 text-white border border-zinc-800 rounded-[2.5rem] focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 transition-all text-xl font-light leading-relaxed outline-none resize-none shadow-inner" placeholder="영상을 만들고 싶은 소설의 구절이나 문장을 넣어주세요."></textarea>
         </div>
-        <button onclick="generateVideo()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black text-3xl py-10 rounded-[3rem] transition-all active:scale-[0.98] shadow-2xl shadow-yellow-500/10 flex justify-center items-center gap-5 group">
-          <svg class="group-hover:rotate-12 transition-transform duration-500" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 20 20"/><path d="m8 11 3 3"/></svg>
-          레디, 액션!
+
+        <!-- 단계 2: 분위기 선택 -->
+        <div class="space-y-4">
+          <label class="block text-xs font-bold text-zinc-600 uppercase tracking-[0.3em] ml-2">Step 2. 장면의 분위기 선택</label>
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
+            <div id="vibe-peaceful" class="vibe-btn active" onclick="setVibe('peaceful')">평화로운</div>
+            <div id="vibe-tense" class="vibe-btn" onclick="setVibe('tense')">긴장감 넘치는</div>
+            <div id="vibe-sad" class="vibe-btn" onclick="setVibe('sad')">슬프고 우울한</div>
+            <div id="vibe-grand" class="vibe-btn" onclick="setVibe('grand')">웅장하고 거대한</div>
+            <div id="vibe-mysterious" class="vibe-btn" onclick="setVibe('mysterious')">신비롭고 몽환적인</div>
+          </div>
+        </div>
+
+        <button onclick="generateVideo()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black text-2xl py-8 rounded-[2.5rem] shadow-2xl transition-all active:scale-95 flex justify-center items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+          촬영 시작하기
         </button>
       </div>
 
-      <!-- Status & Result Area -->
+      <!-- Result Area -->
       <div id="statusBox" class="hidden">
-        
-        <!-- Loading UI -->
-        <div id="loadingUI" class="flex flex-col items-center py-16 space-y-10 w-full animate-in fade-in slide-in-from-bottom-10 duration-1000">
-           <div class="space-y-4 text-center">
-              <p id="statusText" class="text-yellow-500 font-bold text-3xl tracking-tight">필름 데이터 전송 중...</p>
-              <p id="timer" class="text-zinc-600 text-sm font-mono tracking-[0.3em] uppercase">00:00 elapsed</p>
+        <div id="loadingUI" class="flex flex-col items-center py-16 space-y-10 w-full animate-in fade-in duration-1000">
+           <div class="text-center space-y-4">
+              <p id="statusText" class="text-yellow-500 font-bold text-2xl tracking-tight">AI 디렉터가 장면을 분석하고 있습니다...</p>
+              <p id="timer" class="text-zinc-600 text-xs font-mono tracking-widest uppercase">00:00 elapsed</p>
            </div>
-           <div class="w-full max-w-lg space-y-4">
-             <div class="flex justify-between text-[10px] text-zinc-600 font-black uppercase tracking-widest px-2">
-                <span id="progressText">Processing 0%</span>
-                <span>Est. 90-120s</span>
-             </div>
-             <div class="w-full bg-zinc-950 border border-zinc-800/50 rounded-full h-5 p-1.5 shadow-inner relative overflow-hidden">
-               <div id="progressBar" class="bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-600 h-full rounded-full transition-all duration-1000 ease-linear shadow-lg" style="width: 0%">
-                 <div class="absolute inset-0 loading-shimmer opacity-40"></div>
-               </div>
-             </div>
+           <div class="w-full max-w-md bg-zinc-950 border border-zinc-800 rounded-full h-4 p-1.5 overflow-hidden">
+             <div id="progressBar" class="bg-gradient-to-r from-yellow-700 to-yellow-400 h-full rounded-full transition-all duration-1000 shadow-[0_0_20px_rgba(234,179,8,0.4)]" style="width: 0%"></div>
+           </div>
+           <div id="aiBriefing" class="text-xs text-zinc-500 bg-zinc-950/50 p-6 rounded-3xl border border-zinc-800/50 max-w-lg leading-relaxed italic text-center">
+             <!-- AI 기법 설명 -->
            </div>
         </div>
 
-        <!-- 🎯 Final Cinema Player -->
-        <div id="resultUI" class="hidden space-y-12 animate-in zoom-in-95 duration-1000 text-center">
-          <div class="flex items-center justify-center gap-4 text-green-400">
-             <span class="relative flex h-4 w-4">
-               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-               <span class="relative inline-flex rounded-full h-4 w-4 bg-green-500"></span>
-             </span>
-             <p class="font-black text-3xl tracking-tighter uppercase italic">Masterpiece Completed</p>
-          </div>
-          
-          <div class="cinema-glow rounded-[3.5rem] overflow-hidden bg-black aspect-video relative group border border-white/5">
+        <div id="resultUI" class="hidden space-y-10 animate-in zoom-in-95 duration-1000 text-center">
+          <div class="cinema-glow rounded-[3rem] overflow-hidden bg-black aspect-video relative group border border-zinc-800">
              <video id="cinemaVideo" controls class="w-full h-full object-cover">
                 <source id="videoSrc" src="" type="video/mp4">
-                이 브라우저는 비디오 재생을 지원하지 않습니다.
              </video>
-             <div class="absolute inset-0 pointer-events-none border-[1.5rem] border-zinc-950/20 mix-blend-overlay"></div>
           </div>
-
-          <div class="flex flex-col sm:flex-row gap-5 justify-center pt-4">
-             <a id="downloadBtn" href="#" download="my_oscar_master.mp4" class="flex items-center justify-center gap-4 bg-zinc-100 text-black px-14 py-7 rounded-[2rem] text-sm font-black uppercase hover:bg-white transition-all shadow-2xl active:scale-95 group">
-                <svg class="group-hover:-translate-y-1 transition-transform" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                마스터 파일 저장
-             </a>
-             <button onclick="location.reload()" class="flex items-center justify-center gap-4 bg-zinc-800 text-zinc-400 px-14 py-7 rounded-[2rem] text-sm font-bold uppercase border border-zinc-700 hover:bg-zinc-700 transition-all active:scale-95">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                새로운 씬 촬영
-             </button>
+          <div class="flex flex-col sm:flex-row gap-5 justify-center">
+             <a id="downloadBtn" href="#" download class="bg-zinc-100 text-black px-12 py-5 rounded-2xl text-sm font-black uppercase hover:bg-white shadow-xl transition-all">필름 저장하기</a>
+             <button onclick="location.reload()" class="bg-zinc-800 text-zinc-400 px-12 py-5 rounded-2xl text-sm font-bold uppercase border border-zinc-700 hover:bg-zinc-700 transition-all">새로운 시퀀스 촬영</button>
           </div>
         </div>
 
-        <!-- Error Section -->
-        <div id="errorUI" class="hidden bg-red-950/20 p-12 rounded-[3rem] border border-red-900/40 text-center animate-in shake duration-500">
-          <p class="text-red-400 font-black text-2xl mb-4 tracking-tighter uppercase">Production Failed</p>
-          <p id="errorMessage" class="text-red-300/60 text-sm font-mono break-all leading-relaxed max-w-md mx-auto"></p>
-          <button onclick="location.reload()" class="mt-8 text-xs text-red-500 font-black underline tracking-[0.3em] uppercase hover:text-red-400 transition-colors">Back to Studio</button>
+        <div id="errorUI" class="hidden bg-red-950/20 p-10 rounded-3xl border border-red-900/40 text-center">
+          <p id="errorMessage" class="text-red-400 text-sm font-mono"></p>
+          <button onclick="location.reload()" class="mt-6 text-xs text-red-500 font-bold underline">다시 시도하기</button>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="mt-14 text-zinc-700 text-[10px] font-black uppercase tracking-[0.6em] opacity-30">
-    © 2026 JINSUNG DIRECTOR • GOOGLE VEO 3.1 POWERED
+  <footer class="mt-12 text-zinc-800 text-[10px] font-black uppercase tracking-[0.5em] opacity-40">
+    © 2026 DIRECTOR JINSUNG • AI CINEMA EDUCATION
   </footer>
 
   <script>
     let startTime;
     let timerInterval;
     let pollInterval;
-    const TOTAL_ESTIMATED = 95;
+
+    const vibePresets = {
+      peaceful: {
+        text: "평화롭고 고요한",
+        prompt: "Natural soft morning light, static shot, deep focus, calm atmosphere, 8k cinematic textures.",
+        brief: "AI 디렉터 의견: 평화로운 분위기를 위해 움직임이 거의 없는 정지 샷과 부드러운 아침 햇살 조명을 선택했습니다."
+      },
+      tense: {
+        text: "긴장감 넘치는",
+        prompt: "High contrast lighting, handheld camera movement, dutch angle, cinematic suspense, sharp details.",
+        brief: "AI 디렉터 의견: 긴장감을 높이기 위해 카메라를 기울인 더치 앵글과 현장감이 느껴지는 핸드헬드 기법을 적용했습니다."
+      },
+      sad: {
+        text: "슬프고 우울한",
+        prompt: "Cool blue color palette, slow dolly out, low-key lighting with deep shadows, melancholic mood.",
+        brief: "AI 디렉터 의견: 슬픈 감정을 강조하기 위해 차가운 푸른 색조와 인물에서 멀어지는 느린 카메라 움직임을 선택했습니다."
+      },
+      grand: {
+        text: "웅장하고 거대한",
+        prompt: "Wide angle lens, drone aerial shot, golden hour lighting, epic scale, majestic atmosphere.",
+        brief: "AI 디렉터 의견: 웅장한 느낌을 위해 하늘에서 내려다보는 항공 촬영 기법과 시야가 넓은 광각 렌즈를 사용했습니다."
+      },
+      mysterious: {
+        text: "신비롭고 몽환적인",
+        prompt: "Soft ethereal lighting, rack focus effect, swirling mist, dreamlike aesthetic, shallow depth of field.",
+        brief: "AI 디렉터 의견: 몽환적인 느낌을 위해 초점을 앞뒤로 부드럽게 옮기는 랙 포커스와 안개 효과를 조화시켰습니다."
+      }
+    };
 
     async function generateVideo() {
-      const prompt = document.getElementById('scenarioInput').value;
-      if (!prompt.trim()) return alert('시나리오를 입력해주세요 감독님!');
+      const scenario = document.getElementById('scenarioInput').value;
+      if (!scenario.trim()) return alert('소설 속 장면을 입력해주세요!');
 
-      document.getElementById('inputBox').classList.add('hidden', 'opacity-0');
+      const preset = vibePresets[selectedVibe];
+      const finalPrompt = `Cinematic visualization: "${scenario}". AI Direction: ${preset.prompt}`;
+      
+      document.getElementById('inputBox').classList.add('hidden');
       document.getElementById('statusBox').classList.remove('hidden');
+      document.getElementById('aiBriefing').innerText = preset.brief;
       
       startTime = Date.now();
       timerInterval = setInterval(() => {
         const diff = Math.floor((Date.now() - startTime) / 1000);
         document.getElementById('timer').innerText = `${String(Math.floor(diff/60)).padStart(2,'0')}:${String(diff%60).padStart(2,'0')} ELAPSED`;
-        
-        let p = Math.min(Math.floor((diff/TOTAL_ESTIMATED)*100), 99);
+        let p = Math.min(Math.floor((diff/95)*100), 99);
         document.getElementById('progressBar').style.width = p + '%';
-        document.getElementById('progressText').innerText = `FILM PROCESSING ${p}%`;
       }, 1000);
 
       try {
         const res = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt }),
+          body: JSON.stringify({ prompt: finalPrompt }),
         });
         const data = await res.json();
-        if (data.success) {
-          document.getElementById('statusText').innerText = "🎥 시네마틱 렌더링 스튜디오 가동 중...";
-          checkStatus(data.operationId);
-        } else throw new Error(data.message);
+        if (data.success) checkStatus(data.operationId);
+        else throw new Error(data.message);
       } catch (err) { showError(err.message); }
     }
 
@@ -169,24 +203,15 @@
             clearInterval(timerInterval);
             if (data.error) throw new Error(data.error.message);
             
-            // 🎯 구글 응답의 gcsUri 추출 (여러 경로 대응)
-            const gcsUri = data.response?.videos?.[0]?.gcsUri || 
-                           data.response?.predictions?.[0]?.gcsUri ||
-                           (data.response?.videos && data.response.videos[0]);
-
+            const gcsUri = data.response?.videos?.[0]?.gcsUri || data.response?.predictions?.[0]?.gcsUri;
             if (gcsUri) {
-              // 🎯 gs:// 주소를 공개 웹 주소로 자동 변환
               const webUrl = gcsUri.replace('gs://', 'https://storage.googleapis.com/');
               const video = document.getElementById('cinemaVideo');
-              
               document.getElementById('videoSrc').src = webUrl;
-              video.load(); // 비디오 리로드
+              video.load();
               document.getElementById('downloadBtn').href = webUrl;
-              
               document.getElementById('loadingUI').classList.add('hidden');
               document.getElementById('resultUI').classList.remove('hidden');
-            } else {
-              throw new Error("영상을 찾을 수 없습니다. 스토리지를 확인해 보세요.");
             }
           }
         } catch (e) { console.error("Polling...", e); }
@@ -194,8 +219,7 @@
     }
 
     function showError(m) {
-      clearInterval(timerInterval);
-      if(pollInterval) clearInterval(pollInterval);
+      clearInterval(timerInterval); clearInterval(pollInterval);
       document.getElementById('loadingUI').classList.add('hidden');
       document.getElementById('errorUI').classList.remove('hidden');
       document.getElementById('errorMessage').innerText = m;
