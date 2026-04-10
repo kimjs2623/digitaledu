@@ -90,8 +90,13 @@
               <label class="label-pro !mb-0">인물 설정 (Characters)</label>
               <div id="characterList" class="space-y-2">
                 <div class="flex gap-2 char-entry items-center w-full">
-                  <input type="text" class="input-pro w-1/4 !rounded-xl !p-4 text-sm char-name min-w-0" placeholder="이름 (예: A)">
-                  <input type="text" class="input-pro flex-1 !rounded-xl !p-4 text-sm char-desc min-w-0" placeholder="성격/특징 (예: 차갑고 냉소적임)">
+                  <input type="text" class="input-pro w-1/4 !rounded-xl !p-4 text-sm char-name min-w-0" value="김 첨지" placeholder="이름 (예: A)">
+                  <input type="text" class="input-pro flex-1 !rounded-xl !p-4 text-sm char-desc min-w-0" value="하루 벌어 하루 먹고사는 인력거꾼. 아내를 걱정하는 마음이 돈에 대한 욕심보다 커진 상태." placeholder="성격/특징 (예: 차갑고 냉소적임)">
+                  <button type="button" onclick="this.parentElement.remove()" class="text-zinc-600 hover:text-red-500 px-2 font-bold text-lg">&times;</button>
+                </div>
+                <div class="flex gap-2 char-entry items-center w-full mt-2 animate-in fade-in slide-in-from-top-2">
+                  <input type="text" class="input-pro w-1/4 !rounded-xl !p-4 text-sm char-name min-w-0" value="학생" placeholder="이름 (예: A)">
+                  <input type="text" class="input-pro flex-1 !rounded-xl !p-4 text-sm char-desc min-w-0" value="김 첨지에게 '일 원'이라는 파격적인 조건을 제시하며 내적 갈등을 유발하는 인물." placeholder="성격/특징 (예: 차갑고 냉소적임)">
                   <button type="button" onclick="this.parentElement.remove()" class="text-zinc-600 hover:text-red-500 px-2 font-bold text-lg">&times;</button>
                 </div>
               </div>
@@ -101,18 +106,22 @@
             </div>
             <div class="space-y-3 min-w-0">
               <label class="label-pro">배경 설정 (Setting & Era)</label>
-              <input id="placeInput" type="text" class="input-pro w-full rounded-2xl p-5 text-sm" placeholder="예: 조선시대 한양의 번화가, 노을 지는 시간">
+              <input id="placeInput" type="text" class="input-pro w-full rounded-2xl p-5 text-sm" value="일제강점기 거리" placeholder="예: 조선시대 한양의 번화가, 노을 지는 시간">
             </div>
           </div>
 
           <div class="space-y-6">
             <div class="space-y-3">
               <label class="label-pro">현재 씬의 대사 및 행동 (Scenario)</label>
-              <textarea id="scenarioInput" rows="4" class="input-pro w-full rounded-3xl p-6 text-lg font-light leading-relaxed serif-text" placeholder="이 씬에서 벌어질 일과 대사를 적어주세요.&#10;(AI가 각 인물의 대사를 자동 분리합니다)"></textarea>
+              <textarea id="scenarioInput" rows="7" class="input-pro w-full rounded-3xl p-6 text-lg font-light leading-relaxed serif-text" placeholder="이 씬에서 벌어질 일과 대사를 적어주세요.&#10;(AI가 각 인물의 대사를 자동 분리합니다)">"학생님, 어디까지 가시나요?"
+"남대문 정거장까지 가오."
+"아이구, 거긴 너무 멉니다."
+"멀긴 무엇이 멀어. 돈 일 원 줄 테니 갑시다."
+일 원이란 말에 김 첨지는 눈이 번쩍 뜨였다. 하지만 그와 동시에 머릿속에는 아침에 본 아내의 해쓱한 얼굴이 떠올라 가슴이 철렁했다. "아니, 일 원은 고맙지만... 오늘은 이만 들어가 봐야 해서요."</textarea>
             </div>
             <div class="space-y-3">
               <label class="label-pro">연출 스타일 (Style)</label>
-              <textarea id="noteInput" rows="2" class="input-pro w-full rounded-2xl p-5 text-sm" placeholder="예: 시네마틱 조명, 극적인 줌인, 인물 클로즈업"></textarea>
+              <textarea id="noteInput" rows="2" class="input-pro w-full rounded-2xl p-5 text-sm" placeholder="예: 시네마틱 조명, 극적인 줌인, 인물 클로즈업">어둡고 쓸쓸한 분위기, 김 첨지의 내적 갈등을 보여주는 클로즈업 샷</textarea>
             </div>
           </div>
         </div>
@@ -254,7 +263,7 @@
       return charsArray.map(c => `${c.name} (${c.desc})`).join(', ');
     }
 
-    // 🎯 [1단계] AI 분석을 통해 완벽한 시안 프롬프트 추출 및 이미지 생성
+    // 🎯 [1단계] 오류를 강건하게 처리하는 시안 추출 (Fallback 적용)
     async function prepareConceptArt() {
       const scenario = document.getElementById('scenarioInput').value;
       if (!scenario.trim()) return alert('현재 씬의 대사나 행동을 입력해주세요!');
@@ -266,6 +275,9 @@
       document.getElementById('prepLoadingUI').classList.remove('hidden');
       document.getElementById('prepLoadingUI').classList.add('flex');
 
+      let charPrompts = {};
+      let bgPrompt = "";
+
       try {
         const expandRes = await fetch('/api/expand-concept', {
           method: 'POST',
@@ -274,38 +286,43 @@
         });
         
         const expandData = await expandRes.json();
-        if (!expandData.success) throw new Error(expandData.message);
-
-        const { charPrompts, bgPrompt } = expandData.prompts;
-
-        document.getElementById('prepLoadingUI').classList.add('hidden');
-        document.getElementById('prepLoadingUI').classList.remove('flex');
-        document.getElementById('conceptBoardUI').classList.remove('hidden');
-        document.getElementById('conceptBoardUI').classList.add('flex');
-
-        const boardContainer = document.getElementById('conceptBoardContainer');
-        boardContainer.innerHTML = '';
         
-        picksStatus = { bg: false };
-        chars.forEach(c => picksStatus[c.id] = false);
-        checkRenderReady();
-
-        chars.forEach(c => {
-          boardContainer.innerHTML += createSectionHTML(c.id, `Character Concept: ${c.name}`);
-          const safeCharPrompt = (charPrompts[c.id] || `Solo portrait of ${c.name}. ${c.desc}.`) + " SOLID PLAIN WHITE BACKGROUND, NO ENVIRONMENTAL DETAILS.";
-          fetchMultipleImages(safeCharPrompt, c.id);
-        });
-
-        boardContainer.innerHTML += createSectionHTML('bg', 'Background Concept (No Characters)');
-        const safeBgPrompt = (bgPrompt || `Cinematic background of ${place}`) + " ABSOLUTELY NO PEOPLE, NO CHARACTERS, EMPTY SCENERY.";
-        fetchMultipleImages(safeBgPrompt, 'bg');
-
+        if (expandData.success && expandData.prompts) {
+          charPrompts = expandData.prompts.charPrompts || {};
+          bgPrompt = expandData.prompts.bgPrompt || "";
+        } else {
+          console.warn("API 분석 응답 구조 오류, 대체 프롬프트를 사용합니다.", expandData);
+        }
       } catch (e) {
+        // 백엔드 연결 실패, 500 에러 등 모든 오류를 잡아냅니다.
         console.error("Concept Expansion Error:", e);
-        alert("시안 분석 중 오류가 발생했습니다.");
-        document.getElementById('prepLoadingUI').classList.add('hidden');
-        document.getElementById('inputBox').classList.remove('hidden');
+        console.warn("AI 프롬프트 설계 응답 오류 - 기본 설정으로 대체하여 추출을 계속합니다.");
       }
+
+      // 에러가 나더라도 무조건 UI를 다음 화면으로 전환하여 사용자 경험을 유지합니다.
+      document.getElementById('prepLoadingUI').classList.add('hidden');
+      document.getElementById('prepLoadingUI').classList.remove('flex');
+      document.getElementById('conceptBoardUI').classList.remove('hidden');
+      document.getElementById('conceptBoardUI').classList.add('flex');
+
+      const boardContainer = document.getElementById('conceptBoardContainer');
+      boardContainer.innerHTML = '';
+      
+      picksStatus = { bg: false };
+      chars.forEach(c => picksStatus[c.id] = false);
+      checkRenderReady();
+
+      // 인물 이미지 추출 (API가 실패했더라도 기본 프롬프트 Fallback이 작동함)
+      chars.forEach(c => {
+        boardContainer.innerHTML += createSectionHTML(c.id, `Character Concept: ${c.name}`);
+        const safeCharPrompt = (charPrompts[c.id] || `Solo portrait of ${c.name}. Characteristics: ${c.desc}.`) + " SOLID PLAIN WHITE BACKGROUND, NO ENVIRONMENTAL DETAILS.";
+        fetchMultipleImages(safeCharPrompt, c.id);
+      });
+
+      // 배경 이미지 추출
+      boardContainer.innerHTML += createSectionHTML('bg', 'Background Concept (No Characters)');
+      const safeBgPrompt = (bgPrompt || `Cinematic background of ${place}`) + " ABSOLUTELY NO PEOPLE, NO CHARACTERS, EMPTY SCENERY.";
+      fetchMultipleImages(safeBgPrompt, 'bg');
     }
 
     function createSectionHTML(id, title) {
@@ -357,7 +374,7 @@
         console.error("Concept Art Error:", e);
         loader.innerText = "Failed";
         loader.classList.replace('text-amber-500', 'text-red-500');
-        pickImage(sectionId); // 에러시에도 진행 가능하게 강제 통과
+        pickImage(sectionId); // 이미지 생성 에러시 렌더링 버튼이 잠기는 것을 막기 위한 강제 통과
       }
     }
 
