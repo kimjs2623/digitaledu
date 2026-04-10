@@ -19,26 +19,31 @@ export default async function handler(req, res) {
 
     const location = 'us-central1';
     const modelId = 'veo-3.1-fast-generate-001';
+    
+    // 비디오 생성 API 엔드포인트
     const endpoint = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/publishers/google/models/${modelId}:predictLongRunning`;
 
-    // 🎯 에러의 원인이었던 outputConfig를 제거했습니다.
-    // 구글 API는 이걸 빼면 알아서 처리하고 영상 다운로드 주소를 줍니다.
+    // 🎯 구글 공식 규격에 맞춰 parameters 내부에 storageUri를 지정했습니다.
     const payload = {
       instances: [{ prompt: `시네마틱 영상 연출: ${prompt}` }],
-      parameters: { sampleCount: 1, aspectRatio: "16:9" }
+      parameters: { 
+        sampleCount: 1, 
+        aspectRatio: "16:9",
+        storageUri: "gs://digitaledu_storage/outputs/" 
+      }
     };
 
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      headers: { 
+        'Authorization': `Bearer ${token}`, 
+        'Content-Type': 'application/json' 
+      },
       body: JSON.stringify(payload)
     });
 
     const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.error?.message || "촬영 시작 실패");
-    }
+    if (!response.ok) throw new Error(data.error?.message || "촬영 시작 실패");
 
     res.status(200).json({ success: true, operationId: data.name });
 
