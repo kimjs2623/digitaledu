@@ -1,7 +1,7 @@
 import { GoogleAuth } from 'google-auth-library';
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'POST 요청만 가능합니다.' });
+  if (req.method !== 'POST') return res.status(405).json({ success: false });
 
   try {
     const projectId = process.env.GCP_PROJECT_ID;
@@ -22,8 +22,14 @@ export default async function handler(req, res) {
     const endpoint = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/publishers/google/models/${modelId}:predictLongRunning`;
 
     const payload = {
-      instances: [{ prompt: `시네마틱 영상: ${prompt}` }],
-      parameters: { sampleCount: 1, aspectRatio: "16:9" }
+      instances: [{ prompt: `시네마틱 영상 연출: ${prompt}` }],
+      parameters: { sampleCount: 1, aspectRatio: "16:9" },
+      outputConfig: {
+        gcsDestination: {
+          // 🎯 감독님이 확인해주신 정확한 언더바(_) 이름으로 수정 완료!
+          outputUriPrefix: "gs://digitaledu_storage/outputs/" 
+        }
+      }
     };
 
     const response = await fetch(endpoint, {
@@ -33,16 +39,9 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || "촬영 시작 실패");
 
-    if (!response.ok) throw new Error(data.error?.message || "API 호출 실패");
-
-    // 🎯 프론트엔드가 이해할 수 있도록 'result'라는 이름으로 접수 번호를 넘깁니다.
-    res.status(200).json({
-      success: true,
-      result: "촬영이 시작되었습니다!",
-      operationId: data.name,
-      message: "구글 클라우드 서버에서 렌더링 중입니다. (약 1~2분 소요)"
-    });
+    res.status(200).json({ success: true, operationId: data.name });
 
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
