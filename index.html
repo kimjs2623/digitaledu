@@ -31,6 +31,7 @@
       background: rgba(0, 0, 0, 0.8); border-color: rgba(245, 158, 11, 0.5);
       box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 0 0 2px rgba(245, 158, 11, 0.1); outline: none;
     }
+    .input-pro::placeholder { color: rgba(255,255,255,0.3); }
     
     .label-pro { @apply block text-[11px] font-black text-amber-500 uppercase tracking-[0.3em] mb-3 ml-1; }
     
@@ -44,9 +45,9 @@
       background: rgba(245, 158, 11, 0.1); border-color: #f59e0b;
       box-shadow: 0 0 30px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(245, 158, 11, 0.1); color: #fff;
     }
-    .btn-action-sleek:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-action-sleek:disabled { opacity: 0.3; cursor: not-allowed; border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); }
 
-    /* 🎯 다중 컨셉 아트 선택 라디오 버튼 커스텀 */
+    /* 🎯 이미지 선택용 라디오 스타일 */
     .img-radio:checked + label img {
       border-color: #f59e0b;
       box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
@@ -77,7 +78,6 @@
 
     <div class="p-8 sm:p-12 space-y-12 relative">
       
-      <!-- ==================== [섹션 1] 설정 및 씬 입력 ==================== -->
       <div id="inputBox" class="space-y-10 animate-in fade-in duration-700">
         
         <div class="flex items-center justify-between border-b border-white/5 pb-4">
@@ -93,8 +93,8 @@
               <label class="label-pro !mb-0">인물 설정 (Characters)</label>
               <div id="characterList" class="space-y-2">
                 <div class="flex gap-2 char-entry items-center w-full">
-                  <input type="text" class="input-pro w-1/3 !rounded-xl !p-4 text-sm char-name min-w-0" placeholder="이름 (예: 제임스)">
-                  <input type="text" class="input-pro flex-1 !rounded-xl !p-4 text-sm char-desc min-w-0" placeholder="외형 묘사">
+                  <input type="text" class="input-pro w-1/4 !rounded-xl !p-4 text-sm char-name min-w-0" placeholder="이름 (예: A)">
+                  <input type="text" class="input-pro flex-1 !rounded-xl !p-4 text-sm char-desc min-w-0" placeholder="외형 및 성격 (예: 낡은 코트, 다혈질)">
                   <button type="button" onclick="this.parentElement.remove()" class="text-zinc-600 hover:text-red-500 px-2 font-bold text-lg">&times;</button>
                 </div>
               </div>
@@ -120,54 +120,28 @@
           </div>
         </div>
 
-        <!-- 🎯 수정된 첫 번째 액션 버튼 (컨셉 시안 뽑기) -->
         <button id="prepBtn" type="button" onclick="prepareConceptArt()" class="btn-action-sleek">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          컨셉 시안 추출하기
+          캐릭터 및 배경 시안 추출
         </button>
       </div>
 
-      <!-- ==================== [섹션 2] 다중 컨셉 아트 선택 보드 ==================== -->
       <div id="conceptBoardUI" class="hidden flex-col items-center space-y-10 w-full animate-in fade-in duration-1000">
         
         <div class="text-center space-y-3">
           <p class="text-amber-500 font-black text-2xl tracking-tight serif-text">Director's Pick: 컨셉 시안 선택</p>
-          <p class="text-zinc-500 text-sm">마음에 드는 캐릭터와 배경 이미지를 각각 하나씩 선택하세요.</p>
+          <p class="text-zinc-500 text-sm">각 인물과 배경에 가장 어울리는 이미지를 하나씩 선택(Pick) 하세요.</p>
         </div>
 
-        <div class="w-full space-y-8 bg-black/40 border border-amber-500/20 rounded-3xl p-8">
-          
-          <!-- 캐릭터 시안 3장 -->
-          <div class="space-y-3">
-            <div class="flex justify-between items-end">
-              <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest">Character Concepts</p>
-              <span id="charLoader" class="text-[10px] text-amber-500 animate-pulse">Drawing...</span>
-            </div>
-            <div class="grid grid-cols-3 gap-4" id="charImageGrid">
-              <!-- JS로 3개의 라디오 버튼+이미지 삽입 -->
-            </div>
-          </div>
+        <div id="conceptBoardContainer" class="w-full space-y-8 bg-black/40 border border-amber-500/20 rounded-3xl p-8">
+           </div>
 
-          <!-- 배경 시안 3장 -->
-          <div class="space-y-3 border-t border-white/5 pt-6">
-            <div class="flex justify-between items-end">
-              <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest">Background Concepts</p>
-              <span id="bgLoader" class="text-[10px] text-amber-500 animate-pulse">Drawing...</span>
-            </div>
-            <div class="grid grid-cols-3 gap-4" id="bgImageGrid">
-              <!-- JS로 3개의 라디오 버튼+이미지 삽입 -->
-            </div>
-          </div>
-        </div>
-
-        <!-- 🎯 두 번째 액션 버튼 (최종 영상 렌더링) -->
         <button id="renderBtn" type="button" onclick="startFinalRender()" disabled class="btn-action-sleek">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          선택한 컨셉으로 영상 촬영 시작
+          선택 완료! 영상 촬영 시작
         </button>
       </div>
 
-      <!-- ==================== [섹션 3] 로딩 대기실 ==================== -->
       <div id="loadingUI" class="hidden flex-col items-center py-4 space-y-10 w-full animate-in fade-in duration-1000">
         
         <div class="text-center space-y-3">
@@ -178,7 +152,6 @@
           <div id="progressBar" class="bg-gradient-to-r from-amber-700 to-amber-500 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
         </div>
 
-        <!-- 대기실 미션 보드 -->
         <div class="bg-gradient-to-br from-zinc-900 to-black border border-white/5 rounded-3xl p-8 w-full max-w-2xl">
           <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2 text-center">Director's Waiting Room</p>
           <h3 class="text-xl font-bold text-white mb-2 text-center">렌더링 대기 미션</h3>
@@ -188,7 +161,6 @@
         </div>
       </div>
 
-      <!-- ==================== [섹션 4] 시퀀스 플레이어 & 스토리보드 ==================== -->
       <div id="playerUI" class="hidden space-y-12 animate-in zoom-in duration-1000">
         
         <div class="space-y-4">
@@ -211,8 +183,7 @@
         <div class="bg-black/40 p-8 rounded-3xl border border-white/5 space-y-6">
           <h3 class="text-sm font-bold text-white uppercase tracking-widest border-b border-white/10 pb-4">🎬 Storyboard Timeline</h3>
           <div id="timelineContainer" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <!-- 씬 썸네일 -->
-          </div>
+            </div>
           <div class="flex justify-center pt-6">
             <button type="button" onclick="prepareNextScene()" class="btn-action-sleek !w-auto !py-4 !px-8">
               + 다음 씬(SCENE) 이어서 촬영하기
@@ -236,8 +207,9 @@
     let startTime;
     let timerInterval;
     let pollInterval;
-    let charPicked = false;
-    let bgPicked = false;
+    
+    // 🎯 픽(Pick) 상태 관리
+    let picksStatus = {}; 
     
     let currentPlayIndex = 0;
     const player = document.getElementById('sequencePlayer');
@@ -249,52 +221,81 @@
       const div = document.createElement('div');
       div.className = 'flex gap-2 char-entry items-center w-full mt-2 animate-in fade-in slide-in-from-top-2';
       div.innerHTML = `
-        <input type="text" class="input-pro w-1/3 !rounded-xl !p-4 text-sm char-name min-w-0" placeholder="이름 (예: B)">
-        <input type="text" class="input-pro flex-1 !rounded-xl !p-4 text-sm char-desc min-w-0" placeholder="외형 묘사">
+        <input type="text" class="input-pro w-1/4 !rounded-xl !p-4 text-sm char-name min-w-0" placeholder="이름 (예: B)">
+        <input type="text" class="input-pro flex-1 !rounded-xl !p-4 text-sm char-desc min-w-0" placeholder="외형 및 성격 (예: 소심함, 안경)">
         <button type="button" onclick="this.parentElement.remove()" class="text-zinc-600 hover:text-red-500 px-2 font-bold text-lg">&times;</button>
       `;
       list.appendChild(div);
     }
 
-    function getCharactersText() {
+    // 인물 정보를 배열 객체로 가져오기 (개별 생성을 위함)
+    function getCharactersData() {
       const entries = document.querySelectorAll('.char-entry');
       let chars = [];
-      entries.forEach(entry => {
-         const name = entry.querySelector('.char-name').value.trim();
-         const desc = entry.querySelector('.char-desc').value.trim();
-         if(name || desc) chars.push(`${name ? name : 'Person'} (${desc})`);
+      entries.forEach((entry, idx) => {
+         const name = entry.querySelector('.char-name').value.trim() || `Character ${idx+1}`;
+         const desc = entry.querySelector('.char-desc').value.trim() || `Main character`;
+         chars.push({ id: `char_${idx}`, name, desc });
       });
-      return chars.length > 0 ? chars.join(', ') : "Main characters";
+      return chars;
     }
 
-    // 🎯 [1단계] 컨셉 이미지 여러 장 불러와서 Board 띄우기
+    function getCharactersCombinedText(charsArray) {
+      return charsArray.map(c => `${c.name} (${c.desc})`).join(', ');
+    }
+
+    // 🎯 [1단계] 컨셉 이미지 섹션별(인물들 + 배경) 따로 생성
     async function prepareConceptArt() {
       const scenario = document.getElementById('scenarioInput').value;
       if (!scenario.trim()) return alert('현재 씬의 대사나 행동을 입력해주세요!');
 
-      const chars = getCharactersText();
-      const place = document.getElementById('placeInput').value || "cinematic dark environment";
-      const note = document.getElementById('noteInput').value || "Cinematic masterpiece";
+      const chars = getCharactersData();
+      const place = document.getElementById('placeInput').value || "cinematic environment";
 
       document.getElementById('inputBox').classList.add('hidden');
       document.getElementById('conceptBoardUI').classList.remove('hidden');
       document.getElementById('conceptBoardUI').classList.add('flex');
 
-      // 기존 선택값 초기화
-      charPicked = false; bgPicked = false;
+      const boardContainer = document.getElementById('conceptBoardContainer');
+      boardContainer.innerHTML = '';
+      
+      // 픽(Pick) 상태 초기화
+      picksStatus = { bg: false };
+      chars.forEach(c => picksStatus[c.id] = false);
       checkRenderReady();
 
-      // 백엔드를 통해 각각 3장씩 이미지 생성
-      fetchMultipleImages(`Character design concept art for: ${chars}. Professional studio lighting, 8k, photorealistic.`, 'charImageGrid', 'charLoader', 'char');
-      fetchMultipleImages(`Background environment design for: ${place}. Professional cinematography, dramatic lighting, 8k.`, 'bgImageGrid', 'bgLoader', 'bg');
+      // 인물별로 UI 섹션 생성 및 API 호출
+      chars.forEach(c => {
+        boardContainer.innerHTML += createSectionHTML(c.id, `Character Concept: ${c.name}`);
+        // 인물만 명확히 뽑도록 지시
+        const prompt = `Solo portrait of a character named ${c.name}. Characteristics: ${c.desc}. Professional cinematic lighting, highly detailed, 8k.`;
+        fetchMultipleImages(prompt, c.id);
+      });
+
+      // 배경 UI 섹션 생성 및 API 호출 (인물 절대 금지 지시어)
+      boardContainer.innerHTML += createSectionHTML('bg', 'Background Concept (No Characters)');
+      const bgPrompt = `Empty cinematic background environment. Setting: ${place}. NO PEOPLE, NO CHARACTERS, EMPTY SCENERY. Dramatic lighting, 8k.`;
+      fetchMultipleImages(bgPrompt, 'bg');
+    }
+
+    // UI 섹션 템플릿
+    function createSectionHTML(id, title) {
+      return `
+        <div class="space-y-3 pt-6 border-t border-white/5 first:border-0 first:pt-0">
+          <div class="flex justify-between items-end">
+            <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest">${title}</p>
+            <span id="${id}-loader" class="text-[10px] text-amber-500 animate-pulse">Drawing 3 Samples...</span>
+          </div>
+          <div class="grid grid-cols-3 gap-4" id="${id}-grid"></div>
+        </div>
+      `;
     }
 
     // 다중 이미지 생성 API 호출
-    async function fetchMultipleImages(prompt, gridId, loaderId, type) {
-      const grid = document.getElementById(gridId);
-      grid.innerHTML = ""; // 초기화
-      document.getElementById(loaderId).innerText = "Drawing 3 Samples...";
-
+    async function fetchMultipleImages(prompt, sectionId) {
+      const grid = document.getElementById(`${sectionId}-grid`);
+      const loader = document.getElementById(`${sectionId}-loader`);
+      
       try {
         const response = await fetch('/api/generate-image', {
           method: 'POST',
@@ -304,16 +305,16 @@
         const data = await response.json();
         
         if (data.success && data.imagesBase64) {
-          document.getElementById(loaderId).innerText = "Complete";
+          loader.innerText = "Complete";
           
           data.imagesBase64.forEach((base64, index) => {
             const imageUrl = `data:image/png;base64,${base64}`;
-            const radioId = `${type}-img-${index}`;
+            const radioId = `${sectionId}-img-${index}`;
             
             const div = document.createElement('div');
             div.className = "relative aspect-square";
             div.innerHTML = `
-              <input type="radio" name="${type}Pick" id="${radioId}" value="${imageUrl}" class="hidden img-radio" onchange="pickImage('${type}')">
+              <input type="radio" name="${sectionId}Pick" id="${radioId}" value="${imageUrl}" class="hidden img-radio" onchange="pickImage('${sectionId}')">
               <label for="${radioId}" class="w-full h-full block">
                 <img src="${imageUrl}" class="w-full h-full object-cover rounded-2xl concept-img bg-zinc-900">
                 <div class="pick-badge absolute top-2 right-2 bg-amber-500 text-black text-[9px] font-black px-2 py-0.5 rounded shadow-xl hidden">PICK</div>
@@ -322,34 +323,45 @@
             grid.appendChild(div);
           });
         } else {
-          throw new Error("이미지 생성 실패");
+          throw new Error("생성 실패");
         }
       } catch (e) {
         console.error("Concept Art Error:", e);
-        document.getElementById(loaderId).innerText = "Failed";
+        loader.innerText = "Failed";
+        loader.classList.replace('text-amber-500', 'text-red-500');
+        // 에러 시 렌더링이 막히지 않도록 강제로 pick 처리
+        pickImage(sectionId);
       }
     }
 
-    function pickImage(type) {
-      if(type === 'char') charPicked = true;
-      if(type === 'bg') bgPicked = true;
+    function pickImage(sectionId) {
+      picksStatus[sectionId] = true;
       checkRenderReady();
     }
 
+    // 모든 인물과 배경이 선택되었는지 확인
     function checkRenderReady() {
       const renderBtn = document.getElementById('renderBtn');
-      if(charPicked && bgPicked) {
+      const allPicked = Object.values(picksStatus).every(status => status === true);
+      
+      if(allPicked) {
         renderBtn.disabled = false;
-        renderBtn.classList.add('animate-pulse'); // 강조 효과
+        renderBtn.classList.add('animate-pulse');
+        renderBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          선택 완료! 영상 촬영 시작
+        `;
       } else {
         renderBtn.disabled = true;
         renderBtn.classList.remove('animate-pulse');
+        renderBtn.innerHTML = "모든 시안을 하나씩 선택(Pick) 해주세요";
       }
     }
 
-    // 🎯 [2단계] 선택된 이미지 분위기를 반영하여 최종 영상 렌더링
+    // 🎯 [2단계] 백엔드로 대사 분리 지시 후 렌더링
     async function startFinalRender() {
-      const chars = getCharactersText();
+      const charsArray = getCharactersData();
+      const charsCombined = getCharactersCombinedText(charsArray);
       const place = document.getElementById('placeInput').value;
       const scenario = document.getElementById('scenarioInput').value;
       const note = document.getElementById('noteInput').value;
@@ -361,25 +373,23 @@
       
       startTimer();
 
-      // 백엔드를 통해 안전하게 Gemini 대사 분리/분석 호출
       try {
         const analyzeRes = await fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chars, place, scenario, note })
+          body: JSON.stringify({ chars: charsCombined, place, scenario, note })
         });
         
         const analyzeData = await analyzeRes.json();
         if(!analyzeData.success) throw new Error(analyzeData.message);
 
-        // 이미지 생김새 정보를 프롬프트에 암시적으로 통합 (Veo는 텍스트만 받으므로)
         let promptText = analyzeData.prompt;
         currentFinalPrompt = `${promptText}. Ultra realistic 8k video. Authentic Korean Lip-Sync for dialogue. No text overlays.`;
         
         sendToVEO();
       } catch (e) {
         console.error("Gemini Parsing Error", e);
-        currentFinalPrompt = `Characters: ${chars}. Setting: ${place}. Action: ${scenario}. Style: ${note}. Spoken language MUST be Korean. No text on screen. 8k realistic video.`;
+        currentFinalPrompt = `Characters: ${charsCombined}. Setting: ${place}. Action: ${scenario}. Style: ${note}. Spoken language MUST be Korean. No text on screen. 8k realistic video.`;
         sendToVEO();
       }
     }
