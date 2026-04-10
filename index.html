@@ -9,57 +9,92 @@
   <style>
     body { font-family: 'Noto Serif KR', serif; }
     .bg-movie-texture {
-      background-color: #0a0a0a;
-      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      background-color: #050505;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     }
-    .cinema-glow { box-shadow: 0 0 80px -20px rgba(234, 179, 8, 0.3); }
+    .cinema-glow { box-shadow: 0 0 100px -30px rgba(234, 179, 8, 0.2); }
+    
     .style-chip {
-      @apply px-4 py-2 bg-zinc-800 text-zinc-400 rounded-full text-[11px] font-bold hover:bg-yellow-500/20 hover:text-yellow-500 transition-all cursor-pointer border border-zinc-700;
+      @apply px-5 py-2.5 bg-zinc-900/80 text-zinc-500 rounded-xl text-[11px] font-black hover:bg-yellow-500 hover:text-black transition-all cursor-pointer border border-zinc-800 shadow-lg uppercase tracking-tighter;
     }
-    .input-label { @apply block text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1 mb-2; }
-    .input-field { @apply w-full p-5 bg-zinc-950 text-white border border-zinc-800 rounded-2xl focus:ring-2 focus:ring-yellow-500 outline-none text-sm font-light transition-all; }
+    .style-chip.active {
+      @apply bg-yellow-500 text-black border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)];
+    }
+
+    .input-label { @apply block text-[11px] font-black text-yellow-600 uppercase tracking-[0.4em] ml-2 mb-4; }
+    
+    /* 🎯 입력창 디자인 전면 개편 (가시성 100% 확보) */
+    .input-field { 
+      background-color: #000000 !important; /* 강제 블랙 배경 */
+      color: #ffffff !important;           /* 강제 화이트 텍스트 */
+      @apply w-full p-6 border-2 border-zinc-800 rounded-[2.5rem] placeholder-zinc-700 outline-none transition-all duration-300 shadow-2xl font-light;
+      box-shadow: inset 0 4px 20px rgba(0,0,0,0.8);
+    }
+    .input-field:focus {
+      @apply border-yellow-500 ring-8 ring-yellow-500/5 bg-[#0a0a0a] !important;
+    }
+
+    /* 버튼 애니메이션 */
+    .btn-action {
+      @apply w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black text-2xl py-9 rounded-[3rem] shadow-[0_25px_50px_-12px_rgba(234,179,8,0.4)] transform transition-all active:scale-95 flex justify-center items-center gap-5;
+    }
+    
+    /* 스크롤바 커스텀 */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #050505; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ea7b08; }
   </style>
 </head>
-<body class="bg-movie-texture text-zinc-100 min-h-screen flex flex-col items-center py-10 px-4 sm:px-8">
+<body class="bg-movie-texture text-zinc-100 min-h-screen flex flex-col items-center py-16 px-4 sm:px-8">
 
-  <main class="w-full max-w-4xl bg-zinc-900/95 backdrop-blur-2xl rounded-[3rem] shadow-2xl overflow-hidden border border-zinc-800/50 transition-all">
+  <main class="w-full max-w-5xl bg-zinc-950/95 backdrop-blur-3xl rounded-[4rem] shadow-2xl overflow-hidden border border-white/5 transition-all cinema-glow">
     <!-- Header -->
-    <header class="p-8 text-center border-b border-zinc-800/30">
-      <h1 class="text-4xl font-black text-yellow-500 mb-2 tracking-tighter italic uppercase">My Oscar</h1>
-      <p class="text-zinc-500 text-[10px] tracking-[0.4em] font-bold uppercase opacity-60">AI Cinematic Director</p>
+    <header class="p-12 text-center border-b border-white/5 bg-black/40">
+      <div class="inline-block p-5 bg-yellow-500 rounded-3xl mb-6 shadow-2xl shadow-yellow-500/30">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 8 6 4-6 4Z"/></svg>
+      </div>
+      <h1 class="text-6xl font-black text-yellow-500 mb-2 tracking-tighter italic uppercase italic">My Oscar</h1>
+      <p class="text-zinc-600 text-xs tracking-[0.7em] font-black uppercase">Studio Production Interface</p>
     </header>
 
-    <section id="mainSection" class="p-8 sm:p-12 space-y-12">
+    <section id="mainSection" class="p-12 sm:p-20 space-y-16">
       <!-- 입력 화면 -->
-      <div id="inputBox" class="space-y-10">
+      <div id="inputBox" class="space-y-14">
         
-        <!-- 단계 1: 시나리오 및 요소 -->
-        <div class="space-y-6">
-          <div class="space-y-3">
-            <label class="input-label">Step 1. 소설 속 장면 (시나리오)</label>
-            <textarea id="scenarioInput" rows="3" class="input-field text-lg leading-relaxed" placeholder="영상의 중심이 될 소설 문장을 입력하세요."></textarea>
+        <!-- 단계 1: 시나리오 -->
+        <div class="space-y-5">
+          <div class="flex items-center gap-4 ml-2">
+            <span class="bg-yellow-600 text-black text-[10px] font-black px-3 py-1 rounded-full">01</span>
+            <label class="input-label mb-0">Main Cinematic Scenario</label>
           </div>
+          <textarea id="scenarioInput" rows="5" class="input-field text-2xl leading-relaxed tracking-tight" placeholder="감독님의 머릿속에 있는 위대한 장면을 텍스트로 풀어내세요..."></textarea>
+        </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="space-y-2">
-              <label class="input-label">인물 (Who)</label>
-              <input id="charInput" type="text" class="input-field" placeholder="누가 등장하나요?">
-            </div>
-            <div class="space-y-2">
-              <label class="input-label">사건 (What)</label>
-              <input id="eventInput" type="text" class="input-field" placeholder="무엇을 하나요?">
-            </div>
-            <div class="space-y-2">
-              <label class="input-label">배경 (Where)</label>
-              <input id="placeInput" type="text" class="input-field" placeholder="장소와 시간은?">
-            </div>
+        <!-- 요소 상세 설정 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="space-y-4">
+            <label class="input-label">인물 (Character)</label>
+            <input id="charInput" type="text" class="input-field py-5 text-lg" placeholder="누가 등장하나요?">
+          </div>
+          <div class="space-y-4">
+            <label class="input-label">사건 (Action)</label>
+            <input id="eventInput" type="text" class="input-field py-5 text-lg" placeholder="무엇을 하나요?">
+          </div>
+          <div class="space-y-4">
+            <label class="input-label">배경 (Setting)</label>
+            <input id="placeInput" type="text" class="input-field py-5 text-lg" placeholder="장소와 시간대">
           </div>
         </div>
 
         <!-- 단계 2: 연출 노트 -->
-        <div class="space-y-4">
-          <label class="input-label">Step 2. 연출 디테일 (감독의 지시)</label>
-          <div class="flex flex-wrap gap-2 mb-3">
+        <div class="space-y-8 pt-10 border-t border-white/5">
+          <div class="flex items-center gap-4 ml-2">
+            <span class="bg-yellow-600 text-black text-[10px] font-black px-3 py-1 rounded-full">02</span>
+            <label class="input-label mb-0">Director's Production Notes</label>
+          </div>
+          
+          <div class="flex flex-wrap gap-3 px-2">
             <span class="style-chip" onclick="addStyle('화사하고 밝은 햇살')">☀️ 화사함</span>
             <span class="style-chip" onclick="addStyle('아름답고 서정적인')">🌸 아름다움</span>
             <span class="style-chip" onclick="addStyle('긴장감 넘치고 어두운')">🌑 긴장감</span>
@@ -67,69 +102,69 @@
             <span class="style-chip" onclick="addStyle('영화 같은 웅장한')">🎬 웅장함</span>
             <span class="style-chip" onclick="addStyle('색감이 선명한')">🎨 선명함</span>
           </div>
-          <textarea id="noteInput" rows="2" class="input-field" placeholder="원하는 분위기나 카메라 연출을 추가하세요."></textarea>
+          <textarea id="noteInput" rows="3" class="input-field text-lg italic text-yellow-500/70" placeholder="카메라 앵글(클로즈업, 광각 등)이나 조명 지시사항을 추가하세요."></textarea>
         </div>
 
-        <button onclick="generateVideo()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black text-xl py-7 rounded-[2.5rem] shadow-2xl transition-all active:scale-95 flex justify-center items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
-          촬영 시작
+        <button onclick="generateVideo()" class="btn-action">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+          레디, 액션!
         </button>
       </div>
 
       <!-- 상태창 -->
       <div id="statusBox" class="hidden">
-        <div id="loadingUI" class="flex flex-col items-center py-12 space-y-8 w-full animate-in fade-in duration-700">
-           <div class="text-center space-y-3">
-              <p id="statusText" class="text-yellow-500 font-bold text-xl tracking-tight">AI가 장면을 분석하고 있습니다...</p>
-              <p id="sceneInfo" class="text-zinc-500 text-xs font-bold uppercase tracking-widest"></p>
-              <p id="timer" class="text-zinc-600 text-xs font-mono tracking-widest uppercase">00:00 elapsed</p>
+        <div id="loadingUI" class="flex flex-col items-center py-24 space-y-12 w-full animate-in fade-in duration-1000">
+           <div class="text-center space-y-5">
+              <p id="statusText" class="text-yellow-500 font-black text-4xl tracking-tighter italic animate-pulse">SHOOTING IN PROGRESS...</p>
+              <p id="sceneInfo" class="text-zinc-500 text-sm font-black uppercase tracking-[0.4em]"></p>
+              <p id="timer" class="text-zinc-600 text-xs font-mono tracking-widest uppercase opacity-50">00:00 elapsed</p>
            </div>
-           <div class="w-full max-w-xs bg-zinc-950 border border-zinc-800 rounded-full h-3 p-1 overflow-hidden">
-             <div id="progressBar" class="bg-yellow-500 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+           <div class="w-full max-w-md bg-black border border-zinc-800 rounded-full h-6 p-2 overflow-hidden shadow-2xl shadow-yellow-500/5">
+             <div id="progressBar" class="bg-gradient-to-r from-yellow-800 via-yellow-400 to-yellow-600 h-full rounded-full transition-all duration-1000 shadow-lg" style="width: 0%"></div>
            </div>
         </div>
 
         <!-- 🎯 결과 및 수정 UI -->
-        <div id="resultUI" class="hidden space-y-12 animate-in zoom-in-95 duration-1000">
-          <div id="videoContainer" class="space-y-10">
-             <!-- 영상 플레이어들이 여기에 동적으로 추가됩니다 -->
+        <div id="resultUI" class="hidden space-y-20 animate-in zoom-in-95 duration-1000">
+          <div id="videoContainer" class="grid grid-cols-1 gap-20">
+             <!-- 영상 플레이어들 -->
           </div>
 
           <!-- 수정(Edit) 영역 -->
-          <div class="bg-zinc-950/50 p-8 rounded-[3rem] border border-zinc-800 space-y-8">
-             <div class="text-center space-y-2">
-               <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Director's Studio</p>
-               <h2 class="text-xl font-bold text-white">작품을 수정하시겠습니까?</h2>
+          <div class="bg-black/80 p-12 rounded-[4rem] border border-white/5 space-y-12 shadow-inner">
+             <div class="text-center space-y-4">
+               <p class="text-[10px] font-black text-yellow-600 uppercase tracking-[0.6em]">Director's Post-Production</p>
+               <h2 class="text-4xl font-bold text-white tracking-tighter italic">작품을 더 완벽하게 다듬어볼까요?</h2>
              </div>
 
-             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button onclick="scrollToInput()" class="bg-zinc-800 text-zinc-300 py-5 rounded-2xl font-bold hover:bg-zinc-700 transition-all border border-zinc-700">
-                  처음 썼던 시나리오 수정하기
+             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <button onclick="scrollToInput()" class="bg-zinc-100 text-black py-7 rounded-[2.5rem] font-black text-xl hover:bg-white transition-all shadow-2xl active:scale-95">
+                  방금 쓴 시나리오 수정
                 </button>
-                <div class="flex gap-2">
-                  <input id="editInput" type="text" class="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="추가 수정 사항 피드백...">
-                  <button onclick="modifyVideo()" class="bg-yellow-500 text-black px-6 py-4 rounded-2xl font-black text-sm hover:bg-yellow-400">피드백 반영</button>
+                <div class="flex gap-4">
+                  <input id="editInput" type="text" class="input-field !rounded-[2.5rem]" placeholder="색감을 더 따뜻하게... ">
+                  <button onclick="modifyVideo()" class="bg-yellow-500 text-black px-12 py-7 rounded-[2.5rem] font-black text-xl hover:bg-yellow-400 transition-all active:scale-95">반영</button>
                 </div>
              </div>
           </div>
 
-          <div class="flex justify-center">
-             <button onclick="location.reload()" class="text-zinc-600 text-[10px] font-black uppercase tracking-widest hover:text-yellow-500 transition-all">
-                완전히 새로 시작하기
+          <div class="flex justify-center pb-12">
+             <button onclick="location.reload()" class="text-zinc-700 text-xs font-black uppercase tracking-[0.6em] hover:text-yellow-500 transition-all border-b border-zinc-900 pb-2">
+                New Production
              </button>
           </div>
         </div>
 
-        <div id="errorUI" class="hidden text-center p-10 bg-red-950/20 rounded-3xl border border-red-900/40">
-          <p id="errorMessage" class="text-red-400 text-xs font-mono mb-6"></p>
-          <button onclick="location.reload()" class="text-xs text-red-500 underline">새로고침</button>
+        <div id="errorUI" class="hidden text-center p-16 bg-red-950/20 rounded-[4rem] border border-red-900/40 animate-in shake">
+          <p id="errorMessage" class="text-red-400 text-base font-mono mb-10 leading-relaxed max-w-lg mx-auto"></p>
+          <button onclick="location.reload()" class="bg-red-500 text-white px-12 py-5 rounded-3xl font-black text-lg hover:bg-red-400 transition-all shadow-2xl">RE-INITIALIZE STUDIO</button>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="mt-8 text-zinc-800 text-[9px] font-black uppercase tracking-[0.4em] opacity-40">
-    © 2026 JINSUNG DIRECTOR • POWERED BY GOOGLE VEO 3.1
+  <footer class="mt-16 text-zinc-800 text-[10px] font-black uppercase tracking-[0.7em] opacity-40">
+    © 2026 JINSUNG DIRECTOR • PROFESSIONAL AI CINEMA HUB
   </footer>
 
   <script>
@@ -152,7 +187,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // 🎯 한글을 영어 프롬프트로 변환하며 인물/사건/배경 결합
     function craftEnglishPrompt(scenario, char, event, place, note) {
       return `A high quality cinematic video clip (approx 8 seconds). 
               Subject Context: [Characters: ${char || 'unnamed'}], [Action: ${event || 'moving'}], [Setting: ${place || 'cinematic world'}]. 
@@ -169,9 +203,8 @@
       const place = document.getElementById('placeInput').value;
       const note = document.getElementById('noteInput').value;
       
-      if (!scenario.trim()) return alert('시나리오를 입력해주세요!');
+      if (!scenario.trim()) return alert('시나리오를 입력해주세요 감독님!');
 
-      // 🎯 텍스트 길이에 따른 장면 분할 (약 100자 기준)
       const segments = scenario.match(/[^.!?]+[.!?]+/g) || [scenario];
       scenePrompts = [];
       let currentGroup = "";
@@ -196,10 +229,7 @@
     async function modifyVideo() {
       const editRequest = document.getElementById('editInput').value;
       if (!editRequest.trim()) return alert('수정할 내용을 입력해주세요!');
-
-      // 현재 모든 장면 프롬프트에 수정 사항 반영
       scenePrompts = scenePrompts.map(p => `${p}. Modification: ${editRequest}. No text in video.`);
-      
       currentSceneIndex = 0;
       completedVideos = [];
       document.getElementById('videoContainer').innerHTML = "";
@@ -212,7 +242,6 @@
       document.getElementById('loadingUI').classList.remove('hidden');
       document.getElementById('resultUI').classList.add('hidden');
       document.getElementById('errorUI').classList.add('hidden');
-      
       processNextScene();
     }
 
@@ -221,12 +250,9 @@
         finishProduction();
         return;
       }
-
-      document.getElementById('sceneInfo').innerText = `현재 촬영 중: Scene ${currentSceneIndex + 1} / ${scenePrompts.length}`;
+      document.getElementById('sceneInfo').innerText = `Capturing Scene ${currentSceneIndex + 1} / ${scenePrompts.length}`;
       document.getElementById('progressBar').style.width = "0%";
-      
       startTimer();
-
       try {
         const res = await fetch('/api/generate', {
           method: 'POST',
@@ -263,12 +289,10 @@
             clearInterval(pollInterval);
             clearInterval(timerInterval);
             if (data.error) throw new Error(data.error.message);
-            
             const gcsUri = data.response?.videos?.[0]?.gcsUri || data.response?.predictions?.[0]?.gcsUri;
             if (gcsUri) {
               const webUrl = gcsUri.replace('gs://', 'https://storage.googleapis.com/');
               completedVideos.push({ scene: currentSceneIndex + 1, url: webUrl });
-              
               currentSceneIndex++;
               processNextScene();
             }
@@ -280,22 +304,24 @@
     function finishProduction() {
       document.getElementById('loadingUI').classList.add('hidden');
       document.getElementById('resultUI').classList.remove('hidden');
-      
       const container = document.getElementById('videoContainer');
       completedVideos.forEach(v => {
         const videoCard = document.createElement('div');
-        videoCard.className = "space-y-4 animate-in fade-in duration-1000";
+        videoCard.className = "space-y-8 animate-in slide-in-from-bottom-20 duration-1000";
         videoCard.innerHTML = `
-          <div class="flex items-center gap-3 px-4">
-            <span class="bg-yellow-500 text-black text-[10px] font-black px-3 py-1 rounded-full uppercase">Scene ${v.scene}</span>
+          <div class="flex items-center gap-6 px-10">
+            <span class="bg-yellow-500 text-black text-[11px] font-black px-5 py-2 rounded-full uppercase italic tracking-widest shadow-xl">Master Scene ${v.scene}</span>
+            <div class="flex-1 h-px bg-white/10"></div>
           </div>
-          <div class="cinema-glow rounded-[2.5rem] overflow-hidden bg-black aspect-video border border-zinc-800 shadow-2xl relative">
+          <div class="cinema-glow rounded-[4rem] overflow-hidden bg-black aspect-video border-8 border-zinc-900 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] relative group">
             <video controls class="w-full h-full object-cover">
                <source src="${v.url}" type="video/mp4">
             </video>
+            <div class="absolute inset-0 pointer-events-none border-[30px] border-black/20 mix-blend-overlay"></div>
           </div>
-          <div class="text-right">
-             <a href="${v.url}" download class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest hover:text-white transition-all underline">Download This Scene</a>
+          <div class="px-10 flex justify-end gap-10">
+             <a href="${v.url}" target="_blank" class="text-[11px] text-zinc-600 font-black uppercase tracking-[0.3em] hover:text-white transition-all underline decoration-zinc-800 underline-offset-8">Raw Footage</a>
+             <a href="${v.url}" download class="text-[11px] text-yellow-600 font-black uppercase tracking-[0.3em] hover:text-yellow-400 transition-all underline decoration-yellow-900 underline-offset-8">Save Master</a>
           </div>
         `;
         container.appendChild(videoCard);
@@ -306,7 +332,7 @@
       clearInterval(timerInterval); clearInterval(pollInterval);
       document.getElementById('loadingUI').classList.add('hidden');
       document.getElementById('errorUI').classList.remove('hidden');
-      document.getElementById('errorMessage').innerText = m;
+      document.getElementById('errorMessage').innerText = "PRODUCTION LOG ERROR: " + m;
     }
   </script>
 </body>
