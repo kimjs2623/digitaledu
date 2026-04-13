@@ -42,175 +42,250 @@
       box-shadow: 0 20px 40px -10px rgba(245, 158, 11, 0.3);
       opacity: 1 !important;
     }
-    .hidden { display: none; }
+    .hidden { display: none !important; }
     @keyframes pulse-soft {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
     .animate-pulse-soft { animation: pulse-soft 2s infinite; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.3); border-radius: 4px; }
+    
+    /* GNB 탭 활성화 스타일 */
+    .tab-btn.active { color: #f59e0b; border-bottom: 2px solid #f59e0b; background: rgba(245,158,11,0.1); }
   </style>
 </head>
-<body class="min-h-screen p-4 md:p-10 selection:bg-amber-500/30">
+<body class="min-h-screen selection:bg-amber-500/30">
 
-  <div class="max-w-6xl mx-auto space-y-10">
+  <!-- GNB (글로벌 네비게이션 바) -->
+  <nav class="w-full border-b border-white/10 bg-black/50 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 md:px-10 flex items-center justify-between h-16">
+      <div class="flex items-center gap-2">
+        <i data-lucide="film" class="text-amber-500 w-5 h-5"></i>
+        <span class="font-black italic tracking-tighter text-lg">MY OSCAR</span>
+      </div>
+      <div class="flex h-full">
+        <button onclick="switchPage('presets')" id="tab-presets" class="tab-btn px-4 sm:px-6 h-full flex items-center text-[11px] font-bold uppercase tracking-widest text-zinc-500 hover:text-amber-500 transition-all">Presets</button>
+        <button onclick="switchPage('studio')" id="tab-studio" class="tab-btn active px-4 sm:px-6 h-full flex items-center text-[11px] font-bold uppercase tracking-widest text-zinc-500 hover:text-amber-500 transition-all">Studio</button>
+        <button onclick="switchPage('note')" id="tab-note" class="tab-btn px-4 sm:px-6 h-full flex items-center text-[11px] font-bold uppercase tracking-widest text-zinc-500 hover:text-amber-500 transition-all">Director's Note</button>
+        <button onclick="switchPage('gallery')" id="tab-gallery" class="tab-btn px-4 sm:px-6 h-full flex items-center text-[11px] font-bold uppercase tracking-widest text-zinc-500 hover:text-amber-500 transition-all">Gallery</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-6xl mx-auto p-4 md:p-10 space-y-10">
     
-    <!-- 헤더 -->
-    <header class="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-8 gap-6">
-      <div class="flex items-center gap-5">
-        <div class="bg-gradient-to-br from-amber-400 to-amber-600 p-3 rounded-2xl shadow-xl shadow-amber-500/20">
-          <i data-lucide="film" class="text-black w-7 h-7"></i>
-        </div>
-        <div>
-          <h1 class="text-4xl font-black italic tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-400 to-zinc-600">MY OSCAR</h1>
-          <p class="text-[10px] text-zinc-500 uppercase tracking-[0.4em] font-black mt-1">Cinematic AI Studio</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-3">
-         <div id="stageIndicator" class="px-4 py-2 rounded-xl border border-white/10 bg-zinc-900/50 text-[10px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-3">
-            <span id="stageDot" class="w-2 h-2 rounded-full bg-zinc-700"></span>
-            Stage: <span id="stageName" class="text-white">INPUT</span>
-         </div>
-      </div>
-    </header>
+    <!-- ==================== [페이지 1] 작품 프리셋 (공간만 마련) ==================== -->
+    <div id="page-presets" class="hidden min-h-[60vh] flex flex-col items-center justify-center border border-white/5 bg-zinc-900/30 rounded-[3rem] space-y-6">
+       <i data-lucide="library" class="w-16 h-16 text-zinc-700"></i>
+       <h2 class="text-2xl font-black text-white">작품 프리셋 공간</h2>
+       <p class="text-zinc-500 text-sm">운수 좋은 날, 메밀꽃 필 무렵 등 문학 작품 템플릿이 추가될 예정입니다.</p>
+    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+    <!-- ==================== [페이지 2] 스튜디오 (기존 메인) ==================== -->
+    <div id="page-studio" class="space-y-10">
       
-      <!-- 메인 편집 영역 (좌측 7) -->
-      <div class="lg:col-span-7 space-y-10">
+      <!-- 스튜디오 헤더 -->
+      <header class="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-8 gap-6">
+        <div class="flex items-center gap-5">
+          <div class="bg-gradient-to-br from-amber-400 to-amber-600 p-3 rounded-2xl shadow-xl shadow-amber-500/20">
+            <i data-lucide="camera" class="text-black w-7 h-7"></i>
+          </div>
+          <div>
+            <h1 class="text-4xl font-black italic tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-400 to-zinc-600">STUDIO</h1>
+            <p class="text-[10px] text-zinc-500 uppercase tracking-[0.4em] font-black mt-1">Cinematic AI Creation</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+           <div id="stageIndicator" class="px-4 py-2 rounded-xl border border-white/10 bg-zinc-900/50 text-[10px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-3">
+              <span id="stageDot" class="w-2 h-2 rounded-full bg-zinc-700"></span>
+              Stage: <span id="stageName" class="text-white">INPUT</span>
+           </div>
+        </div>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
         
-        <!-- [1단계] 입력 섹션 -->
-        <div id="inputSection" class="space-y-10">
-          <section class="space-y-6">
-            <div class="flex items-center justify-between">
-              <label class="text-xs font-black text-amber-500 uppercase tracking-widest">Character Profiles</label>
-              <button onclick="addCharacter()" class="flex items-center gap-2 text-[10px] font-bold text-zinc-500 hover:text-white transition-colors">
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i> 인물 추가
-              </button>
-            </div>
-            <div id="characterList" class="space-y-4">
-              <!-- 초기 캐릭터는 스크립트에서 삽입 -->
-            </div>
-          </section>
+        <!-- 메인 편집 영역 (좌측 7) -->
+        <div class="lg:col-span-7 space-y-10">
+          
+          <!-- [스튜디오 1단계] 입력 섹션 -->
+          <div id="inputSection" class="space-y-10">
+            <section class="space-y-6">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-black text-amber-500 uppercase tracking-widest">Character Profiles</label>
+                <button onclick="addCharacter()" class="flex items-center gap-2 text-[10px] font-bold text-zinc-500 hover:text-white transition-colors">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> 인물 추가
+                </button>
+              </div>
+              <div id="characterList" class="space-y-4"></div>
+            </section>
 
-          <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="space-y-4">
-              <label class="text-xs font-black text-amber-500 uppercase tracking-widest">Setting & Era</label>
-              <input id="placeInput" type="text" class="w-full p-5 rounded-2xl text-sm" placeholder="시대적 배경과 장소" value="일제강점기 거리">
-            </div>
-            <div class="space-y-4">
-              <label class="text-xs font-black text-amber-500 uppercase tracking-widest">Director's Note</label>
-              <input id="noteInput" type="text" class="w-full p-5 rounded-2xl text-sm" placeholder="분위기, 연출 의도" value="어둡고 쓸쓸한 분위기, 김 첨지의 내적 갈등을 보여주는 클로즈업 샷">
-            </div>
-          </section>
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="space-y-4">
+                <label class="text-xs font-black text-amber-500 uppercase tracking-widest">Setting & Era</label>
+                <input id="placeInput" type="text" class="w-full p-5 rounded-2xl text-sm" placeholder="시대적 배경과 장소" value="일제강점기 거리">
+              </div>
+              <div class="space-y-4">
+                <label class="text-xs font-black text-amber-500 uppercase tracking-widest">Director's Note</label>
+                <input id="noteInput" type="text" class="w-full p-5 rounded-2xl text-sm" placeholder="분위기, 연출 의도" value="어둡고 쓸쓸한 분위기, 김 첨지의 내적 갈등을 보여주는 클로즈업 샷">
+              </div>
+            </section>
 
-          <section class="space-y-4">
-            <label class="text-xs font-black text-amber-500 uppercase tracking-widest">Scenario Script</label>
-            <div class="relative group">
-              <div class="absolute -inset-0.5 bg-gradient-to-r from-amber-500/20 to-transparent rounded-[2.5rem] blur opacity-50"></div>
-              <div class="relative bg-zinc-950/80 p-8 rounded-[2.5rem] border border-white/10 shadow-2xl">
-                <textarea id="scenarioInput" class="w-full bg-transparent text-xl font-light leading-relaxed focus:outline-none resize-none font-serif min-h-[220px]" placeholder="시나리오를 입력하세요...">"학생님, 어디까지 가시나요?"
+            <section class="space-y-4">
+              <label class="text-xs font-black text-amber-500 uppercase tracking-widest">Scenario Script</label>
+              <div class="relative group">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-amber-500/20 to-transparent rounded-[2.5rem] blur opacity-50"></div>
+                <div class="relative bg-zinc-950/80 p-8 rounded-[2.5rem] border border-white/10 shadow-2xl">
+                  <textarea id="scenarioInput" class="w-full bg-transparent text-xl font-light leading-relaxed focus:outline-none resize-none font-serif min-h-[220px]" placeholder="시나리오를 입력하세요...">"학생님, 어디까지 가시나요?"
 "남대문 정거장까지 가오."
 "아이구, 거긴 너무 멉니다."
 "멀긴 무엇이 멀어. 돈 일 원 줄 테니 갑시다."
 일 원이란 말에 김 첨지는 눈이 번쩍 뜨였다. 하지만 그와 동시에 머릿속에는 아침에 본 아내의 해쓱한 얼굴이 떠올라 가슴이 철렁했다. "아니, 일 원은 고맙지만... 오늘은 이만 들어가 봐야 해서요."</textarea>
+                </div>
               </div>
+            </section>
+
+            <button id="prepBtn" onclick="prepareConcepts()" class="group w-full py-7 rounded-[2rem] bg-white text-black font-black text-xl tracking-[0.4em] uppercase hover:bg-amber-400 transition-all active:scale-[0.98] flex items-center justify-center gap-4 shadow-2xl">
+              <i data-lucide="camera" class="group-hover:rotate-12 transition-transform"></i>
+              <span>컨셉 아트 추출하기</span>
+            </button>
+          </div>
+
+          <!-- [스튜디오 2단계] 시안 선택 섹션 -->
+          <div id="pickingSection" class="hidden space-y-12">
+            <div class="flex items-center justify-between border-b border-white/5 pb-6">
+               <h2 class="text-2xl font-black italic text-amber-500 tracking-tighter">Director's Selection</h2>
+               <button onclick="changeStage('input')" class="text-[10px] font-bold text-zinc-500 hover:text-white flex items-center gap-2 uppercase tracking-widest">
+                 <i data-lucide="refresh-cw" class="w-3 h-3"></i> Re-Edit Script
+               </button>
             </div>
-          </section>
+            <div id="conceptBoard" class="space-y-12"></div>
+            <button id="renderBtn" onclick="startFilming()" disabled class="w-full py-7 rounded-[2.5rem] bg-amber-500 text-black font-black text-xl tracking-[0.4em] uppercase hover:bg-amber-400 transition-all disabled:opacity-20 shadow-2xl shadow-amber-500/20 flex items-center justify-center gap-4">
+              <i data-lucide="arrow-right"></i> 촬영 시작 (Ready, Action!)
+            </button>
+          </div>
 
-          <button id="prepBtn" onclick="prepareConcepts()" class="group w-full py-7 rounded-[2rem] bg-white text-black font-black text-xl tracking-[0.4em] uppercase hover:bg-amber-400 transition-all active:scale-[0.98] flex items-center justify-center gap-4 shadow-2xl">
-            <i data-lucide="camera" class="group-hover:rotate-12 transition-transform"></i>
-            <span>컨셉 아트 추출하기</span>
-          </button>
+          <!-- [스튜디오 3단계] 렌더링 및 완료 섹션 -->
+          <div id="renderingSection" class="hidden space-y-10">
+             <div class="relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-amber-500/30 via-red-500/30 to-amber-500/30 rounded-[3rem] blur-xl opacity-70"></div>
+                <div class="relative bg-zinc-950 rounded-[3rem] border border-white/10 aspect-video flex flex-col items-center justify-center text-center overflow-hidden shadow-2xl">
+                  
+                  <div id="loadingBox" class="space-y-8 p-12 w-full max-w-md">
+                     <div class="relative flex justify-center">
+                        <div class="w-32 h-32 border-4 border-amber-500/10 border-t-amber-500 rounded-full animate-spin"></div>
+                        <i data-lucide="film" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-amber-500 w-10 h-10"></i>
+                     </div>
+                     <div class="space-y-4">
+                        <p class="text-3xl font-black italic tracking-tighter text-white animate-pulse">RENDERING FINAL CUT...</p>
+                        <div class="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+                           <div id="progressBar" class="bg-amber-500 h-full w-0 transition-all duration-1000 ease-out"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] font-mono text-zinc-600 uppercase tracking-widest">
+                           <span id="progressText">0% Processing</span>
+                           <span id="opIdText">OP: INITIALIZING...</span>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div id="videoBox" class="hidden w-full h-full relative">
+                     <video id="finalVideo" controls class="w-full h-full object-cover"></video>
+                     <div class="absolute top-8 left-8 bg-black/80 px-4 py-1.5 rounded-lg text-[10px] font-black text-amber-500 border border-amber-500/30 backdrop-blur-md">MASTER QUALITY</div>
+                  </div>
+
+                </div>
+             </div>
+
+             <!-- 🎯 완료 단계: 감독의 노트 연동 버튼 추가됨 -->
+             <div id="completedActions" class="hidden grid grid-cols-2 lg:grid-cols-3 gap-4">
+               <button onclick="location.reload()" class="py-4 rounded-xl bg-zinc-900/50 border border-white/10 font-black text-[10px] uppercase tracking-widest hover:bg-zinc-800 transition-all flex items-center justify-center gap-2">
+                 <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> 새 씬 촬영
+               </button>
+               <a id="downloadBtn" href="#" download class="py-4 rounded-xl bg-zinc-800 text-white font-black text-[10px] uppercase tracking-widest text-center hover:bg-zinc-700 transition-all flex items-center justify-center gap-2">
+                 <i data-lucide="download" class="w-3.5 h-3.5"></i> 다운로드
+               </a>
+               <button onclick="goToNote()" class="col-span-2 lg:col-span-1 py-4 rounded-xl bg-amber-500 text-black font-black text-[10px] uppercase tracking-widest text-center hover:bg-amber-400 transition-all flex items-center justify-center gap-2 shadow-xl shadow-amber-500/20">
+                 <i data-lucide="book-open" class="w-3.5 h-3.5"></i> 감독의 노트 작성
+               </button>
+             </div>
+          </div>
+
         </div>
 
-        <!-- [2단계] 시안 선택 섹션 -->
-        <div id="pickingSection" class="hidden space-y-12">
-          <div class="flex items-center justify-between border-b border-white/5 pb-6">
-             <h2 class="text-2xl font-black italic text-amber-500 tracking-tighter">Director's Selection</h2>
-             <button onclick="changeStage('input')" class="text-[10px] font-bold text-zinc-500 hover:text-white flex items-center gap-2 uppercase tracking-widest">
-               <i data-lucide="refresh-cw" class="w-3 h-3"></i> Re-Edit Script
-             </button>
-          </div>
-          <div id="conceptBoard" class="space-y-12">
-            <!-- 시안 데이터가 여기에 동적으로 들어옴 -->
-          </div>
-          <button id="renderBtn" onclick="startFilming()" disabled class="w-full py-7 rounded-[2.5rem] bg-amber-500 text-black font-black text-xl tracking-[0.4em] uppercase hover:bg-amber-400 transition-all disabled:opacity-20 shadow-2xl shadow-amber-500/20 flex items-center justify-center gap-4">
-            <i data-lucide="arrow-right"></i> 촬영 시작 (Ready, Action!)
-          </button>
-        </div>
+        <!-- 스튜디오 모니터링 패널 (우측 5) -->
+        <div class="lg:col-span-5 space-y-10">
+          <div class="bg-zinc-900/50 rounded-[2.5rem] border border-white/5 flex flex-col h-full min-h-[600px] max-h-[800px] overflow-hidden backdrop-blur-3xl shadow-2xl relative">
+             <div class="p-6 border-b border-white/5 flex justify-between items-center bg-black/20">
+                <span class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-3">
+                  <i data-lucide="monitor-play" class="text-amber-500 w-4 h-4"></i> Production Log
+                </span>
+             </div>
+             
+             <div id="logContent" class="flex-1 p-8 space-y-10 overflow-y-auto font-mono text-xs text-zinc-500">
+                <!-- 로그 컨텐츠 -->
+             </div>
 
-        <!-- [3단계] 렌더링 및 완료 섹션 -->
-        <div id="renderingSection" class="hidden space-y-10">
-           <div class="relative group">
-              <div class="absolute -inset-1 bg-gradient-to-r from-amber-500/30 via-red-500/30 to-amber-500/30 rounded-[3rem] blur-xl opacity-70"></div>
-              <div class="relative bg-zinc-950 rounded-[3rem] border border-white/10 aspect-video flex flex-col items-center justify-center text-center overflow-hidden shadow-2xl">
-                
-                <div id="loadingBox" class="space-y-8 p-12 w-full max-w-md">
-                   <div class="relative flex justify-center">
-                      <div class="w-32 h-32 border-4 border-amber-500/10 border-t-amber-500 rounded-full animate-spin"></div>
-                      <i data-lucide="film" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-amber-500 w-10 h-10"></i>
-                   </div>
-                   <div class="space-y-4">
-                      <p class="text-3xl font-black italic tracking-tighter text-white animate-pulse">RENDERING FINAL CUT...</p>
-                      <div class="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
-                         <div id="progressBar" class="bg-amber-500 h-full w-0 transition-all duration-1000 ease-out"></div>
-                      </div>
-                      <div class="flex justify-between text-[10px] font-mono text-zinc-600 uppercase tracking-widest">
-                         <span id="progressText">0% Processing</span>
-                         <span id="opIdText">OP: INITIALIZING...</span>
-                      </div>
-                   </div>
+             <div id="globalLoader" class="hidden absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-10 text-center space-y-6">
+                <div class="relative">
+                   <div class="w-16 h-16 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"></div>
+                   <i data-lucide="refresh-cw" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-amber-500 animate-pulse-soft w-5 h-5"></i>
                 </div>
-
-                <div id="videoBox" class="hidden w-full h-full relative">
-                   <video id="finalVideo" controls class="w-full h-full object-cover"></video>
-                   <div class="absolute top-8 left-8 bg-black/80 px-4 py-1.5 rounded-lg text-[10px] font-black text-amber-500 border border-amber-500/30 backdrop-blur-md">MASTER QUALITY • SCENE 1</div>
-                </div>
-
-              </div>
-           </div>
-
-           <div id="completedActions" class="hidden grid grid-cols-2 gap-6">
-             <button onclick="location.reload()" class="group py-5 rounded-2xl bg-zinc-900/50 border border-white/10 font-black text-xs uppercase tracking-widest hover:bg-zinc-800 transition-all flex items-center justify-center gap-3">
-               <i data-lucide="refresh-cw" class="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-700"></i> 다음 씬 촬영하기
-             </button>
-             <a id="downloadBtn" href="#" download class="py-5 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-widest text-center hover:bg-amber-400 transition-all flex items-center justify-center gap-3 shadow-xl shadow-white/10">
-               <i data-lucide="download" class="w-3.5 h-3.5"></i> 영상 다운로드
-             </a>
-           </div>
+                <p id="globalStatusText" class="text-amber-500 font-black text-sm tracking-tighter italic animate-pulse-soft">AI가 세계관을 분석 중입니다...</p>
+             </div>
+          </div>
         </div>
 
       </div>
+    </div>
 
-      <!-- 모니터링 패널 (우측 5) -->
-      <div class="lg:col-span-5 space-y-10">
-        <div class="bg-zinc-900/50 rounded-[2.5rem] border border-white/5 flex flex-col h-full min-h-[600px] overflow-hidden backdrop-blur-3xl shadow-2xl relative">
-           <div class="p-6 border-b border-white/5 flex justify-between items-center bg-black/20">
-              <span class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-3">
-                <i data-lucide="monitor-play" class="text-amber-500 w-4 h-4"></i> Production Log
-              </span>
-              <div class="flex gap-2">
-                <div class="w-1.5 h-1.5 rounded-full bg-zinc-800"></div>
-                <div class="w-1.5 h-1.5 rounded-full bg-zinc-800"></div>
-                <div class="w-1.5 h-1.5 rounded-full bg-zinc-800"></div>
-              </div>
-           </div>
-           
-           <div id="logContent" class="flex-1 p-8 space-y-10 overflow-y-auto font-mono text-xs text-zinc-500">
-              <!-- 스테이지별 로그가 자바스크립트로 업데이트됨 -->
-           </div>
+    <!-- ==================== [페이지 3] 감독의 노트 ==================== -->
+    <div id="page-note" class="hidden space-y-8">
+       <header class="text-center space-y-3 pb-8 border-b border-white/5">
+          <h2 class="text-3xl font-black text-white italic">Director's Note</h2>
+          <p class="text-zinc-500 text-sm">작업한 텍스트와 최종 영상을 비교하며 연출 의도를 서술하세요.</p>
+       </header>
 
-           <!-- 전체 오버레이 로더 (시안 추출 시 사용) -->
-           <div id="globalLoader" class="hidden absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-10 text-center space-y-6">
-              <div class="relative">
-                 <div class="w-16 h-16 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"></div>
-                 <i data-lucide="refresh-cw" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-amber-500 animate-pulse-soft w-5 h-5"></i>
-              </div>
-              <p id="globalStatusText" class="text-amber-500 font-black text-sm tracking-tighter italic animate-pulse-soft">AI가 세계관을 분석 중입니다...</p>
-           </div>
-        </div>
-      </div>
+       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          <!-- 왼쪽: 작업 결과물 요약 -->
+          <div class="space-y-6 bg-zinc-900/30 p-8 rounded-[2rem] border border-white/5">
+             <div>
+                <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-3">Original Text</p>
+                <div id="noteScenario" class="p-4 bg-black/50 rounded-xl text-sm font-serif text-zinc-300 leading-relaxed max-h-40 overflow-y-auto">
+                   (영상을 제작하면 이곳에 원문 텍스트가 표시됩니다)
+                </div>
+             </div>
+             <div>
+                <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-3">Final Video</p>
+                <div class="aspect-video bg-black rounded-xl border border-white/10 overflow-hidden relative">
+                   <video id="noteVideo" controls class="w-full h-full object-cover hidden"></video>
+                   <div id="noteVideoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-zinc-700">
+                     <i data-lucide="film" class="w-8 h-8 mb-2 opacity-50"></i>
+                     <span class="text-[10px] uppercase tracking-widest">No Video</span>
+                   </div>
+                </div>
+             </div>
+          </div>
 
+          <!-- 오른쪽: 작성 영역 -->
+          <div class="space-y-6 flex flex-col">
+             <div class="space-y-2 flex-1 flex flex-col">
+                <label class="text-[10px] font-black text-amber-500 uppercase tracking-widest">Reflection & Feedback</label>
+                <textarea class="flex-1 w-full p-6 rounded-[2rem] bg-zinc-900/50 border border-white/5 text-sm leading-relaxed resize-none focus:border-amber-500" placeholder="AI가 나의 의도대로 텍스트를 영상화했나요? 카메라 앵글이나 빛의 사용이 원작의 분위기를 어떻게 표현하고 있는지 감상평을 적어보세요."></textarea>
+             </div>
+             <button class="w-full py-5 rounded-2xl bg-amber-500 text-black font-black text-sm uppercase tracking-widest hover:bg-amber-400 transition-all">
+                감상문 저장 및 클래스 제출
+             </button>
+          </div>
+       </div>
+    </div>
+
+    <!-- ==================== [페이지 4] 갤러리 (공간만 마련) ==================== -->
+    <div id="page-gallery" class="hidden min-h-[60vh] flex flex-col items-center justify-center border border-white/5 bg-zinc-900/30 rounded-[3rem] space-y-6">
+       <i data-lucide="images" class="w-16 h-16 text-zinc-700"></i>
+       <h2 class="text-2xl font-black text-white">클래스 갤러리</h2>
+       <p class="text-zinc-500 text-sm">친구들이 만든 다양한 연출 영상들을 감상하고 평가할 수 있는 공간입니다.</p>
     </div>
 
     <!-- 푸터 -->
@@ -233,255 +308,186 @@
     let state = {
       stage: 'input',
       characters: [
-        { id: 'char_0', name: '김 첨지', desc: "하루 벌어 하루 먹고사는 인력거꾼. 아내를 걱정하는 마음이 돈에 대한 욕심보다 커진 상태." },
-        { id: 'char_1', name: '학생', desc: "김 첨지에게 '일 원'이라는 파격적인 조건을 제시하며 내적 갈등을 유발하는 인물." }
+        { id: 'char_0', name: '김 첨지', desc: "하루 벌어 하루 먹고사는 인력거꾼." },
+        { id: 'char_1', name: '학생', desc: "파격적인 조건을 제시하는 인물." }
       ],
       conceptData: { charImages: {}, bgImages: [] },
       picks: {},
       pollInterval: null,
-      renderProgress: 0
+      parsedStoryboard: null // JSON 변환된 컷 데이터 저장용
     };
 
-    // --- DOM 요소 참조 ---
-    const logContainer = document.getElementById('logContent');
-
-    // --- 유틸리티: UI 업데이트 ---
-    function init() {
+    window.onload = () => {
       lucide.createIcons();
       renderCharacters();
       updateLog();
+    };
+
+    // 🎯 페이지(GNB 탭) 전환 로직
+    function switchPage(pageId) {
+      // 탭 버튼 스타일 변경
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-${pageId}`).classList.add('active');
+
+      // 페이지 컨테이너 표시/숨김
+      document.getElementById('page-presets').classList.add('hidden');
+      document.getElementById('page-studio').classList.add('hidden');
+      document.getElementById('page-note').classList.add('hidden');
+      document.getElementById('page-gallery').classList.add('hidden');
+
+      document.getElementById(`page-${pageId}`).classList.remove('hidden');
     }
 
+    // 🎯 감독의 노트로 데이터 이동 및 탭 전환
+    function goToNote() {
+      const currentVideoSrc = document.getElementById('finalVideo').src;
+      const currentScenario = document.getElementById('scenarioInput').value;
+
+      document.getElementById('noteScenario').innerText = currentScenario;
+      
+      if (currentVideoSrc && currentVideoSrc !== window.location.href) {
+        const noteVideo = document.getElementById('noteVideo');
+        noteVideo.src = currentVideoSrc;
+        noteVideo.classList.remove('hidden');
+        document.getElementById('noteVideoPlaceholder').classList.add('hidden');
+      }
+
+      switchPage('note');
+    }
+
+    // --- 스튜디오 스테이지 전환 ---
     function changeStage(newStage) {
       state.stage = newStage;
-      
-      // 섹션 전환
       document.getElementById('inputSection').classList.add('hidden');
       document.getElementById('pickingSection').classList.add('hidden');
       document.getElementById('renderingSection').classList.add('hidden');
-      
       document.getElementById(`${newStage}Section`).classList.remove('hidden');
       
-      // 헤더 인디케이터 업데이트
       document.getElementById('stageName').innerText = newStage.toUpperCase();
-      const dot = document.getElementById('stageDot');
-      dot.className = `w-2 h-2 rounded-full ${newStage === 'rendering' ? 'bg-red-500 animate-pulse' : 'bg-zinc-700'}`;
-
+      document.getElementById('stageDot').className = `w-2 h-2 rounded-full ${newStage === 'rendering' ? 'bg-red-500 animate-pulse' : 'bg-zinc-700'}`;
       updateLog();
     }
 
+    // JSON 데이터를 시각화하는 핵심 로직
     function updateLog() {
-      let html = '';
+      const logBox = document.getElementById('logContent');
       if (state.stage === 'input') {
-        html = `
-          <div class="space-y-8">
-            <p class="text-amber-500/60 leading-relaxed italic border-l-2 border-amber-500/20 pl-4">
-              "좋은 영화는 탄탄한 시나리오에서 시작됩니다. 인물들의 고유한 특징과 시대 배경을 정확히 입력할수록 AI의 고증 능력이 극대화됩니다."
-            </p>
-            <div class="p-8 bg-black/40 rounded-[2rem] border border-white/5 space-y-6">
-              <p class="text-[10px] text-zinc-700 font-black tracking-widest">MISSION: PRE-PRODUCTION</p>
-              <ul class="space-y-4">
-                <li class="flex gap-3 text-zinc-300"><i data-lucide="check-circle-2" class="text-green-500 w-3.5 h-3.5"></i> '운수 좋은 날' 텍스트 분석</li>
-                <li class="flex gap-3 text-zinc-300"><i data-lucide="check-circle-2" class="text-green-500 w-3.5 h-3.5"></i> 인물 간의 내적 갈등 관계 설정</li>
-                <li class="flex gap-3"><span>●</span> 비주얼 시안 추출 대기 중</li>
-              </ul>
-            </div>
-          </div>`;
+        logBox.innerHTML = `<p class="text-amber-500/60 leading-relaxed italic border-l-2 border-amber-500/20 pl-4">"소설의 텍스트가 어떻게 카메라 문법으로 변환되는지 관찰해 보세요."</p>`;
       } else if (state.stage === 'picking') {
-        html = `
-          <div class="space-y-8">
-            <div class="space-y-3">
-               <p class="text-green-500 font-bold flex items-center gap-2"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> SCENARIO PARSED</p>
-               <p class="text-zinc-600 pl-6 leading-relaxed">Gemini 2.5 Flash가 시대적 배경(일제강점기)과 인물 김 첨지의 고증 자료를 분석했습니다.</p>
+        logBox.innerHTML = `<p class="text-green-500 font-bold">✔ VISUAL CONCEPTS GENERATED</p><p class="text-zinc-400 mt-4">가장 적합한 시안을 선택하세요.</p>`;
+      } else if (state.stage === 'rendering' && state.parsedStoryboard) {
+        let storyboardHtml = `
+          <div class="space-y-6 animate-in fade-in slide-in-from-right-4">
+            <p class="text-amber-500 font-black text-[10px] tracking-widest border-b border-white/10 pb-2">🎬 AI STORYBOARD PARSED</p>
+            <div class="space-y-4">
+        `;
+        
+        state.parsedStoryboard.forEach(shot => {
+          storyboardHtml += `
+            <div class="bg-zinc-950 p-4 rounded-xl border border-white/5 space-y-2">
+              <div class="flex justify-between items-center text-[10px]">
+                <span class="bg-amber-500 text-black px-2 py-0.5 rounded font-black">SHOT ${shot.shot_number}</span>
+                <span class="text-blue-400">${shot.shot_size}</span>
+              </div>
+              <p class="text-zinc-300 text-[11px] leading-relaxed"><span class="text-zinc-600">Action:</span> ${shot.action}</p>
+              <p class="text-zinc-500 text-[10px]"><span class="text-zinc-700">Cam:</span> ${shot.camera_movement}</p>
             </div>
-            <div class="space-y-3">
-               <p class="text-green-500 font-bold flex items-center gap-2"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> VISUAL CONCEPTS GENERATED</p>
-               <p class="text-zinc-600 pl-6 leading-relaxed">Imagen 4.0 Fast를 통해 인물 도안과 배경 시안 각각 3장씩 렌더링을 마쳤습니다.</p>
-            </div>
-            <div class="p-8 bg-amber-500/5 rounded-[2rem] border border-amber-500/10 space-y-4">
-              <p class="text-amber-500 font-black text-[10px] tracking-widest">DIRECTOR'S ACTION</p>
-              <p class="text-zinc-400 leading-relaxed text-[11px]">감독님, 이 시나리오의 비극적 분위기를 가장 잘 표현하는 인물과 배경을 골라주세요.</p>
-            </div>
-          </div>`;
-      } else {
-        html = `<p class="text-center py-10 opacity-20">Rendering Live Logs...</p>`;
+          `;
+        });
+
+        storyboardHtml += `</div><p class="text-[10px] text-zinc-600 italic mt-6">* 위 컷 분할 데이터를 기반으로 최종 영상이 렌더링 됩니다.</p></div>`;
+        logBox.innerHTML = storyboardHtml;
       }
-      logContainer.innerHTML = html;
       lucide.createIcons();
     }
 
-    // --- 인물 관리 로직 ---
     function renderCharacters() {
       const list = document.getElementById('characterList');
       list.innerHTML = state.characters.map(char => `
-        <div class="group relative flex flex-col sm:flex-row gap-3 bg-zinc-900/40 p-2 rounded-2xl border border-white/5">
-          <input onchange="updateChar('${char.id}', 'name', this.value)" value="${char.name}" class="sm:w-32 bg-zinc-950/50 p-3 rounded-xl text-sm font-bold border border-white/5" placeholder="이름">
-          <textarea onchange="updateChar('${char.id}', 'desc', this.value)" class="flex-1 bg-transparent p-3 text-sm focus:outline-none resize-none min-h-[44px]" placeholder="특징/외형" rows="1">${char.desc}</textarea>
-          <button onclick="removeCharacter('${char.id}')" class="p-3 text-zinc-700 hover:text-red-500 transition-colors self-end sm:self-center">
-            <i data-lucide="x" class="w-4 h-4"></i>
-          </button>
+        <div class="flex gap-3 bg-zinc-900/40 p-2 rounded-2xl border border-white/5">
+          <input onchange="updateChar('${char.id}', 'name', this.value)" value="${char.name}" class="w-32 bg-zinc-950/50 p-3 rounded-xl text-sm font-bold border border-white/5">
+          <textarea onchange="updateChar('${char.id}', 'desc', this.value)" class="flex-1 bg-transparent p-3 text-sm focus:outline-none resize-none" rows="1">${char.desc}</textarea>
+          <button onclick="removeCharacter('${char.id}')" class="p-3 text-zinc-700 hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
       `).join('');
       lucide.createIcons();
     }
+    function addCharacter() { state.characters.push({ id: `char_${Date.now()}`, name: '', desc: '' }); renderCharacters(); }
+    function removeCharacter(id) { if(state.characters.length > 1) { state.characters = state.characters.filter(c => c.id !== id); renderCharacters(); } }
+    function updateChar(id, field, value) { const c = state.characters.find(c => c.id === id); if(c) c[field] = value; }
 
-    function addCharacter() {
-      const newId = `char_${Date.now()}`;
-      state.characters.push({ id: newId, name: '', desc: '' });
-      renderCharacters();
-    }
-
-    function removeCharacter(id) {
-      if (state.characters.length <= 1) return;
-      state.characters = state.characters.filter(c => c.id !== id);
-      renderCharacters();
-    }
-
-    function updateChar(id, field, value) {
-      const char = state.characters.find(c => c.id === id);
-      if (char) char[field] = value;
-    }
-
-    // --- [1단계] 시안 추출 (Fetch) ---
     async function prepareConcepts() {
-      const loader = document.getElementById('globalLoader');
-      const statusText = document.getElementById('globalStatusText');
-      const scenario = document.getElementById('scenarioInput').value;
-      const place = document.getElementById('placeInput').value;
-
-      if (!scenario.trim()) return alert('시나리오를 입력해주세요.');
-
-      loader.classList.remove('hidden');
-      statusText.innerText = "AI가 시나리오와 시대상을 분석하고 있습니다...";
-
+      document.getElementById('globalLoader').classList.remove('hidden');
+      document.getElementById('globalStatusText').innerText = "AI가 텍스트를 분석 중입니다...";
       try {
-        // 1. 분석 요청
-        const expandRes = await fetch('/api/expand-concept', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chars: state.characters, place, scenario })
+        const res = await fetch('/api/expand-concept', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chars: state.characters, place: document.getElementById('placeInput').value, scenario: document.getElementById('scenarioInput').value })
         });
-        const expandData = await expandRes.json();
-        if (!expandData.success) throw new Error("분석 실패");
-
-        const { charPrompts, bgPrompt } = expandData.prompts;
+        const data = await res.json();
+        const { charPrompts, bgPrompt } = data.prompts;
         
-        // 2. 이미지 생성 시작 (화면 전환)
         changeStage('picking');
-        const board = document.getElementById('conceptBoard');
-        board.innerHTML = "";
+        document.getElementById('conceptBoard').innerHTML = "";
 
-        // 인물별 시안 생성 루프
         for (const charId of Object.keys(charPrompts)) {
-          const charName = state.characters.find(c => c.id === charId)?.name || "인물";
-          statusText.innerText = `${charName} 시안을 그리는 중...`;
-          
-          const imgRes = await fetch('/api/generate-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: charPrompts[charId] })
-          });
+          document.getElementById('globalStatusText').innerText = `인물 시안 그리는 중...`;
+          const imgRes = await fetch('/api/generate-image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: charPrompts[charId] }) });
           const imgData = await imgRes.json();
-          if (imgData.success) state.conceptData.charImages[charId] = imgData.imagesBase64;
-          
-          renderConceptSection(charId, `Character: ${charName}`, state.conceptData.charImages[charId]);
+          if(imgData.success) {
+            renderSection(charId, state.characters.find(c => c.id===charId).name, imgData.imagesBase64);
+          }
         }
-
-        // 배경 시안 생성
-        statusText.innerText = "배경 컨셉을 그리는 중...";
-        const bgRes = await fetch('/api/generate-image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: bgPrompt })
-        });
-        const bgData = await bgRes.json();
-        if (bgData.success) state.conceptData.bgImages = bgData.imagesBase64;
         
-        renderConceptSection('bg', 'Background Concept', state.conceptData.bgImages);
-
-      } catch (err) {
-        alert("에러 발생: " + err.message);
-        changeStage('input');
-      } finally {
-        loader.classList.add('hidden');
-      }
+        document.getElementById('globalStatusText').innerText = `배경 시안 그리는 중...`;
+        const bgRes = await fetch('/api/generate-image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: bgPrompt }) });
+        const bgData = await bgRes.json();
+        if(bgData.success) renderSection('bg', 'Background Concept', bgData.imagesBase64);
+        
+      } catch(e) { alert(e.message); changeStage('input'); } 
+      finally { document.getElementById('globalLoader').classList.add('hidden'); }
     }
 
-    function renderConceptSection(id, title, images) {
-      const board = document.getElementById('conceptBoard');
-      const sectionHtml = `
-        <div class="space-y-5 ${id === 'bg' ? 'pt-8 border-t border-white/5' : ''}">
-          <div class="flex items-center gap-4">
-            <h3 class="text-lg font-bold border-l-2 border-amber-500 pl-3">${title}</h3>
-          </div>
+    function renderSection(id, title, images) {
+      document.getElementById('conceptBoard').insertAdjacentHTML('beforeend', `
+        <div class="space-y-5"><h3 class="text-lg font-bold border-l-2 border-amber-500 pl-3">${title}</h3>
           <div class="grid grid-cols-3 gap-5">
-            ${images.map((img, idx) => `
-              <div onclick="handlePick('${id}', ${idx}, this)" class="picking-card aspect-square rounded-[2rem] overflow-hidden opacity-40 hover:opacity-100 bg-zinc-900 border-2 border-transparent">
-                <img src="data:image/png;base64,${img}" class="w-full h-full object-cover">
-              </div>
-            `).join('')}
+            ${images.map((img, idx) => `<div onclick="handlePick('${id}', ${idx}, this)" class="picking-card aspect-square rounded-[2rem] overflow-hidden opacity-40 hover:opacity-100 bg-zinc-900 border-2 border-transparent"><img src="data:image/png;base64,${img}" class="w-full h-full object-cover"></div>`).join('')}
           </div>
         </div>
-      `;
-      board.insertAdjacentHTML('beforeend', sectionHtml);
+      `);
     }
 
     function handlePick(section, index, el) {
-      // 기존 선택 해제
-      const siblings = el.parentElement.querySelectorAll('.picking-card');
-      siblings.forEach(s => s.classList.remove('selected'));
-      
-      // 새로운 선택
+      el.parentElement.querySelectorAll('.picking-card').forEach(s => s.classList.remove('selected'));
       el.classList.add('selected');
       state.picks[section] = index;
-
-      // 버튼 활성화 체크
-      const allPicked = state.characters.every(c => state.picks[c.id] !== undefined) && state.picks['bg'] !== undefined;
-      document.getElementById('renderBtn').disabled = !allPicked;
+      document.getElementById('renderBtn').disabled = !(state.characters.every(c => state.picks[c.id] !== undefined) && state.picks['bg'] !== undefined);
     }
 
-    // --- [2단계] 최종 영상 촬영 (Fetch & Polling) ---
     async function startFilming() {
-      const scenario = document.getElementById('scenarioInput').value;
-      const place = document.getElementById('placeInput').value;
-      const note = document.getElementById('noteInput').value;
-
       changeStage('rendering');
-      document.getElementById('loadingBox').classList.remove('hidden');
-      document.getElementById('videoBox').classList.add('hidden');
       document.getElementById('progressBar').style.width = '0%';
       
       try {
-        // 1. 연출 분석
         const analyzeRes = await fetch('/api/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            chars: state.characters.map(c => `${c.name}(${c.desc})`).join(','), 
-            place, scenario, note 
-          })
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chars: state.characters.map(c=>c.name).join(','), place: document.getElementById('placeInput').value, scenario: document.getElementById('scenarioInput').value, note: document.getElementById('noteInput').value })
         });
         const analyzeData = await analyzeRes.json();
+        
+        state.parsedStoryboard = analyzeData.data.storyboard;
+        updateLog(); 
 
-        // 2. 생성 요청
         const genRes = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: analyzeData.prompt })
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: analyzeData.data.master_prompt })
         });
         const genData = await genRes.json();
+        document.getElementById('opIdText').innerText = `OP: ${genData.operationId.split('/').pop().substring(0,8)}`;
         
-        if (!genData.success) throw new Error(genData.message);
-        
-        document.getElementById('opIdText').innerText = `OP: ${genData.operationId.split('/').pop().substring(0,8)}...`;
-        
-        // 3. 폴링 시작
         startStatusPolling(genData.operationId);
-
-      } catch (err) {
-        alert("촬영 실패: " + err.message);
-        changeStage('picking');
-      }
+      } catch (err) { alert(err.message); changeStage('picking'); }
     }
 
     function startStatusPolling(opId) {
@@ -492,43 +498,26 @@
         document.getElementById('progressText').innerText = `${progress}% Processing`;
 
         try {
-          const res = await fetch('/api/check-status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ operationId: opId })
-          });
+          const res = await fetch('/api/check-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ operationId: opId }) });
           const data = await res.json();
-
           if (data.done) {
             clearInterval(state.pollInterval);
             document.getElementById('progressBar').style.width = '100%';
             document.getElementById('progressText').innerText = '100% Completed';
             
-            const videoInfo = data.response?.videos?.[0] || data.response?.predictions?.[0];
-            const url = videoInfo.gcsUri.replace('gs://', 'https://storage.googleapis.com/');
-            
-            showFinalVideo(url);
+            const url = (data.response?.videos?.[0] || data.response?.predictions?.[0]).gcsUri.replace('gs://', 'https://storage.googleapis.com/');
+            document.getElementById('loadingBox').classList.add('hidden');
+            document.getElementById('videoBox').classList.remove('hidden');
+            document.getElementById('completedActions').classList.remove('hidden');
+            document.getElementById('finalVideo').src = url;
+            document.getElementById('finalVideo').play();
+            document.getElementById('downloadBtn').href = url;
+            document.getElementById('stageName').innerText = "COMPLETED";
+            document.getElementById('stageDot').className = "w-2 h-2 rounded-full bg-green-500";
           }
         } catch (e) { console.error(e); }
       }, 10000);
     }
-
-    function showFinalVideo(url) {
-      document.getElementById('loadingBox').classList.add('hidden');
-      document.getElementById('videoBox').classList.remove('hidden');
-      document.getElementById('completedActions').classList.remove('hidden');
-      
-      const video = document.getElementById('finalVideo');
-      video.src = url;
-      video.play();
-      
-      document.getElementById('downloadBtn').href = url;
-      document.getElementById('stageName').innerText = "COMPLETED";
-      document.getElementById('stageDot').className = "w-2 h-2 rounded-full bg-green-500";
-    }
-
-    // 초기화 실행
-    window.onload = init;
   </script>
 </body>
 </html>
