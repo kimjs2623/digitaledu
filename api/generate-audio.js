@@ -7,56 +7,100 @@ export default async function handler(req, res) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error("GEMINI_API_KEY가 없습니다.");
 
-    const { dialogues } = req.body; 
-    if (!dialogues || dialogues.length === 0) return res.status(400).json({ message: '대사 데이터가 없습니다.' });
+    const { dialogues, characters = [] } = req.body; 
+    
+    // 1. 유효한 대사만 필터링
+    const validDialogues = (dialogues || []).filter(d => d.text && d.text.trim() !== "");
+    if (validDialogues.length === 0) {
+        return res.status(400).json({ message: '유효한 대사 데이터가 없습니다.' });
+    }
 
     const ai = new GoogleGenAI({ apiKey: apiKey });
 
-    // 구글 멀티스피커 보이스 목록
-    const availableVoices = ['Kore', 'Puck', 'Charon', 'Aoede', 'Zephyr'];
+    // 2. 화자 이름 정제 (구글 API 오류 방지를 위해 특수문자 제거)
+    const cleanDialogues = validDialogues.map((d, i) => {
+        let cleanName = (d.speaker || `Speaker${i}`).replace(/[^a-zA-Z0-9가-힣]/g, '');
+        if (!cleanName) cleanName = `Speaker${i}`;
+        return { ...d, cleanSpeaker: cleanName };
+    });
+
+    const uniqueSpeakers = [...new Set(cleanDialogues.map(d => d.cleanSpeaker))].slice(0, 5);
+    let usedVoices = new Set();
     
-    // 장면에 등장하는 유니크한 화자(Speaker) 목록 추출 (최대 5명)
-    const uniqueSpeakers = [...new Set(dialogues.map(d => d.speaker))].slice(0, 5);
-    
-    // 화자별 목소리 자동 할당
-    const speakerConfigs = uniqueSpeakers.map((speakerName, index) => ({
-      speaker: speakerName,
-      voiceConfig: {
-        prebuiltVoiceConfig: { voiceName: availableVoices[index % availableVoices.length] }
+    // 🎯 나이/성별 매핑 엔진
+    function getSmartVoice(gender, ageCategory) {
+        let candidates = [];
+        if (gender === 'F') {
+            candidates = ageCategory === 'old' ? ['Leda', 'Callirrhoe'] : ['Kore', 'Aoede', 'Despina'];
+        } else {
+            candidates = ageCategory === 'old' ? ['Charon', 'Fenrir', 'Iapetus'] : ['Puck', 'Zephyr', 'Orus'];
+        }
+        let voice = candidates.find(v => !usedVoices.has(v)) || candidates[0];
+        usedVoices.add(voice);
+        return voice;
+    }
+
+    const speakerConfigs = uniqueSpeakers.map((speakerName) => {
+      const charInfo = characters.find(c => c.name && (c.name === speakerName || speakerName.includes(c.name)));
+      const desc = charInfo ? (charInfo.desc || "").toLowerCase() : "";
+
+      let gender = 'M'; 
+      let age = 'young'; 
+
+      // 외모 묘사에서 키워드 추출
+      if (desc) {
+          if (/(여|소녀|아줌마|할머니|부인|엄마|딸|아내|girl|woman|female)/.test(desc)) gender = 'F';
+          if (/(40대|50대|60대|70대|노인|할아|할머|중년|아저씨|아줌마|엄마|아빠|old|elderly)/.test(desc)) age = 'old';
+      } else {
+          // 이름으로 유추
+          if (/(할머니|아주머니|소녀|아내|여)/.test(speakerName)) gender = 'F';
+          if (/(할아버지|할아|아저씨|영감|첨지|노인)/.test(speakerName)) age = 'old';
       }
-    }));
 
-    // 전체 대사 스크립트 결합 (디렉터스 노트 형태)
-    const combinedTranscript = dialogues.map(d => 
-      `${d.speaker}: (in a ${d.emotion || "natural"} tone) ${d.text}`
-    ).join('\n\n');
+      return {
+        speaker: speakerName,
+        voiceConfig: { prebuiltVoiceConfig: { voiceName: getSmartVoice(gender, age) } }
+      };
+    });
 
-    const directorPrompt = `
-      # DIRECTOR'S NOTES
-      Perform this scene realistically. Distinctly change voices based on the speaker.
-      
-      # TRANSCRIPT
-      ${combinedTranscript}
-    `;
+    // 3. 🎯 핵심 에러 픽스: 화자 수에 따른 API 요청 분기
+    let directorPrompt = "";
+    let speechConfig = {};
 
-    // Gemini 다중 화자 TTS 호출
+    if (uniqueSpeakers.length === 1) {
+        // [단일 화자] 400 에러를 피하기 위해 일반 음성 모드 사용
+        const singleTranscript = cleanDialogues.map(d => d.text).join('\n\n');
+        
+        directorPrompt = `자연스럽게 연기하듯 읽어주세요.\n\n${singleTranscript}`;
+        speechConfig = {
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: speakerConfigs[0].voiceConfig.prebuiltVoiceConfig.voiceName } }
+        };
+    } else {
+        // [다중 화자] Multi-speaker 모드 사용
+        const combinedTranscript = cleanDialogues.map(d => {
+            const emotionText = d.emotion ? `(in a ${d.emotion} tone) ` : "";
+            return `${d.cleanSpeaker}: ${emotionText}${d.text}`;
+        }).join('\n\n');
+
+        directorPrompt = `Perform this scene realistically. Distinctly change voices based on the speaker.\n\n# TRANSCRIPT\n${combinedTranscript}`;
+        speechConfig = {
+            multiSpeakerVoiceConfig: { speakerVoiceConfigs: speakerConfigs }
+        };
+    }
+
+    // 4. API 호출
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-tts",
       contents: [{ parts: [{ text: directorPrompt }] }],
       config: {
         responseModalities: ['AUDIO'],
-        speechConfig: {
-          multiSpeakerVoiceConfig: {
-            speakerVoiceConfigs: speakerConfigs
-          }
-        },
+        speechConfig: speechConfig,
       },
     });
 
     const data = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    if (!data) throw new Error("오디오 데이터 생성 실패");
+    if (!data) throw new Error("오디오 데이터를 반환받지 못했습니다.");
 
-    // PCM -> WAV 변환 (브라우저 재생용)
     const pcmBuffer = Buffer.from(data, 'base64');
     const wavBuffer = encodeWAV(pcmBuffer, 24000);
     const audioUrl = `data:audio/wav;base64,${wavBuffer.toString('base64')}`;
@@ -64,11 +108,12 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true, audioUrl: audioUrl });
 
   } catch (error) {
-    console.error("Google Multi-speaker TTS Error:", error);
+    console.error("Audio API Error:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 }
 
+// PCM to WAV 인코더
 function encodeWAV(pcmBuffer, sampleRate) {
   const header = Buffer.alloc(44);
   const length = pcmBuffer.length;
