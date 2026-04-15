@@ -1,7 +1,7 @@
 {
   "name": "my-oscar-project",
   "version": "1.0.0",
-  "description": "내 머릿속 오스카 - ESM 활성화 버전",
+  "description": "내 머릿속 오스카 - Gemini Native TTS 적용",
   "type": "module",
   "dependencies": {
     "@google/genai": "latest",
