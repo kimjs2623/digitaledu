@@ -53,6 +53,12 @@
 
   <div class="max-w-[90rem] mx-auto p-6 md:p-12 space-y-12">
     
+    <!-- 작품 프리셋 -->
+    <div id="page-presets" class="hidden min-h-[60vh] flex flex-col items-center justify-center border border-white/5 bg-white/[0.01] rounded-[2.5rem] space-y-6">
+       <i data-lucide="library" class="w-16 h-16 text-zinc-700"></i><h2 class="text-3xl font-black text-white serif-text tracking-wide">작품 프리셋</h2>
+       <p class="text-zinc-500 text-sm font-light">운수 좋은 날, 메밀꽃 필 무렵 등 문학 작품 템플릿이 곧 추가됩니다.</p>
+    </div>
+
     <!-- 스튜디오 메인 -->
     <div id="page-studio" class="space-y-12">
       <header class="flex flex-col md:flex-row md:items-end justify-between border-b border-white/5 pb-8 gap-6">
@@ -74,7 +80,6 @@
           <!-- STEP 1: 입력 -->
           <div id="inputSection" class="space-y-12">
             
-            <!-- 🎯 Imagen 공식 가이드 기반 작성 팁 -->
             <div class="bg-blue-900/20 border border-blue-500/30 p-5 rounded-2xl text-[13px] text-zinc-300">
                <p class="font-bold text-blue-400 mb-2 flex items-center gap-2"><i data-lucide="lightbulb" class="w-4 h-4"></i> 고퀄리티 이미지 생성을 위한 공식 가이드</p>
                <ul class="list-disc list-inside pl-4 space-y-1 text-[12px] text-zinc-400 leading-relaxed">
@@ -111,27 +116,15 @@
 일 원이란 말에 김 첨지는 눈이 번쩍 뜨였다.</textarea>
             </section>
 
-            <!-- 🎯 작화 스타일 및 카메라/렌즈 선택 기능 -->
-            <section class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white/[0.02] p-6 rounded-2xl border border-white/5 shadow-inner">
-              <div class="space-y-3">
-                <label class="text-[12px] font-black text-[#d4af37] tracking-[0.2em] flex items-center gap-2"><i data-lucide="palette" class="w-4 h-4"></i> 작화 스타일</label>
-                <select id="styleSelect" class="w-full p-3 rounded-xl text-[13px] font-bold cursor-pointer">
-                  <option value="cinematic">🎬 시네마틱 사진 (Photorealistic)</option>
-                  <option value="anime">🌸 일본 애니메이션풍 (Anime style)</option>
-                  <option value="webtoon">📖 만화 스타일 (Manhwa style)</option>
-                  <option value="watercolor">🎨 수채화풍 (Watercolor art)</option>
-                </select>
-              </div>
-              <div class="space-y-3">
-                <label class="text-[12px] font-black text-[#d4af37] tracking-[0.2em] flex items-center gap-2"><i data-lucide="camera" class="w-4 h-4"></i> 카메라 및 렌즈 설정</label>
-                <select id="lensSelect" class="w-full p-3 rounded-xl text-[13px] font-bold cursor-pointer">
-                  <option value="standard">표준 렌즈 (자연스러운 시야)</option>
-                  <option value="35mm portrait lens">👤 35mm 인물 렌즈 (피사계 심도, 인물 집중)</option>
-                  <option value="100mm macro lens">🔍 100mm 매크로 렌즈 (사물, 음식, 질감 극대화)</option>
-                  <option value="10mm wide-angle lens">⛰️ 10mm 광각 렌즈 (풍경, 넓은 시야, 역동성)</option>
-                  <option value="telephoto lens with fast shutter speed">🏃‍♂️ 망원 렌즈 + 빠른 셔터 (스포츠, 액션)</option>
-                </select>
-              </div>
+            <!-- 🎯 작화 스타일 선택 기능 (카메라 설정 제외됨) -->
+            <section class="space-y-3 bg-white/[0.02] p-6 rounded-2xl border border-white/5 shadow-inner">
+              <label class="text-[12px] font-black text-[#d4af37] tracking-[0.2em] flex items-center gap-2"><i data-lucide="palette" class="w-4 h-4"></i> 작화 스타일</label>
+              <select id="styleSelect" class="w-full p-3 rounded-xl text-[13px] font-bold cursor-pointer">
+                <option value="cinematic">🎬 시네마틱 사진 (Photorealistic)</option>
+                <option value="anime">🌸 일본 애니메이션풍 (Anime style)</option>
+                <option value="webtoon">📖 만화 스타일 (Manhwa style)</option>
+                <option value="watercolor">🎨 수채화풍 (Watercolor art)</option>
+              </select>
             </section>
             
             <button onclick="analyzeScript()" class="w-full py-6 rounded-2xl border border-[#d4af37]/50 text-[#d4af37] bg-[#d4af37]/5 font-black text-xl tracking-[0.2em] hover:bg-[#d4af37]/10 transition-all shadow-lg shadow-[#d4af37]/5">
@@ -146,7 +139,6 @@
                 <p class="text-zinc-400 mt-2 text-sm">AI가 자동으로 생성한 이미지 프롬프트와 오디오 연기 지시사항을 수정하세요.</p>
              </div>
              
-             <!-- 🎯 지문 입력 주의 경고창 -->
              <div class="bg-red-900/20 border border-red-500/30 p-4 rounded-2xl text-[13px] text-zinc-300">
                 <p class="font-bold text-red-400 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4"></i> 오디오 대사 작성 주의사항!</p>
                 <p class="mt-1 text-zinc-400 text-[12px]">오디오 입력칸에 <strong class="text-white">(잠시후), (한숨) 같은 지문을 쓰면 성우가 그대로 읽어버립니다.</strong> 오직 입으로 소리낼 '순수한 대사'만 적어주세요.</p>
@@ -195,7 +187,7 @@
               </div>
 
               <!-- 🎯 실제 플레이어 영역 -->
-              <div id="sequencePlayer" class="hidden w-full h-full relative cursor-pointer" onclick="togglePlay()">
+              <div id="sequencePlayer" class="hidden w-full h-full relative cursor-pointer" onclick="togglePlay(event)">
                  <img id="playerImage" class="w-full h-full object-cover anim-fade" src="" alt="Scene">
                  <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40 pointer-events-none"></div>
                  
@@ -254,6 +246,13 @@
 
       </div>
     </div>
+    
+    <!-- 갤러리 -->
+    <div id="page-gallery" class="hidden space-y-10">
+       <header class="text-center space-y-4 pb-10 border-b border-white/5"><h2 class="text-4xl font-black text-white italic serif-text tracking-wide">클래스 갤러리</h2></header>
+       <div id="galleryGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8"></div>
+    </div>
+
   </div>
 
   <script>
@@ -271,9 +270,16 @@
 
     function switchPage(pageId) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(`tab-${pageId}`).classList.add('active');
-      ['presets', 'studio', 'gallery'].forEach(id => document.getElementById(`page-${id}`).classList.add('hidden'));
-      document.getElementById(`page-${pageId}`).classList.remove('hidden');
+      const activeTabBtn = document.getElementById(`tab-${pageId}`);
+      if (activeTabBtn) activeTabBtn.classList.add('active');
+      
+      ['presets', 'studio', 'gallery'].forEach(id => {
+        const pageEl = document.getElementById(`page-${id}`);
+        if (pageEl) pageEl.classList.add('hidden');
+      });
+      
+      const targetPage = document.getElementById(`page-${pageId}`);
+      if (targetPage) targetPage.classList.remove('hidden');
     }
 
     function renderCharacters() {
@@ -339,8 +345,7 @@
             place: document.getElementById('placeInput').value, 
             scenario: scenario, 
             note: document.getElementById('noteInput').value,
-            style: document.getElementById('styleSelect').value,
-            lens: document.getElementById('lensSelect').value
+            style: document.getElementById('styleSelect').value
           }) 
         });
         const data = await res.json();
@@ -419,10 +424,10 @@
             }
           } catch(e) { console.error("Image API fetch error", e); }
 
-          // 에러 시 임시 이미지 대체 (방어벽)
+          // 에러 시 시각적으로 실패했음을 알리는 Placeholder 이미지 적용
           if(!imgUrl) {
-            console.log("Fallback to placeholder image");
-            imgUrl = `https://picsum.photos/seed/${Math.random()}/1280/720`;
+            console.log("Fallback to Error Placeholder image");
+            imgUrl = `https://placehold.co/1280x720/000000/FF0000?text=Image+API+Failed\\nCheck+Vercel+Logs`;
           }
 
           // 2. 오디오 생성 호출 (대사가 있을 때만)
