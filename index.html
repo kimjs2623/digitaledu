@@ -47,8 +47,10 @@
     
     <div id="page-presets" class="hidden min-h-[60vh] flex flex-col items-center justify-center border border-white/5 bg-white/[0.01] rounded-[2.5rem] space-y-6">
        <i data-lucide="library" class="w-16 h-16 text-zinc-700"></i><h2 class="text-3xl font-black text-white serif-text tracking-wide">작품 프리셋</h2>
+       <p class="text-zinc-500 text-sm font-light">운수 좋은 날, 메밀꽃 필 무렵 등 문학 작품 템플릿이 곧 추가됩니다.</p>
     </div>
 
+    <!-- 스튜디오 메인 -->
     <div id="page-studio" class="space-y-12">
       <header class="flex flex-col md:flex-row md:items-end justify-between border-b border-white/5 pb-8 gap-6">
         <div class="flex items-center gap-6">
@@ -62,10 +64,12 @@
         </div>
       </header>
 
+      <!-- [STEP 1 & 2] 컨테이너 -->
       <div id="authoringContainer" class="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-16">
         
         <div class="lg:col-span-7 space-y-12">
           
+          <!-- STEP 1: 입력 -->
           <div id="inputSection" class="space-y-12">
             <section class="space-y-6">
               <div class="flex items-center justify-between">
@@ -80,19 +84,24 @@
             </section>
             <section class="space-y-4">
               <label class="text-[13px] font-black text-[#d4af37] tracking-[0.2em]">시나리오 원문</label>
-              <textarea id="scenarioInput" class="w-full glass-panel p-8 rounded-[2rem] text-xl md:text-2xl font-light leading-[1.8] resize-none serif-text min-h-[180px]">일 원이란 말에 김 첨지는 눈이 번쩍 뜨였다.</textarea>
+              <textarea id="scenarioInput" class="w-full glass-panel p-8 rounded-[2rem] text-xl md:text-2xl font-light leading-[1.8] resize-none serif-text min-h-[180px]">"학생님, 어디까지 가시나요?"
+"남대문 정거장까지 가오."
+"멀긴 무엇이 멀어. 돈 일 원 줄 테니 갑시다."
+일 원이란 말에 김 첨지는 눈이 번쩍 뜨였다.</textarea>
             </section>
             <button onclick="analyzeScript()" class="w-full py-6 rounded-2xl border border-[#d4af37]/50 text-[#d4af37] bg-[#d4af37]/5 font-black text-xl tracking-[0.2em] hover:bg-[#d4af37]/10 transition-all">
               🧠 AI 연출 콘티 초안 짜기
             </button>
           </div>
 
+          <!-- STEP 2: 검토/수정 (원문 병렬 배치) -->
           <div id="reviewSection" class="hidden space-y-8 animate-in fade-in">
              <div class="border-b border-white/10 pb-4">
                 <h2 class="text-2xl font-black text-white tracking-widest">콘티 검토 및 디테일 수정</h2>
                 <p class="text-zinc-400 mt-2 text-sm">내가 쓴 원문을 참고하며 각 컷의 연출을 세밀하게 조정하세요.</p>
              </div>
              
+             <!-- 🎯 컷 크기 가이드 -->
              <div class="bg-blue-900/20 border border-blue-500/30 p-5 rounded-2xl text-[13px] text-zinc-300">
                 <p class="font-bold text-blue-400 mb-3 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4"></i> 컷 크기(Shot Size) 가이드</p>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-[12px]">
@@ -104,14 +113,17 @@
              </div>
 
              <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                <!-- 좌측: 나의 원문 (Readonly) -->
                 <div class="md:col-span-4 space-y-3">
                    <label class="text-[12px] font-black text-[#d4af37] tracking-widest flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4"></i> 나의 원문</label>
                    <div id="displayOriginal" class="w-full bg-black/40 border border-white/5 p-5 rounded-2xl h-[400px] overflow-y-auto text-zinc-400 text-[13px] leading-relaxed serif-text"></div>
                 </div>
                 
+                <!-- 우측: 에디터 -->
                 <div class="md:col-span-8 space-y-4">
                    <label class="text-[12px] font-black text-blue-400 tracking-widest flex items-center gap-2"><i data-lucide="film" class="w-4 h-4"></i> 스토리보드 에디터</label>
                    <div id="editableStoryboardContainer" class="space-y-4 h-[400px] overflow-y-auto pr-2"></div>
+                   <!-- 🎯 컷 추가 버튼 -->
                    <button onclick="addNewShot()" class="w-full py-3 border border-dashed border-zinc-600 rounded-xl text-zinc-400 hover:text-white hover:border-zinc-400 transition-colors text-[12px] font-bold tracking-widest flex items-center justify-center gap-2">
                      <i data-lucide="plus-circle" class="w-4 h-4"></i> 컷 추가하기
                    </button>
@@ -133,8 +145,10 @@
         </div>
       </div>
 
+      <!-- STEP 3: 렌더링 & 모디파이/노트 섹션 -->
       <div id="renderingAndNoteSection" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-12 animate-in fade-in">
          
+         <!-- 왼쪽: 모니터 (7칸) -->
          <div class="lg:col-span-7 space-y-6">
             <h3 class="text-2xl font-black text-white italic tracking-wide serif-text flex items-center gap-3"><i data-lucide="monitor" class="text-[#d4af37]"></i> Production Monitor</h3>
             <div class="relative bg-[#050505] rounded-[2.5rem] border border-white/10 aspect-video flex flex-col items-center justify-center text-center overflow-hidden shadow-2xl glass-panel">
@@ -155,8 +169,10 @@
             </div>
          </div>
 
+         <!-- 오른쪽: 다이내믹 패널 (5칸) - 기본은 노트, 수정 시 에디터로 바뀜 -->
          <div id="dynamicRightPanel" class="lg:col-span-5 h-[600px] flex flex-col">
             
+            <!-- 상태 A: 작가 노트 -->
             <div id="notePanel" class="flex-1 glass-panel p-8 rounded-[2.5rem] flex flex-col space-y-6 shadow-xl">
                <div class="flex items-center justify-between border-b border-white/10 pb-4">
                  <h3 class="text-xl font-black text-white italic serif-text flex items-center gap-2"><i data-lucide="pen-tool" class="text-[#d4af37] w-5 h-5"></i> Director's Note</h3>
@@ -169,6 +185,7 @@
                </button>
             </div>
 
+            <!-- 상태 B: 영상을 보며 수정하는 에디터 -->
             <div id="reEditPanel" class="hidden flex-1 glass-panel p-6 rounded-[2.5rem] flex flex-col space-y-4 shadow-xl border-blue-500/30">
                <div class="flex items-center justify-between border-b border-white/10 pb-3">
                  <h3 class="text-lg font-black text-blue-300 flex items-center gap-2"><i data-lucide="scissors" class="w-4 h-4"></i> 실시간 콘티 수정</h3>
@@ -182,6 +199,7 @@
       </div>
     </div>
 
+    <!-- 탭 3: 갤러리 -->
     <div id="page-gallery" class="hidden space-y-10">
        <header class="text-center space-y-4 pb-10 border-b border-white/5"><h2 class="text-4xl font-black text-white italic serif-text tracking-wide">클래스 갤러리</h2></header>
        <div id="galleryGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8"></div>
@@ -270,7 +288,7 @@
       } catch (err) { alert(err.message); location.reload(); }
     }
 
-    // 🎯 동일 화면 편집 모드 (Req 6)
+    // 🎯 동일 화면 편집 모드 
     function activateVideoEditMode() {
       document.getElementById('notePanel').classList.add('hidden');
       document.getElementById('reEditPanel').classList.remove('hidden');
@@ -285,7 +303,7 @@
       document.getElementById('authoringContainer').classList.add('hidden');
       document.getElementById('renderingAndNoteSection').classList.remove('hidden');
       document.getElementById('reEditPanel').classList.add('hidden');
-      document.getElementById('notePanel').classList.remove('hidden'); // 노트 복구
+      document.getElementById('notePanel').classList.remove('hidden'); 
       
       document.getElementById('loadingBox').classList.remove('hidden');
       document.getElementById('videoBox').classList.add('hidden');
