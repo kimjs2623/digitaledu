@@ -116,7 +116,7 @@
 일 원이란 말에 김 첨지는 눈이 번쩍 뜨였다.</textarea>
             </section>
             
-            <button onclick="analyzeScript()" class="w-full py-6 rounded-2xl border border-[#d4af37]/50 text-[#d4af37] bg-[#d4af37]/5 font-black text-xl tracking-[0.2em] hover:bg-[#d4af37]/10 transition-all shadow-lg shadow-[#d4af37]/5">
+            <button id="btn-analyze" onclick="analyzeScript()" class="w-full py-6 rounded-2xl border border-[#d4af37]/50 text-[#d4af37] bg-[#d4af37]/5 font-black text-xl tracking-[0.2em] hover:bg-[#d4af37]/10 transition-all shadow-lg shadow-[#d4af37]/5">
               🧠 AI 연출 콘티 자동 생성
             </button>
           </div>
@@ -250,7 +250,6 @@
       document.getElementById(`page-${pageId}`)?.classList.remove('hidden');
     }
 
-    // 🎯 캐릭터 UI (심플 버전으로 원복)
     function renderCharacters() {
       const list = document.getElementById('characterList');
       list.innerHTML = state.characters.map(char => `
@@ -309,13 +308,23 @@
     function removeDialogue(sIdx, dIdx, cId) { state.parsedData.storyboard[sIdx].dialogues.splice(dIdx, 1); renderStoryboardEditor(cId); }
     function addNewShot(cId = 'editableStoryboardContainer') { state.parsedData.storyboard.push({ shot_composition: "바스트 샷", action: "새로운 장면", image_prompt: "한국어로 된 구체적인 장면 묘사를 적어주세요.", dialogues: [] }); renderStoryboardEditor(cId); }
 
-    // [STEP 1 -> STEP 2] 분석
+    // 🎯 [STEP 1 -> STEP 2] 분석 로딩 UI 픽스 적용
     async function analyzeScript() {
       const scenario = document.getElementById('scenarioInput').value;
       if(!scenario.trim()) return alert("시나리오 입력 요망.");
 
-      document.getElementById('inputSection').classList.add('hidden');
-      document.getElementById('reviewSection').classList.remove('hidden');
+      // 1. 버튼 상태 및 로그 UI 업데이트 (분석 중 표시)
+      const btnAnalyze = document.getElementById('btn-analyze');
+      const originalText = btnAnalyze.innerHTML;
+      btnAnalyze.disabled = true;
+      btnAnalyze.innerHTML = `<i data-lucide="loader-2" class="w-6 h-6 animate-spin inline-block mr-2"></i> AI가 씬을 분할하고 프롬프트를 작성 중입니다...`;
+      lucide.createIcons();
+
+      const logContent = document.getElementById('logContent');
+      if (logContent) {
+        logContent.innerHTML += `<p class="text-amber-400 text-[13px]">> AI 감독이 대본 분석을 시작합니다. (약 10~20초 소요)</p>`;
+        logContent.scrollTop = logContent.scrollHeight;
+      }
       
       const charStr = state.characters.map(c => `${c.name}(${c.desc})`).join(', ');
       
@@ -328,10 +337,27 @@
         if(!data.scenes) throw new Error(data.message || "분석 실패");
         state.parsedData.storyboard = data.scenes;
         
+        // 2. 분석 완료 후 화면 넘김
+        document.getElementById('inputSection').classList.add('hidden');
+        document.getElementById('reviewSection').classList.remove('hidden');
         document.getElementById('displayOriginal').innerText = scenario; 
+        
         renderStoryboardEditor('editableStoryboardContainer');
-        document.getElementById('logContent').innerHTML += `<p class="text-zinc-400 text-xs">- 서사 분석 및 한국어 프롬프트 생성 완료</p>`;
-      } catch (err) { alert("분석 오류: " + err.message); location.reload(); }
+        
+        if (logContent) {
+          logContent.innerHTML += `<p class="text-blue-400 text-[13px]">> 분석 완료! 컷 편집기에서 생성된 한국어 프롬프트를 확인하세요.</p>`;
+          logContent.scrollTop = logContent.scrollHeight;
+        }
+
+      } catch (err) { 
+        alert("분석 오류: " + err.message); 
+        if (logContent) logContent.innerHTML += `<p class="text-red-400 text-[13px]">> 오류 발생: ${err.message}</p>`;
+      } finally {
+        // 3. 버튼 원상복구
+        btnAnalyze.disabled = false;
+        btnAnalyze.innerHTML = originalText;
+        lucide.createIcons();
+      }
     }
 
     // 렌더링 시작
@@ -414,7 +440,7 @@
       imgEl.src = frame.imageUrl;
 
       const subCont = document.getElementById('playerSubtitle');
-      // 🎯 빈 자막 숨김 처리: 대사도 없고 서브타이틀도 없으면 빈 공간으로 둠
+      // 빈 자막 숨김 처리
       if(frame.dialogues && frame.dialogues.length > 0) {
         subCont.innerHTML = frame.dialogues.map(d => `<div class="mb-2"><span class="text-[11px] font-black text-[#d4af37] bg-black/60 px-2 py-0.5 rounded mr-2 align-middle">${d.speaker}</span><span class="text-lg md:text-xl font-bold text-[#fbf5b7] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed serif-text align-middle">"${d.text}"</span></div>`).join('');
       } else if (frame.subtitle && frame.subtitle.trim() !== '') {
@@ -437,7 +463,6 @@
             state.frameTimeoutId = setTimeout(() => { if(state.isPlaying) nextFrameManual(); }, 4000);
         });
         
-        // 🎯 마지막 대사 짤림 현상 방지: 오디오가 끝나고 0.8초의 딜레이(여운) 추가
         state.currentAudioElement.onended = () => { 
           if(state.isPlaying) {
              setTimeout(() => {
