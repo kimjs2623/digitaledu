@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     const apiKey = process.env.GEMINI_API_KEY;
     const { chars, place, scenario, note } = req.body;
     
-    // 🎯 앞부분(빌드업) 생략 절대 금지 및 맥락 유지 지시 추가
+    // 🎯 앞부분(빌드업) 생략 금지 및 맥락 유지 지시
     const promptText = `
       당신은 철저하고 세심한 영화 감독입니다. 다음 시나리오를 바탕으로 스토리보드를 구성하세요.
 
@@ -33,7 +33,27 @@ export default async function handler(req, res) {
       }
     `;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+    // 💡 503 에러 발생 시 몰래 재시도하는 방어벽 로직 (복구됨)
+    const fetchWithRetry = async (url, options, retries = 3, backoff = 2000) => {
+      for (let i = 0; i < retries; i++) {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        
+        if (data.error) {
+           if (data.error.code === 503 || data.error.message.includes('demand')) {
+             console.log(`[서버 혼잡] ${backoff}ms 대기 후 재시도 (${i+1}/${retries})...`);
+             await new Promise(r => setTimeout(r, backoff));
+             backoff *= 2; // 2초, 4초, 8초 점진적 대기
+             continue;
+           }
+           throw new Error(data.error.message);
+        }
+        return data;
+      }
+      throw new Error("구글 AI 서버 접속자가 너무 많아 처리가 지연되었습니다. 잠시 후 다시 시도해 주세요.");
+    };
+
+    const data = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -42,10 +62,16 @@ export default async function handler(req, res) {
       })
     });
 
-    const data = await response.json();
+    // 💡 Cannot read properties of undefined 방어 (AI가 헛소리 보낼 때 강제 셧다운 방지)
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+        throw new Error("AI가 유효한 응답을 반환하지 않았습니다. 다시 시도해주세요.");
+    }
+
+    // JSON 불순물 제거 및 파싱
     let rawText = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const result = JSON.parse(rawText);
     
-    return res.status(200).json({ success: true, data: JSON.parse(rawText) });
+    return res.status(200).json({ success: true, data: result });
 
   } catch (error) {
     console.error("Analyze Error:", error);
