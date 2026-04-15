@@ -71,12 +71,12 @@
         
         <div class="lg:col-span-7 space-y-12">
           
-          <!-- STEP 1: 입력 및 사전 에셋 제작 -->
+          <!-- STEP 1: 입력 (심플한 오리지널 버전) -->
           <div id="inputSection" class="space-y-12">
             
             <section class="space-y-6">
               <div class="flex items-center justify-between border-b border-white/10 pb-2">
-                <label class="text-[14px] font-black text-[#d4af37] tracking-[0.2em]">STEP 1. 등장인물 디자인</label>
+                <label class="text-[14px] font-black text-[#d4af37] tracking-[0.2em]">STEP 1. 등장인물 프로필 설정</label>
                 <button onclick="addCharacter()" class="flex items-center gap-2 text-[12px] font-bold text-zinc-400 hover:text-[#d4af37]"><i data-lucide="plus" class="w-4 h-4"></i> 인물 추가</button>
               </div>
               <div id="characterList" class="space-y-4"></div>
@@ -84,19 +84,12 @@
 
             <section class="space-y-6">
               <div class="border-b border-white/10 pb-2">
-                <label class="text-[14px] font-black text-[#d4af37] tracking-[0.2em]">STEP 2. 장소 및 배경 디자인</label>
+                <label class="text-[14px] font-black text-[#d4af37] tracking-[0.2em]">STEP 2. 장소 및 연출 디자인</label>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="space-y-3">
                   <label class="text-[12px] font-bold text-zinc-400">장소 및 시대 배경</label>
                   <input id="placeInput" type="text" class="w-full p-4 rounded-xl text-[13px]" value="1920년대, 비가 내리는 어두운 경성 거리">
-                  <!-- 🎯 배경 사전 생성 버튼 (모달 연결) -->
-                  <button onclick="openAssetModal('place', 'placeInput')" class="w-full py-2 bg-blue-900/30 text-blue-300 rounded-lg text-[12px] font-bold flex justify-center items-center gap-2 hover:bg-blue-900/50 transition">
-                     <i data-lucide="images" class="w-4 h-4"></i> 시안 3장 생성 및 고르기
-                  </button>
-                  <div id="bgPreview" class="w-full aspect-video bg-black/40 rounded-xl border border-white/5 overflow-hidden flex items-center justify-center relative">
-                     <span class="text-zinc-600 text-[11px] absolute">미선택</span>
-                  </div>
                 </div>
                 <div class="space-y-3">
                   <label class="text-[12px] font-bold text-zinc-400">감독 연출 의도 (분위기)</label>
@@ -124,7 +117,7 @@
             </section>
             
             <button onclick="analyzeScript()" class="w-full py-6 rounded-2xl border border-[#d4af37]/50 text-[#d4af37] bg-[#d4af37]/5 font-black text-xl tracking-[0.2em] hover:bg-[#d4af37]/10 transition-all shadow-lg shadow-[#d4af37]/5">
-              🧠 AI 연출 콘티 짜기 (에셋 반영)
+              🧠 AI 연출 콘티 자동 생성
             </button>
           </div>
 
@@ -134,11 +127,6 @@
                 <h2 class="text-2xl font-black text-white tracking-widest">콘티 & 프롬프트 수정</h2>
                 <p class="text-zinc-400 mt-2 text-sm">AI가 생성한 <span class="text-blue-400 font-bold">한국어 이미지 프롬프트</span>와 화자별 대사를 수정하세요.</p>
              </div>
-             
-             <!-- 🎯 선택된 레퍼런스 이미지들을 썸네일로 보여줌 -->
-             <div id="referenceAssetsViewer" class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
-                <!-- Javascript로 채워짐 -->
-             </div>
 
              <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
                 <div class="md:col-span-4 space-y-3">
@@ -146,7 +134,7 @@
                    <div id="displayOriginal" class="w-full bg-black/40 border border-white/5 p-5 rounded-2xl h-[650px] overflow-y-auto text-zinc-400 text-[13px] leading-relaxed serif-text whitespace-pre-wrap"></div>
                 </div>
                 <div class="md:col-span-8 space-y-4">
-                   <label class="text-[12px] font-black text-blue-400 tracking-widest flex items-center gap-2"><i data-lucide="film" class="w-4 h-4"></i> 에디터 (한국어 지원)</label>
+                   <label class="text-[12px] font-black text-blue-400 tracking-widest flex items-center gap-2"><i data-lucide="film" class="w-4 h-4"></i> 프롬프트 및 오디오 에디터</label>
                    <div id="editableStoryboardContainer" class="space-y-4 h-[650px] overflow-y-auto pr-2"></div>
                    <button onclick="addNewShot()" class="w-full py-3 border border-dashed border-zinc-600 rounded-xl text-zinc-400 hover:text-white transition-colors text-[12px] font-bold tracking-widest flex justify-center gap-2"><i data-lucide="plus-circle" class="w-4 h-4"></i> 컷 추가하기</button>
                 </div>
@@ -183,11 +171,11 @@
               </div>
 
               <!-- 🎯 실제 플레이어 영역 -->
-              <div id="sequencePlayer" class="hidden w-full h-full relative cursor-pointer">
+              <div id="sequencePlayer" class="hidden w-full h-full relative cursor-pointer" onclick="togglePlay(event)">
                  <img id="playerImage" class="w-full h-full object-cover anim-fade" src="" alt="Scene">
                  <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40 pointer-events-none"></div>
                  
-                 <!-- 하단 다중 화자 대사 자막 -->
+                 <!-- 하단 다중 화자 대사 자막 (빈 자막 숨김 처리 적용됨) -->
                  <div id="playerSubtitle" class="absolute bottom-20 left-8 right-8 flex flex-col items-center justify-end gap-2 pointer-events-none"></div>
                  
                  <div class="absolute top-6 left-6 bg-black/60 px-3 py-1.5 rounded-lg text-[10px] font-bold text-[#d4af37] border border-[#d4af37]/20 backdrop-blur-md tracking-[0.2em]">
@@ -195,7 +183,7 @@
                  </div>
               </div>
               
-              <!-- 🎯 브라우저 자동 재생 방지 해결을 위한 오버레이 버튼 -->
+              <!-- 오버레이 시작 버튼 -->
               <div id="playStartOverlay" class="hidden absolute inset-0 z-40 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center">
                  <button onclick="startPlayerViaClick()" class="btn-gold px-10 py-5 rounded-full font-black text-xl flex items-center gap-3 shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-105 transition-transform">
                     <i data-lucide="play" class="w-6 h-6 fill-current"></i> 상영 시작하기
@@ -203,6 +191,7 @@
                  <p class="text-zinc-400 text-sm mt-4">클릭 시 오디오와 함께 영상이 재생됩니다.</p>
               </div>
 
+              <!-- 플레이어 컨트롤 -->
               <div id="playerControls" class="hidden absolute bottom-0 left-0 w-full h-16 bg-black/80 backdrop-blur-md border-t border-white/10 flex items-center justify-between px-6 z-20">
                  <div class="flex items-center gap-4">
                    <button onclick="prevFrame(event)" class="text-zinc-400 hover:text-white transition p-2"><i data-lucide="skip-back" class="w-5 h-5"></i></button>
@@ -241,24 +230,6 @@
     </div>
   </div>
 
-  <!-- 🎯 다중 에셋 선택 모달 (팝업) -->
-  <div id="assetModal" class="hidden fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-6">
-    <div class="glass-panel w-full max-w-4xl p-8 rounded-[2rem] space-y-6 flex flex-col border border-white/10 shadow-[0_0_50px_rgba(212,175,55,0.1)]">
-      <div class="flex justify-between items-start">
-        <div>
-          <h3 class="text-3xl font-black text-white italic serif-text mb-2">디자인 시안 고르기</h3>
-          <p class="text-zinc-400 text-sm">마음에 드는 이미지를 클릭하여 레퍼런스로 확정하세요. 이 디자인이 전체 영상의 기준이 됩니다.</p>
-        </div>
-        <button onclick="closeAssetModal()" class="text-zinc-400 hover:text-white transition-colors p-2"><i data-lucide="x" class="w-6 h-6"></i></button>
-      </div>
-      
-      <!-- 로딩 및 그리드 -->
-      <div id="modalContent" class="relative min-h-[300px] flex items-center justify-center bg-black/30 rounded-2xl border border-white/5 p-6">
-         <!-- 자바스크립트로 렌더링됨 -->
-      </div>
-    </div>
-  </div>
-
   <script>
     let state = {
       characters: [{ id: 'char_0', name: '김 첨지', desc: "낡은 한복, 슬픈 표정의 40대 남성" }, { id: 'char_1', name: '학생', desc: "낡은 교복과 안경을 쓴 10대 소년" }],
@@ -279,19 +250,14 @@
       document.getElementById(`page-${pageId}`)?.classList.remove('hidden');
     }
 
-    // 🎯 사전 제작: 캐릭터 UI 렌더링 및 테스트 생성 로직
+    // 🎯 캐릭터 UI (심플 버전으로 원복)
     function renderCharacters() {
       const list = document.getElementById('characterList');
       list.innerHTML = state.characters.map(char => `
-        <div class="flex flex-col gap-2 bg-white/[0.02] p-3 rounded-xl border border-white/5">
-          <div class="flex gap-2">
-            <input onchange="updateChar('${char.id}', 'name', this.value)" value="${char.name}" class="w-1/4 p-2 rounded-lg text-[13px] font-bold" placeholder="이름 (예: 김첨지)">
-            <input onchange="updateChar('${char.id}', 'desc', this.value)" value="${char.desc}" id="desc_${char.id}" class="flex-1 p-2 rounded-lg text-[13px]" placeholder="외모 상세 묘사">
-            <button onclick="removeCharacter('${char.id}')" class="px-2 text-zinc-600 hover:text-red-400"><i data-lucide="x" class="w-4 h-4"></i></button>
-          </div>
-          <div class="flex items-center gap-4 pl-1">
-             <button onclick="openAssetModal('character', 'desc_${char.id}')" class="py-1.5 px-3 bg-blue-900/30 text-blue-300 rounded-md text-[11px] font-bold flex items-center gap-1 hover:bg-blue-900/50 transition"><i data-lucide="user-check" class="w-3 h-3"></i> 3가지 시안 생성</button>
-          </div>
+        <div class="flex gap-2 bg-white/[0.02] p-3 rounded-xl border border-white/5">
+          <input onchange="updateChar('${char.id}', 'name', this.value)" value="${char.name}" class="w-1/4 p-2 rounded-lg text-[13px] font-bold" placeholder="이름 (예: 김첨지)">
+          <input onchange="updateChar('${char.id}', 'desc', this.value)" value="${char.desc}" class="flex-1 p-2 rounded-lg text-[13px]" placeholder="외모 상세 묘사">
+          <button onclick="removeCharacter('${char.id}')" class="px-2 text-zinc-600 hover:text-red-400"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>`).join('');
       lucide.createIcons();
     }
@@ -300,78 +266,6 @@
     function removeCharacter(id) { if(state.characters.length>1){ state.characters = state.characters.filter(c => c.id !== id); renderCharacters(); } }
     function updateChar(id, field, value) { const c = state.characters.find(c => c.id === id); if(c) c[field] = value; }
 
-    // 🎯 사전 제작 에셋 다중 시안 모달 로직
-    let currentSelectingType = '';
-
-    async function openAssetModal(type, inputId) {
-      const desc = document.getElementById(inputId).value;
-      if(!desc.trim()) return alert("묘사를 먼저 입력해주세요.");
-      
-      document.getElementById('assetModal').classList.remove('hidden');
-      const modalContent = document.getElementById('modalContent');
-      
-      // 로딩 UI
-      modalContent.innerHTML = `
-        <div class="flex flex-col items-center gap-4">
-          <div class="w-10 h-10 border-2 border-white/10 border-t-[#d4af37] rounded-full animate-spin"></div>
-          <p class="text-zinc-400 text-sm font-bold tracking-widest animate-pulse">3개의 시안을 생성 중입니다...</p>
-        </div>`;
-
-      currentSelectingType = type;
-      const style = document.getElementById('styleSelect').value;
-      const promptStr = type === 'place' ? `${desc}, empty scenery, highly detailed, ${style} style` : `a portrait of ${desc}, highly detailed character design, ${style} style`;
-
-      try {
-        // count: 3 을 추가하여 백엔드에서 배열로 받도록 함
-        const res = await fetch('/api/generate-images', { 
-          method: 'POST', 
-          headers:{'Content-Type':'application/json'}, 
-          body: JSON.stringify({prompt: promptStr, count: 3}) 
-        });
-        const data = await res.json();
-        
-        if(data.success && data.imageUrls) {
-           modalContent.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">` + 
-             data.imageUrls.map((url, i) => `
-               <div onclick="selectAssetPreview('${url}', '${type}')" class="group cursor-pointer flex flex-col gap-3">
-                 <div class="aspect-video rounded-xl overflow-hidden border-2 border-transparent group-hover:border-[#d4af37] transition-all relative">
-                    <img src="${url}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center font-bold text-[#d4af37] tracking-widest">선택하기</div>
-                 </div>
-                 <p class="text-center text-zinc-500 text-xs font-mono font-bold tracking-widest">시안 0${i+1}</p>
-               </div>
-             `).join('') + `</div>`;
-        } else {
-           modalContent.innerHTML = `<p class="text-red-400 text-sm font-bold">생성 실패: ${data.message}</p>`;
-        }
-      } catch(e) { 
-        modalContent.innerHTML = `<p class="text-red-400 text-sm font-bold">서버 에러 발생: ${e.message}</p>`; 
-      }
-    }
-
-    function selectAssetPreview(url, type) {
-      if(type === 'place') {
-        const previewBox = document.getElementById('bgPreview');
-        previewBox.innerHTML = `<img src="${url}" class="w-full h-full object-cover">`;
-      }
-      
-      // Step 2의 레퍼런스 뷰어에도 추가
-      const refViewer = document.getElementById('referenceAssetsViewer');
-      const tagLabel = type === 'place' ? '배경 레퍼런스' : '캐릭터 레퍼런스';
-      refViewer.innerHTML = `
-        <div class="w-56 aspect-video rounded-xl overflow-hidden border border-[#d4af37]/30 flex-shrink-0 relative shadow-lg">
-           <div class="absolute top-2 left-2 bg-black/70 px-2 py-1 rounded text-[10px] text-[#d4af37] font-bold backdrop-blur-md">${tagLabel}</div>
-           <img src="${url}" class="w-full h-full object-cover">
-        </div>` + refViewer.innerHTML;
-      
-      closeAssetModal();
-    }
-
-    function closeAssetModal() {
-      document.getElementById('assetModal').classList.add('hidden');
-    }
-
-    // 🎯 한국어 에디터 렌더링 (다중 대사 지원)
     function renderStoryboardEditor(containerId) {
       const container = document.getElementById(containerId);
       container.innerHTML = state.parsedData.storyboard.map((shot, index) => {
@@ -391,7 +285,7 @@
             <input type="text" onchange="updateShot(${index}, 'shot_composition', this.value)" class="w-1/3 bg-transparent border-b border-white/20 text-[12px] text-amber-300 font-bold focus:border-[#d4af37] outline-none pb-1" value="${shot.shot_composition || ''}" title="카메라/구도">
             <input type="text" onchange="updateShot(${index}, 'action', this.value)" class="w-2/3 bg-transparent border-b border-white/20 text-[12px] text-zinc-300 focus:border-white outline-none pb-1" value="${shot.action || ''}" title="상황 설명 자막">
           </div>
-          <!-- 🎯 한국어 프롬프트 에디터 -->
+          <!-- 한국어 프롬프트 에디터 -->
           <div class="space-y-1">
              <label class="text-[10px] text-blue-400 font-bold">한국어 이미지 프롬프트 (수정 가능)</label>
              <textarea onchange="updateShot(${index}, 'image_prompt', this.value)" class="w-full bg-blue-900/10 border border-blue-500/20 rounded-lg p-3 text-[12px] text-blue-200 resize-none outline-none focus:border-blue-500/50 h-16 leading-relaxed">${shot.image_prompt || ''}</textarea>
@@ -486,7 +380,6 @@
         document.getElementById('loadingBox').classList.add('hidden');
         document.getElementById('sequencePlayer').classList.remove('hidden');
         
-        // 🎯 브라우저 정책(오디오 차단) 회피를 위해 사용자의 클릭 유도 오버레이 띄움
         document.getElementById('playStartOverlay').classList.remove('hidden');
         
         const shareBtn = document.getElementById('shareBtn');
@@ -498,7 +391,6 @@
       } catch (err) { alert("렌더링 실패: " + err.message); }
     }
 
-    // 🎯 오버레이 버튼 클릭을 통해 오디오 강제 활성화 및 상영 시작
     function startPlayerViaClick() {
       document.getElementById('playStartOverlay').classList.add('hidden');
       document.getElementById('playerControls').classList.remove('hidden');
@@ -522,10 +414,13 @@
       imgEl.src = frame.imageUrl;
 
       const subCont = document.getElementById('playerSubtitle');
+      // 🎯 빈 자막 숨김 처리: 대사도 없고 서브타이틀도 없으면 빈 공간으로 둠
       if(frame.dialogues && frame.dialogues.length > 0) {
         subCont.innerHTML = frame.dialogues.map(d => `<div class="mb-2"><span class="text-[11px] font-black text-[#d4af37] bg-black/60 px-2 py-0.5 rounded mr-2 align-middle">${d.speaker}</span><span class="text-lg md:text-xl font-bold text-[#fbf5b7] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed serif-text align-middle">"${d.text}"</span></div>`).join('');
-      } else {
+      } else if (frame.subtitle && frame.subtitle.trim() !== '') {
         subCont.innerHTML = `<span class="text-lg md:text-xl font-bold text-zinc-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed serif-text">${frame.subtitle}</span>`;
+      } else {
+        subCont.innerHTML = '';
       }
       
       document.getElementById('playerShotCounter').innerText = `Shot ${state.currentFrameIndex + 1} / ${state.sequenceData.length}`;
@@ -537,12 +432,19 @@
 
       if (frame.audioUrl) {
         state.currentAudioElement = new Audio(frame.audioUrl);
-        // 사용자 클릭으로 시작했으므로 이제 catch에 걸리지 않고 정상 재생됩니다!
         state.currentAudioElement.play().catch(e => {
             console.error("Audio block:", e);
             state.frameTimeoutId = setTimeout(() => { if(state.isPlaying) nextFrameManual(); }, 4000);
         });
-        state.currentAudioElement.onended = () => { if(state.isPlaying) nextFrameManual(); }; 
+        
+        // 🎯 마지막 대사 짤림 현상 방지: 오디오가 끝나고 0.8초의 딜레이(여운) 추가
+        state.currentAudioElement.onended = () => { 
+          if(state.isPlaying) {
+             setTimeout(() => {
+                if(state.isPlaying) nextFrameManual();
+             }, 800);
+          }
+        }; 
       } else {
         state.frameTimeoutId = setTimeout(() => { if(state.isPlaying) nextFrameManual(); }, 4000);
       }
