@@ -128,7 +128,7 @@
               <div class="relative group">
                 <div class="absolute -inset-0.5 bg-gradient-to-r from-[#d4af37]/20 to-transparent rounded-[2rem] blur-lg opacity-40"></div>
                 <div class="relative glass-panel p-8 rounded-[2rem]">
-                  <textarea id="scenarioInput" class="w-full bg-transparent text-xl md:text-2xl font-light leading-[1.8] focus:outline-none resize-none serif-text tracking-wide min-h-[220px] text-zinc-200" placeholder="시나리오를 입력하세요...">"학생님, 어디까지 가시나요?"
+                  <textarea id="scenarioInput" class="w-full bg-transparent text-xl md:text-2xl font-light leading-[1.8] focus:outline-none resize-none serif-text tracking-wide min-h-[220px] text-zinc-200">"학생님, 어디까지 가시나요?"
 "남대문 정거장까지 가오."
 "아이구, 거긴 너무 멉니다."
 "멀긴 무엇이 멀어. 돈 일 원 줄 테니 갑시다."
@@ -196,7 +196,8 @@
              </div>
              
              <div id="logContent" class="flex-1 p-6 md:p-8 space-y-8 overflow-y-auto text-[14px] text-zinc-300 leading-relaxed scrollbar-hide font-['Pretendard']">
-                </div>
+                <!-- 로그 컨텐츠 출력 공간 -->
+             </div>
           </div>
         </div>
 
@@ -257,7 +258,6 @@
   </div>
 
   <script>
-    // --- 상태 관리 ---
     let state = {
       characters: [
         { id: 'char_0', name: '김 첨지', desc: "가난하고 거친 인력거꾼, 초조한 표정" },
@@ -273,7 +273,6 @@
       updateLogInit();
     };
 
-    // 탭 전환
     function switchPage(pageId) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.getElementById(`tab-${pageId}`).classList.add('active');
@@ -281,7 +280,6 @@
       document.getElementById(`page-${pageId}`).classList.remove('hidden');
     }
 
-    // 노트 페이지 전환
     function goToNote() {
       const vidSrc = document.getElementById('finalVideo').src;
       document.getElementById('noteScenario').innerText = document.getElementById('scenarioInput').value;
@@ -293,7 +291,6 @@
       switchPage('note');
     }
 
-    // 인물 목록 렌더링
     function renderCharacters() {
       const list = document.getElementById('characterList');
       list.innerHTML = state.characters.map(char => `
@@ -311,23 +308,20 @@
     function removeCharacter(id) { if(state.characters.length > 1) { state.characters = state.characters.filter(c => c.id !== id); renderCharacters(); } }
     function updateChar(id, field, value) { const c = state.characters.find(c => c.id === id); if(c) c[field] = value; }
 
-    // 초기 로그 메시지
     function updateLogInit() {
       document.getElementById('logContent').innerHTML = `
         <div class="p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
            <i data-lucide="info" class="w-5 h-5 text-[#d4af37] mb-3 opacity-80"></i>
-           <p class="text-zinc-300 leading-relaxed text-[15px]">대본과 설정을 입력한 후 <strong>[바로 촬영 시작하기]</strong> 버튼을 누르세요. 서버(Vercel)와 통신하여 AI가 대본을 분석하고 즉시 렌더링을 시작합니다.</p>
+           <p class="text-zinc-300 leading-relaxed text-[15px]">대본과 설정을 입력한 후 <strong>[바로 촬영 시작하기]</strong> 버튼을 누르세요. AI가 텍스트를 분석하여 카메라 연출이 포함된 스토리보드를 구성하고, 즉시 영상으로 렌더링합니다.</p>
         </div>
       `;
       lucide.createIcons();
     }
 
-    // --- 백엔드 통신 (Vercel 연동) ---
     async function startFilming() {
       const scenario = document.getElementById('scenarioInput').value;
       if(!scenario.trim()) return alert("시나리오를 입력해 주세요.");
 
-      // UI 전환
       document.getElementById('inputSection').classList.add('hidden');
       document.getElementById('renderingSection').classList.remove('hidden');
       document.getElementById('loadingMessage').innerText = "AI가 대본을 스토리보드로 변환하고 있습니다...";
@@ -336,7 +330,6 @@
       const charString = state.characters.map(c => `${c.name}(${c.desc})`).join(', ');
 
       try {
-        // 1. 서버(Vercel)에 분석 요청
         const analyzeRes = await fetch('/api/analyze', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -351,12 +344,11 @@
         
         state.parsedStoryboard = analyzeData.data.storyboard;
         
-        // 분석 결과 UI 출력
         let storyboardHtml = `
           <div class="space-y-6 animate-in fade-in">
             <div class="flex items-center gap-3 border-b border-white/10 pb-4">
               <i data-lucide="camera-movie" class="w-5 h-5 text-[#d4af37]"></i>
-              <p class="text-[#d4af37] font-black text-[13px] tracking-widest">AI 자동 분할 스토리보드</p>
+              <p class="text-[#d4af37] font-black text-[13px] tracking-widest">AI 연출 스토리보드</p>
             </div>
             <div class="space-y-5">
         `;
@@ -374,10 +366,19 @@
             </div>
           `;
         });
-        document.getElementById('logContent').innerHTML = storyboardHtml + `</div></div>`;
+        
+        // 💡 AI가 번역한 마스터 프롬프트를 화면에 투명하게 공개
+        storyboardHtml += `
+            <div class="mt-6 p-5 bg-black/50 rounded-2xl border border-white/5 shadow-inner">
+              <p class="text-[10px] text-[#d4af37] uppercase tracking-widest mb-3 font-bold">Generated Master Prompt (영상 AI 전송용)</p>
+              <p class="text-[12px] text-zinc-500 font-mono leading-relaxed break-words">${analyzeData.data.master_prompt}</p>
+            </div>
+          </div>
+        </div>`;
+        
+        document.getElementById('logContent').innerHTML = storyboardHtml;
         lucide.createIcons();
 
-        // 2. 서버(Vercel)에 영상 생성 요청
         document.getElementById('loadingMessage').innerText = "스토리보드를 바탕으로 영상을 렌더링하고 있습니다...";
         document.getElementById('progressBar').style.width = '30%';
 
@@ -391,7 +392,6 @@
         
         document.getElementById('opIdText').innerText = `작업 ID: ${genData.operationId.split('/').pop().substring(0,8)}`;
         
-        // 3. 진행 상황 확인
         startStatusPolling(genData.operationId);
 
       } catch (err) { 
