@@ -392,7 +392,8 @@
 
           if(shot.dialogues && shot.dialogues.length > 0) {
             try {
-              const audRes = await fetch('/api/generate-audio', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dialogues: shot.dialogues }) });
+              // 🎯 백엔드에 다이얼로그뿐만 아니라 캐릭터 정보(characters)도 함께 보냅니다!
+              const audRes = await fetch('/api/generate-audio', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dialogues: shot.dialogues, characters: state.characters }) });
               const audData = await audRes.json();
               if(audData.success) audioUrl = audData.audioUrl;
             } catch(e) { console.error(e); }
@@ -456,22 +457,31 @@
       if(state.currentAudioElement) { state.currentAudioElement.pause(); state.currentAudioElement = null; }
       clearTimeout(state.frameTimeoutId);
 
+      // 🎯 마지막 컷 재생 종료 및 잘림 방지 로직
+      const handleFrameEnd = () => {
+         if (!state.isPlaying) return;
+         if (state.currentFrameIndex >= state.sequenceData.length - 1) {
+            togglePlay(); // 마지막 장면이면 무한 루프하지 않고 상영을 정지합니다.
+            state.currentFrameIndex = 0; // 다음 상영을 위해 0번 컷으로 되돌려 놓습니다.
+         } else {
+            nextFrameManual(); // 마지막이 아니면 다음 컷으로 넘어갑니다.
+         }
+      };
+
       if (frame.audioUrl) {
         state.currentAudioElement = new Audio(frame.audioUrl);
         state.currentAudioElement.play().catch(e => {
             console.error("Audio block:", e);
-            state.frameTimeoutId = setTimeout(() => { if(state.isPlaying) nextFrameManual(); }, 4000);
+            state.frameTimeoutId = setTimeout(() => handleFrameEnd(), 4000);
         });
         
         state.currentAudioElement.onended = () => { 
           if(state.isPlaying) {
-             setTimeout(() => {
-                if(state.isPlaying) nextFrameManual();
-             }, 800);
+             state.frameTimeoutId = setTimeout(() => handleFrameEnd(), 800); // 0.8초의 여운
           }
         }; 
       } else {
-        state.frameTimeoutId = setTimeout(() => { if(state.isPlaying) nextFrameManual(); }, 4000);
+        state.frameTimeoutId = setTimeout(() => handleFrameEnd(), 4000);
       }
     }
 
