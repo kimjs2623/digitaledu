@@ -35,7 +35,6 @@
 </head>
 <body class="min-h-screen">
 
-  <!-- GNB (노트 탭이 스튜디오에 통합되어 삭제됨) -->
   <nav class="w-full border-b border-white/5 bg-[#050505]/80 backdrop-blur-xl sticky top-0 z-50">
     <div class="max-w-[90rem] mx-auto px-6 md:px-12 flex items-center justify-between h-16">
       <div class="flex items-center gap-3">
@@ -52,12 +51,10 @@
 
   <div class="max-w-[90rem] mx-auto p-6 md:p-12 space-y-12">
     
-    <!-- 탭 1: 작품 프리셋 -->
     <div id="page-presets" class="hidden min-h-[60vh] flex flex-col items-center justify-center border border-white/5 bg-white/[0.01] rounded-[2.5rem] space-y-6">
        <i data-lucide="library" class="w-16 h-16 text-zinc-700"></i><h2 class="text-3xl font-black text-white serif-text tracking-wide">작품 프리셋</h2>
     </div>
 
-    <!-- 탭 2: 스튜디오 메인 -->
     <div id="page-studio" class="space-y-12">
       <header class="flex flex-col md:flex-row md:items-end justify-between border-b border-white/5 pb-8 gap-6">
         <div class="flex items-center gap-6">
@@ -71,7 +68,7 @@
         </div>
       </header>
 
-      <!-- [STEP 1] 입력 및 [STEP 2] 검토 영역 -->
+      <!-- [STEP 1] & [STEP 2] 작문 및 수정 영역 -->
       <div id="authoringContainer" class="grid grid-cols-1 lg:grid-cols-12 gap-12 xl:gap-16">
         
         <div class="lg:col-span-7 space-y-12">
@@ -111,16 +108,16 @@
             </button>
           </div>
 
-          <!-- STEP 2: 검토 및 프롬프트 수정 (영상 수정하기로 되돌아올 때도 여기를 씀) -->
+          <!-- STEP 2: 검토 및 프롬프트 수정 -->
           <div id="reviewSection" class="hidden space-y-8 animate-in fade-in zoom-in-95 duration-500">
              <div class="border-b border-white/10 pb-4">
                 <h2 class="text-2xl font-black text-white tracking-widest">대본 및 연출 콘티 검토/수정</h2>
                 <p class="text-zinc-400 mt-2 text-sm">AI가 작성한 영문 마스터 프롬프트를 확인하고 원하는 방향으로 자유롭게 텍스트를 수정하세요.</p>
              </div>
              
-             <!-- 🎯 재렌더링 시 스타일 고정 안내 뱃지 -->
+             <!-- 재렌더링 안내 뱃지 -->
              <div id="seedBadge" class="hidden inline-flex items-center gap-2 bg-blue-900/40 border border-blue-500/50 text-blue-300 text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4">
-               <i data-lucide="lock" class="w-3 h-3"></i> 원본 구도/스타일 고정 유지됨 (Seed Locked)
+               <i data-lucide="lock" class="w-3 h-3"></i> 원본 구도/스타일 고정 유지됨 (프롬프트 텍스트만 수정하세요)
              </div>
 
              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -145,7 +142,6 @@
           </div>
         </div>
 
-        <!-- 우측: 프로덕션 로그 -->
         <div class="lg:col-span-5" id="logPanel">
           <div class="glass-panel rounded-[2rem] flex flex-col h-[600px] lg:h-[800px] overflow-hidden sticky top-24">
              <div class="p-5 border-b border-white/5 bg-black/30"><span class="text-[12px] font-black text-zinc-400 tracking-[0.2em] flex items-center gap-2"><i data-lucide="monitor-play" class="text-[#d4af37] w-4 h-4"></i> 실시간 연출 로그</span></div>
@@ -154,7 +150,7 @@
         </div>
       </div>
 
-      <!-- 🎯 [STEP 3] 통합된 렌더링 & 감독의 노트 섹션 -->
+      <!-- 🎯 [STEP 3] 통합된 렌더링 & 감독의 노트 섹션 (나란히 배치) -->
       <div id="renderingAndNoteSection" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-12 animate-in fade-in slide-in-from-bottom-8">
          
          <!-- 왼쪽: 렌더링 모니터 -->
@@ -163,7 +159,6 @@
               <i data-lucide="monitor" class="text-[#d4af37]"></i> Production Monitor
             </h3>
             <div class="relative bg-[#050505] rounded-[2.5rem] border border-white/10 aspect-video flex flex-col items-center justify-center text-center overflow-hidden shadow-2xl glass-panel">
-              <!-- 로딩 박스 -->
               <div id="loadingBox" class="space-y-8 p-12 w-full max-w-sm">
                  <div class="relative flex justify-center">
                     <div class="w-20 h-20 border-2 border-white/5 border-t-[#d4af37] rounded-full animate-spin"></div>
@@ -176,32 +171,30 @@
                  </div>
               </div>
 
-              <!-- 영상 박스 -->
               <div id="videoBox" class="hidden w-full h-full relative group">
                  <video id="finalVideo" controls class="w-full h-full object-cover"></video>
                  <div class="absolute top-6 left-6 bg-black/60 px-4 py-2 rounded-lg text-[10px] font-bold text-[#d4af37] border border-[#d4af37]/20 backdrop-blur-md tracking-[0.2em]">최종 마스터본</div>
               </div>
             </div>
 
-            <!-- 완성 시 나타나는 수정/다운로드 액션 -->
+            <!-- 영상 완성 후 나타나는 액션 버튼 -->
             <div id="completedActions" class="hidden flex gap-4">
-               <!-- 🎯 기존 구도 유지하며 프롬프트만 고쳐서 재렌더링 -->
                <button onclick="modifyVideo()" class="flex-1 py-4 rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-300 font-bold text-[13px] tracking-wider flex items-center justify-center gap-2 hover:bg-blue-500/20 transition">
                  <i data-lucide="edit-3" class="w-4 h-4"></i> 영상 수정 (텍스트 편집)
                </button>
                <a id="downloadBtn" href="#" download class="py-4 px-6 rounded-xl border border-white/20 bg-white/5 text-zinc-300 font-bold text-[13px] tracking-wider flex items-center justify-center gap-2 hover:bg-white/10 transition">
-                 <i data-lucide="download" class="w-4 h-4"></i>
+                 <i data-lucide="download" class="w-4 h-4"></i> 저장
                </a>
             </div>
          </div>
 
-         <!-- 오른쪽: 감독의 노트 (대기 시간에 작성) -->
+         <!-- 오른쪽: 감독의 노트 (렌더링 대기 중에 작성) -->
          <div class="space-y-6 flex flex-col">
             <div class="flex items-center justify-between">
               <h3 class="text-2xl font-black text-white italic tracking-wide serif-text flex items-center gap-3">
                 <i data-lucide="pen-tool" class="text-[#d4af37]"></i> Director's Note
               </h3>
-              <span class="text-[11px] text-zinc-500 border border-white/10 px-3 py-1 rounded-full">렌더링 대기 시간 활용</span>
+              <span class="text-[11px] text-zinc-500 border border-white/10 px-3 py-1 rounded-full animate-pulse-soft">렌더링 대기 시간 활용</span>
             </div>
             
             <div class="flex-1 glass-panel p-8 rounded-[2.5rem] flex flex-col space-y-6 shadow-xl">
@@ -214,9 +207,8 @@
                   <textarea id="noteText" class="flex-1 w-full bg-black/20 p-6 rounded-2xl text-[14px] leading-relaxed text-zinc-200 resize-none border border-white/5 focus:border-[#d4af37]/50" placeholder="영상이 렌더링되는 동안, 내가 의도한 연출 방향이나 원작에서 어떻게 변형했는지 감상평을 미리 적어보세요."></textarea>
                </div>
                
-               <!-- 갤러리 공유 버튼 (영상이 완성되어야 활성화됨) -->
                <button id="shareBtn" onclick="shareToGallery()" disabled class="w-full py-5 rounded-xl btn-gold font-black text-[14px] tracking-[0.2em] flex items-center justify-center gap-2 shadow-lg disabled:opacity-30">
-                  <i data-lucide="share-2" class="w-4 h-4"></i> ✨ 완성된 작품 갤러리에 공유
+                  <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 영상을 렌더링하는 중입니다...
                </button>
             </div>
          </div>
@@ -248,7 +240,7 @@
       ],
       pollInterval: null,
       parsedData: null,
-      isReRendering: false // 재렌더링 모드 플래그
+      isReRendering: false 
     };
 
     window.onload = () => {
@@ -284,11 +276,12 @@
       lucide.createIcons();
     }
 
-    // 🎯 [STEP 1 -> STEP 2] 분석
+    // 🎯 분석 및 검토 화면
     async function analyzeScript() {
       const scenario = document.getElementById('scenarioInput').value;
       if(!scenario.trim()) return alert("시나리오를 입력해 주세요.");
 
+      // 분석 중일 때 렌더링 로딩창 빌려쓰기
       document.getElementById('inputSection').classList.add('hidden');
       document.getElementById('authoringContainer').classList.add('hidden');
       document.getElementById('renderingAndNoteSection').classList.remove('hidden');
@@ -306,7 +299,7 @@
         
         state.parsedData = analyzeData.data;
         
-        // 렌더링 화면 숨기고 다시 편집 화면으로
+        // 분석 완료 후 검토 화면 띄우기
         document.getElementById('renderingAndNoteSection').classList.add('hidden');
         document.getElementById('authoringContainer').classList.remove('hidden');
         document.getElementById('reviewSection').classList.remove('hidden');
@@ -337,32 +330,29 @@
       analyzeScript();
     }
 
-    // 🎯 [영상 수정하기] 버튼 클릭 시
     function modifyVideo() {
       state.isReRendering = true;
       document.getElementById('renderingAndNoteSection').classList.add('hidden');
       document.getElementById('authoringContainer').classList.remove('hidden');
       document.getElementById('reviewSection').classList.remove('hidden');
       
-      // 시드(스타일) 고정 뱃지 활성화
       document.getElementById('seedBadge').classList.remove('hidden');
       document.getElementById('seedBadge').classList.add('inline-flex');
       
-      // 로그에 수정 모드 안내
       document.getElementById('logContent').innerHTML += `
          <div class="mt-4 p-4 bg-blue-900/20 rounded-2xl border border-blue-500/30">
            <p class="text-[11px] text-blue-400 uppercase tracking-widest font-bold mb-1"><i data-lucide="edit" class="w-3 h-3 inline"></i> 영상 수정 모드 진입</p>
-           <p class="text-[12px] text-zinc-400 leading-relaxed">이전 영상의 기본 스타일과 구도가 고정(Seed Locked)되었습니다. 프롬프트의 텍스트만 조금씩 변형하여 원하는 피사체나 효과를 추가해보세요.</p>
+           <p class="text-[12px] text-zinc-400 leading-relaxed">프롬프트의 텍스트만 조금씩 변형하여 원하는 피사체나 효과를 추가해보세요.</p>
          </div>`;
       lucide.createIcons();
       document.getElementById('editPrompt').focus();
     }
 
-    // 🎬 [STEP 2 -> STEP 3] 최종 렌더링 시작
+    // 🎬 [최종 렌더링 로직]
     async function startFilming() {
       const finalPrompt = document.getElementById('editPrompt').value;
       
-      // 화면 전환 (작가 노트 쓰기 환경으로 진입)
+      // UI 전환: 검토 화면 숨기고, 렌더링&노트 화면 보여주기
       document.getElementById('authoringContainer').classList.add('hidden');
       document.getElementById('renderingAndNoteSection').classList.remove('hidden');
       
@@ -370,27 +360,27 @@
       document.getElementById('loadingBox').classList.remove('hidden');
       document.getElementById('videoBox').classList.add('hidden');
       document.getElementById('completedActions').classList.add('hidden');
-      document.getElementById('shareBtn').disabled = true;
-      document.getElementById('shareBtn').innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 영상을 렌더링하는 중입니다...`;
+      
+      const shareBtn = document.getElementById('shareBtn');
+      shareBtn.disabled = true;
+      shareBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 영상을 렌더링하는 중입니다...`;
       
       document.getElementById('loadingTitle').innerText = "Rendering...";
       document.getElementById('progressBar').style.width = '20%';
 
-      // 🎯 재렌더링 시 API에 seed 값을 보낸다는 것을 로그로 표현
-      const logTag = state.isReRendering ? `<span class="bg-blue-500 text-white px-2 py-0.5 rounded text-[10px] ml-2">SEED: 84920 (LOCKED)</span>` : "";
-
       document.getElementById('logContent').innerHTML += `
          <div class="mt-6 p-5 bg-black/50 rounded-2xl border border-white/5 shadow-inner">
-           <p class="text-[10px] text-[#d4af37] uppercase tracking-widest mb-3 font-bold"><i data-lucide="send" class="w-3 h-3 inline pb-0.5"></i> 프롬프트 렌더링 큐 전송 ${logTag}</p>
+           <p class="text-[10px] text-[#d4af37] uppercase tracking-widest mb-3 font-bold"><i data-lucide="send" class="w-3 h-3 inline pb-0.5"></i> 프롬프트 렌더링 큐 전송</p>
            <p class="text-[12px] text-zinc-500 font-mono leading-relaxed break-words">${finalPrompt}</p>
          </div>`;
       lucide.createIcons();
 
       try {
-        // 백엔드 요청 시, state.isReRendering이 true면 시드값을 고정하라는 의미를 부여할 수 있습니다.
+        // 🚨 중요: 500 에러를 방지하기 위해 useSeed 같은 백엔드가 모르는 파라미터는 완전히 제거하고 prompt만 전송합니다.
         const genRes = await fetch('/api/generate', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: finalPrompt, useSeed: state.isReRendering }) // 가상의 시드 고정 파라미터
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: finalPrompt })
         });
         const genData = await genRes.json();
         
@@ -399,6 +389,7 @@
 
       } catch (err) { 
         alert("렌더링 오류 발생: " + err.message); 
+        // 에러 시 롤백
         document.getElementById('renderingAndNoteSection').classList.add('hidden');
         document.getElementById('authoringContainer').classList.remove('hidden');
       }
@@ -420,7 +411,7 @@
             
             const url = (data.response?.videos?.[0] || data.response?.predictions?.[0]).gcsUri.replace('gs://', 'https://storage.googleapis.com/');
             
-            // 렌더링 완료 UI 전환
+            // 영상 띄우기
             document.getElementById('loadingBox').classList.add('hidden');
             document.getElementById('videoBox').classList.remove('hidden');
             document.getElementById('completedActions').classList.remove('hidden');
@@ -428,7 +419,7 @@
             document.getElementById('finalVideo').play();
             document.getElementById('downloadBtn').href = url;
             
-            // 갤러리 공유 버튼 활성화
+            // 갤러리 공유 버튼 활성화!
             const shareBtn = document.getElementById('shareBtn');
             shareBtn.disabled = false;
             shareBtn.innerHTML = `<i data-lucide="share-2" class="w-4 h-4"></i> ✨ 완성된 작품 갤러리에 공유`;
@@ -438,7 +429,7 @@
       }, 10000);
     }
 
-    // 🎯 갤러리 공유 로직
+    // 🎯 갤러리 공유
     async function shareToGallery() {
       const title = document.getElementById('noteTitle').value;
       const note = document.getElementById('noteText').value;
