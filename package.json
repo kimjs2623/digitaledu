@@ -1,7 +1,8 @@
 {
   "name": "my-oscar-project",
   "version": "1.0.0",
-  "description": "내 머릿속 오스카 - AI 시네마틱 스튜디오",
+  "description": "내 머릿속 오스카 - ESM 활성화 버전",
+  "type": "module",
   "dependencies": {
     "@google/genai": "latest",
     "openai": "^4.28.0"
