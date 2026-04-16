@@ -1,34 +1,16 @@
-import { VertexAI } from '@google-cloud/vertexai';
-
-// 🎯 Vercel의 환경변수에서 프로젝트 정보와 인증 키를 가져옵니다.
-const projectId = 'digitaledu-492813'; 
-const location = 'us-central1'; 
+import { GoogleGenAI } from "@google/genai";
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'POST 요청만 허용됩니다.' });
 
   try {
+    const apiKey = process.env.GEMINI_API_KEY;
     const { chars, place, script, note, style } = req.body;
     if (!script) return res.status(400).json({ message: '대본이 없습니다.' });
 
-    // 🎯 Vercel에 등록된 GCP_SERVICE_ACCOUNT_JSON을 사용하여 0원 모드(크레딧) 인증
-    const credentials = process.env.GCP_SERVICE_ACCOUNT_JSON 
-      ? JSON.parse(process.env.GCP_SERVICE_ACCOUNT_JSON) 
-      : undefined;
+    const ai = new GoogleGenAI({ apiKey });
 
-    const vertex_ai = new VertexAI({ 
-      project: projectId, 
-      location: location, 
-      googleAuthOptions: { credentials } 
-    });
-
-    // Vertex AI용 Gemini 2.5 Flash 모델 로드
-    const generativeModel = vertex_ai.getGenerativeModel({
-      model: 'gemini-2.5-flash-001',
-      generationConfig: { responseMimeType: "application/json" } // JSON 출력 강제
-    });
-
-    // 🎯 감독님의 아카데미상 수상 디렉터 페르소나 및 캐릭터 바이블 로직 (기존 그대로 유지)
+    // 🎯 속마음 처리 및 캐릭터 일관성(Character Bible) 로직 강화
     const systemPrompt = `
 당신은 아카데미상을 수상한 시네마틱 아트 디렉터입니다.
 주어진 대본을 분석하여 컷툰 콘티 JSON을 설계하세요.
@@ -66,21 +48,21 @@ export default async function handler(req, res) {
 }
     `;
 
-    const request = {
-      contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\n[입력 대본]\n${script}` }] }],
-    };
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash", 
+      contents: [{ parts: [{ text: `${systemPrompt}\n\n[입력 대본]\n${script}` }] }],
+      config: { responseMimeType: "application/json" }
+    });
 
-    // Vertex AI 모델 실행
-    const result = await generativeModel.generateContent(request);
-    const responseText = result.response.candidates[0].content.parts[0].text;
-    
-    // JSON 파싱 및 데이터 정제
-    let sceneData = JSON.parse(responseText.replace(/```json/g, '').replace(/```/g, '').trim());
+    let responseText = response.candidates[0].content.parts[0].text;
+    responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+    let sceneData = JSON.parse(responseText);
 
-    // 🎯 생성된 영어 캐릭터 바이블을 매 프롬프트마다 백그라운드로 강제 주입하여 일관성 보장! (기존 로직 유지)
+    // 🎯 생성된 영어 캐릭터 바이블을 매 프롬프트마다 백그라운드로 강제 주입하여 일관성 보장!
     sceneData.scenes = sceneData.scenes.map(scene => {
       let injectedPrompt = `${scene.image_prompt}, ${scene.shot_composition}. `;
       Object.keys(sceneData.character_bible || {}).forEach(charName => {
+        // 해당 컷에 인물이 등장하거나 대사를 치면 외모 키워드 강제 삽입
         if (injectedPrompt.includes(charName) || (scene.dialogues && scene.dialogues.some(d => d.speaker === charName))) {
           injectedPrompt = `[Character Appearance: ${sceneData.character_bible[charName]}], ${injectedPrompt}`;
         }
@@ -92,7 +74,7 @@ export default async function handler(req, res) {
     return res.status(200).json(sceneData);
 
   } catch (error) {
-    console.error("Vertex AI Analyze Error:", error);
+    console.error("Analyze Error:", error);
     return res.status(500).json({ message: error.message });
   }
 }
