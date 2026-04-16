@@ -1,5 +1,26 @@
 import { GoogleGenAI } from "@google/genai";
 
+// 🎯 대기 함수
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// 🎯 지수 백오프 (Exponential Backoff) 재시도 로직
+// 429(Rate Limit) 에러 발생 시 1초, 2초, 4초, 8초, 16초 간격으로 최대 5번 재시도
+async function executeWithRetry(operation) {
+  const delays = [1000, 2000, 4000, 8000, 16000];
+  for (let i = 0; i <= delays.length; i++) {
+    try {
+      return await operation();
+    } catch (error) {
+      // 마지막 시도까지 실패하면 에러를 던짐
+      if (i === delays.length) {
+        throw new Error("서버 이용량이 많아 이미지 생성에 실패했습니다. (API 제한 초과)");
+      }
+      // 실패 시 지정된 시간(초)만큼 대기 후 재시도
+      await delay(delays[i]);
+    }
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'POST 요청만 허용됩니다.' });
 
@@ -12,7 +33,6 @@ export default async function handler(req, res) {
 
     const ai = new GoogleGenAI({ apiKey: apiKey });
 
-    // 🎯 브릿지 로직: 얼굴/인물 기괴한 합성 절대 금지 지시어 추가
     const bridgePrompt = `
       You are an elite Hollywood Cinematographer and Imagen 4.0 Prompt Engineer.
       Translate the following Korean storyboard description into a highly optimized English technical prompt.
@@ -27,20 +47,22 @@ export default async function handler(req, res) {
       4. Output ONLY the English prompt paragraph.
     `;
 
-    const bridgeResult = await ai.models.generateContent({
+    // 🎯 1단계: 프롬프트 브릿지 (재시도 로직 적용)
+    const bridgeResult = await executeWithRetry(() => ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: bridgePrompt
-    });
+    }));
+    
     const optimizedPrompt = bridgeResult.text.trim();
 
-    // 텍스트 노이즈 방지용 네거티브 프롬프트 결합
     const cleanCinematicPrompt = `${optimizedPrompt}, masterpiece, 8k resolution, highly detailed, cinematic lighting, photorealistic. strictly NO TEXT, no subtitles, no speech bubbles, no words, no letters, no watermarks, clear visual representation only.`;
 
-    const response = await ai.models.generateImages({
+    // 🎯 2단계: 이미지 생성 (가장 429 에러가 많이 터지는 곳, 재시도 로직 적용)
+    const response = await executeWithRetry(() => ai.models.generateImages({
       model: 'imagen-4.0-generate-001',
       prompt: cleanCinematicPrompt,
       config: { numberOfImages: 1, aspectRatio: "16:9" },
-    });
+    }));
 
     if (!response.generatedImages || response.generatedImages.length === 0) {
       throw new Error("이미지 생성 결과가 없습니다.");
@@ -51,6 +73,7 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error("Generate Images Error:", error);
-    return res.status(500).json({ success: false, message: error.message });
+    const userMsg = error.message.includes("API 제한 초과") ? error.message : "이미지 생성 중 알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+    return res.status(500).json({ success: false, message: userMsg });
   }
 }
