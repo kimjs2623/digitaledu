@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    // 🎯 속마음 처리(Option 2) 및 캐릭터 일관성(Character Bible) 로직 강화
+    // 🎯 속마음 처리 및 캐릭터 일관성(Character Bible) 로직 강화
     const systemPrompt = `
 당신은 아카데미상을 수상한 시네마틱 아트 디렉터입니다.
 주어진 대본을 분석하여 컷툰 콘티 JSON을 설계하세요.
