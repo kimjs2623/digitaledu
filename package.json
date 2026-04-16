@@ -1,7 +1,7 @@
 {
   "name": "my-oscar-project",
   "version": "1.0.0",
-  "description": "내 머릿속 오스카 - Vertex AI 통합 및 오류 해결 버전",
+  "description": "내 머릿속 오스카 - Vertex AI 통합 및 빌드 오류 해결",
   "type": "module",
   "engines": {
     "node": "20"
@@ -10,15 +10,9 @@
     "@google-cloud/vertexai": "^1.9.2",
     "@google/genai": "latest",
     "google-auth-library": "^9.15.0",
-    "openai": "^4.28.0",
-    "lucide-react": "latest",
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest"
+    "openai": "^4.28.0"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "install": "npm install"
   }
 }
