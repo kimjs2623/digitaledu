@@ -1,79 +1,120 @@
 import { GoogleGenAI } from "@google/genai";
 
-// 🎯 대기 함수
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// 🎯 지수 백오프 (Exponential Backoff) 재시도 로직
-// 429(Rate Limit) 에러 발생 시 1초, 2초, 4초, 8초, 16초 간격으로 최대 5번 재시도
-async function executeWithRetry(operation) {
-  const delays = [1000, 2000, 4000, 8000, 16000];
-  for (let i = 0; i <= delays.length; i++) {
-    try {
-      return await operation();
-    } catch (error) {
-      // 마지막 시도까지 실패하면 에러를 던짐
-      if (i === delays.length) {
-        throw new Error("서버 이용량이 많아 이미지 생성에 실패했습니다. (API 제한 초과)");
-      }
-      // 실패 시 지정된 시간(초)만큼 대기 후 재시도
-      await delay(delays[i]);
-    }
-  }
-}
-
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'POST 요청만 허용됩니다.' });
+  if (req.method !== 'POST') return res.status(405).json({ message: 'POST 요청만 허용됩니다.' });
 
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error("GEMINI_API_KEY가 없습니다.");
 
-    const { prompt, style } = req.body;
-    if (!prompt) return res.status(400).json({ success: false, message: '프롬프트가 없습니다.' });
+    // 프론트엔드에서 dialogues(대사 목록)와 characters(인물 설정)를 받아옵니다.
+    const { dialogues, characters = [] } = req.body; 
+    
+    const validDialogues = (dialogues || []).filter(d => d.text && d.text.trim() !== "");
+    if (validDialogues.length === 0) return res.status(400).json({ message: '대사가 없습니다.' });
 
     const ai = new GoogleGenAI({ apiKey: apiKey });
 
-    const bridgePrompt = `
-      You are an elite Hollywood Cinematographer and Imagen 4.0 Prompt Engineer.
-      Translate the following Korean storyboard description into a highly optimized English technical prompt.
+    const cleanDialogues = validDialogues.map((d, i) => {
+        let cleanName = (d.speaker || `Speaker${i}`).replace(/[^a-zA-Z0-9가-힣]/g, '');
+        if (!cleanName) cleanName = `Speaker${i}`;
+        return { ...d, cleanSpeaker: cleanName };
+    });
 
-      Korean Storyboard: "${prompt}"
-      ${style ? `Visual Style Target: "${style}"` : ''}
-
-      [STRICT DIRECTIVES]
-      1. SHOW, DON'T TELL: Convert abstract emotions into physical actions, props, or facial expressions.
-      2. ABSOLUTELY NO WEIRD COMPOSITIONS: Do NOT generate faces inside faces, ghosting, double-exposures, or floating heads. If the prompt implies someone is "thinking of" someone else, DO NOT draw the imagined person. Only draw the person who is currently thinking, looking sad or contemplative.
-      3. Specify lighting, camera angle, and atmosphere.
-      4. Output ONLY the English prompt paragraph.
-    `;
-
-    // 🎯 1단계: 프롬프트 브릿지 (재시도 로직 적용)
-    const bridgeResult = await executeWithRetry(() => ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: bridgePrompt
-    }));
+    const uniqueSpeakers = [...new Set(cleanDialogues.map(d => d.cleanSpeaker))].slice(0, 5);
     
-    const optimizedPrompt = bridgeResult.text.trim();
-
-    const cleanCinematicPrompt = `${optimizedPrompt}, masterpiece, 8k resolution, highly detailed, cinematic lighting, photorealistic. strictly NO TEXT, no subtitles, no speech bubbles, no words, no letters, no watermarks, clear visual representation only.`;
-
-    // 🎯 2단계: 이미지 생성 (가장 429 에러가 많이 터지는 곳, 재시도 로직 적용)
-    const response = await executeWithRetry(() => ai.models.generateImages({
-      model: 'imagen-4.0-generate-001',
-      prompt: cleanCinematicPrompt,
-      config: { numberOfImages: 1, aspectRatio: "16:9" },
-    }));
-
-    if (!response.generatedImages || response.generatedImages.length === 0) {
-      throw new Error("이미지 생성 결과가 없습니다.");
+    // 🎯 이름 기반 수학적 해싱(Hash)으로 일관된 목소리 배정
+    function getDeterministicVoice(name, gender, ageCategory) {
+        let candidates = [];
+        if (gender === 'F') {
+            candidates = ageCategory === 'old' ? ['Leda', 'Aoede', 'Callirrhoe'] : ['Kore', 'Despina'];
+        } else {
+            // 🎯 40대 이상 중후한 남성 목소리 풀 강화 (Charon, Zephyr, Fenrir)
+            candidates = ageCategory === 'old' ? ['Charon', 'Zephyr', 'Fenrir', 'Iapetus'] : ['Puck', 'Orus'];
+        }
+        
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) hash += name.charCodeAt(i);
+        return candidates[hash % candidates.length];
     }
 
-    const imgBytes = response.generatedImages[0].image.imageBytes;
-    return res.status(200).json({ success: true, imageUrl: `data:image/png;base64,${imgBytes}`, techPrompt: optimizedPrompt });
+    const speakerConfigs = uniqueSpeakers.map((speakerName) => {
+      // 1. 프론트엔드에서 수동으로 선택한 목소리(voice)가 있는지 최우선 확인
+      const manualVoiceDialogue = cleanDialogues.find(d => d.cleanSpeaker === speakerName && d.voice && d.voice !== 'auto');
+      
+      if (manualVoiceDialogue) {
+          return {
+              speaker: speakerName,
+              voiceConfig: { prebuiltVoiceConfig: { voiceName: manualVoiceDialogue.voice } }
+          };
+      }
+
+      // 2. 수동 선택이 'auto'이거나 없으면 캐릭터 묘사 기반으로 자동 배정
+      const charInfo = characters.find(c => c.name && (c.name === speakerName || speakerName.includes(c.name)));
+      const desc = charInfo ? (charInfo.desc || "").toLowerCase() : "";
+
+      let gender = 'M'; let age = 'young'; 
+      if (desc) {
+          if (/(여|소녀|아줌마|할머니|부인|엄마|딸|아내|girl|woman|female)/.test(desc)) gender = 'F';
+          // 🎯 30대 후반, 40대 이상의 키워드가 있으면 무조건 'old(중후함)' 풀로 강제 분류
+          if (/(30대 후반|40대|50대|60대|70대|노인|할아|할머|중년|아저씨|old|elderly)/.test(desc)) age = 'old';
+      } else {
+          if (/(할머니|아주머니|소녀|아내|여|엄마|딸)/.test(speakerName)) gender = 'F';
+          if (/(할아버지|할아|아저씨|영감|첨지|노인|아빠)/.test(speakerName)) age = 'old';
+      }
+
+      return {
+        speaker: speakerName,
+        voiceConfig: { prebuiltVoiceConfig: { voiceName: getDeterministicVoice(speakerName, gender, age) } }
+      };
+    });
+
+    // 🎯 속마음(독백) 연출 지시어 처리
+    let directorPrompt = "";
+    let speechConfig = {};
+
+    if (uniqueSpeakers.length === 1) {
+        const singleTranscript = cleanDialogues.map(d => {
+            const emotionText = d.emotion === '속마음' ? `(whispering, as an internal monologue) ` : (d.emotion ? `[${d.emotion} 감정으로] ` : "");
+            return `${emotionText}${d.text}`;
+        }).join('\n\n');
+        
+        directorPrompt = `당신은 전문 성우입니다. 다음 대본을 상황에 맞게 연기해주세요.\n\n${singleTranscript}`;
+        speechConfig = { voiceConfig: { prebuiltVoiceConfig: { voiceName: speakerConfigs[0].voiceConfig.prebuiltVoiceConfig.voiceName } } };
+    } else {
+        const combinedTranscript = cleanDialogues.map(d => {
+            const emotionText = d.emotion === '속마음' ? `(whispering to self, internal thought) ` : (d.emotion ? `(in a ${d.emotion} tone) ` : "");
+            return `${d.cleanSpeaker}: ${emotionText}${d.text}`;
+        }).join('\n\n');
+
+        directorPrompt = `Perform this scene realistically. Distinctly change voices based on the speaker. Pay special attention to 'internal thought' or whispering directions.\n\n# TRANSCRIPT\n${combinedTranscript}`;
+        speechConfig = { multiSpeakerVoiceConfig: { speakerVoiceConfigs: speakerConfigs } };
+    }
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-preview-tts",
+      contents: [{ parts: [{ text: directorPrompt }] }],
+      config: { responseModalities: ['AUDIO'], speechConfig: speechConfig },
+    });
+
+    const data = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    if (!data) throw new Error("오디오 데이터를 반환받지 못했습니다.");
+
+    const pcmBuffer = Buffer.from(data, 'base64');
+    const wavBuffer = encodeWAV(pcmBuffer, 24000);
+    return res.status(200).json({ success: true, audioUrl: `data:audio/wav;base64,${wavBuffer.toString('base64')}` });
 
   } catch (error) {
-    console.error("Generate Images Error:", error);
-    const userMsg = error.message.includes("API 제한 초과") ? error.message : "이미지 생성 중 알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
-    return res.status(500).json({ success: false, message: userMsg });
+    console.error("Audio API Error:", error);
+    return res.status(500).json({ success: false, message: error.message });
   }
+}
+
+// PCM 데이터를 WAV 형식으로 변환하는 인코더 함수
+function encodeWAV(pcmBuffer, sampleRate) {
+  const header = Buffer.alloc(44); const length = pcmBuffer.length;
+  header.write('RIFF', 0); header.writeUInt32LE(36 + length, 4); header.write('WAVE', 8); header.write('fmt ', 12);
+  header.writeUInt32LE(16, 16); header.writeUInt16LE(1, 20); header.writeUInt16LE(1, 22); header.writeUInt32LE(sampleRate, 24);
+  header.writeUInt32LE(sampleRate * 2, 28); header.writeUInt16LE(2, 32); header.writeUInt16LE(16, 34); header.write('data', 36); header.writeUInt32LE(length, 40);
+  return Buffer.concat([header, pcmBuffer]);
 }
