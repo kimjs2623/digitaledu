@@ -1,19 +1,29 @@
-import { GoogleGenAI } from "@google/genai";
+import { VertexAI } from '@google-cloud/vertexai';
+
+// 🎯 프로젝트 정보 설정
+const projectId = 'digitaledu-492813';
+const location = 'us-central1';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'POST 요청만 허용됩니다.' });
 
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error("GEMINI_API_KEY가 없습니다.");
-
-    // 프론트엔드에서 dialogues(대사 목록)와 characters(인물 설정)를 받아옵니다.
+    // 🎯 Vercel에 등록된 GCP_SERVICE_ACCOUNT_JSON을 사용하여 0원 모드(크레딧) 인증
+    const jsonKeyString = process.env.GCP_SERVICE_ACCOUNT_JSON;
+    if (!jsonKeyString) throw new Error("GCP_SERVICE_ACCOUNT_JSON이 없습니다.");
+    
+    const credentials = JSON.parse(jsonKeyString);
     const { dialogues, characters = [] } = req.body; 
     
     const validDialogues = (dialogues || []).filter(d => d.text && d.text.trim() !== "");
     if (validDialogues.length === 0) return res.status(400).json({ message: '대사가 없습니다.' });
 
-    const ai = new GoogleGenAI({ apiKey: apiKey });
+    // Vertex AI 초기화
+    const vertex_ai = new VertexAI({ 
+      project: projectId, 
+      location: location, 
+      googleAuthOptions: { credentials } 
+    });
 
     const cleanDialogues = validDialogues.map((d, i) => {
         let cleanName = (d.speaker || `Speaker${i}`).replace(/[^a-zA-Z0-9가-힣]/g, '');
@@ -23,25 +33,21 @@ export default async function handler(req, res) {
 
     const uniqueSpeakers = [...new Set(cleanDialogues.map(d => d.cleanSpeaker))].slice(0, 5);
     
-    // 🎯 이름 기반 수학적 해싱(Hash)으로 일관된 목소리 배정
+    // 🎯 이름 기반 수학적 해싱으로 일관된 목소리 배정 로직 (기존 유지)
     function getDeterministicVoice(name, gender, ageCategory) {
         let candidates = [];
         if (gender === 'F') {
             candidates = ageCategory === 'old' ? ['Leda', 'Aoede', 'Callirrhoe'] : ['Kore', 'Despina'];
         } else {
-            // 🎯 40대 이상 중후한 남성 목소리 풀 강화 (Charon, Zephyr, Fenrir)
             candidates = ageCategory === 'old' ? ['Charon', 'Zephyr', 'Fenrir', 'Iapetus'] : ['Puck', 'Orus'];
         }
-        
         let hash = 0;
         for (let i = 0; i < name.length; i++) hash += name.charCodeAt(i);
         return candidates[hash % candidates.length];
     }
 
     const speakerConfigs = uniqueSpeakers.map((speakerName) => {
-      // 1. 프론트엔드에서 수동으로 선택한 목소리(voice)가 있는지 최우선 확인
       const manualVoiceDialogue = cleanDialogues.find(d => d.cleanSpeaker === speakerName && d.voice && d.voice !== 'auto');
-      
       if (manualVoiceDialogue) {
           return {
               speaker: speakerName,
@@ -49,14 +55,12 @@ export default async function handler(req, res) {
           };
       }
 
-      // 2. 수동 선택이 'auto'이거나 없으면 캐릭터 묘사 기반으로 자동 배정
       const charInfo = characters.find(c => c.name && (c.name === speakerName || speakerName.includes(c.name)));
       const desc = charInfo ? (charInfo.desc || "").toLowerCase() : "";
 
       let gender = 'M'; let age = 'young'; 
       if (desc) {
           if (/(여|소녀|아줌마|할머니|부인|엄마|딸|아내|girl|woman|female)/.test(desc)) gender = 'F';
-          // 🎯 30대 후반, 40대 이상의 키워드가 있으면 무조건 'old(중후함)' 풀로 강제 분류
           if (/(30대 후반|40대|50대|60대|70대|노인|할아|할머|중년|아저씨|old|elderly)/.test(desc)) age = 'old';
       } else {
           if (/(할머니|아주머니|소녀|아내|여|엄마|딸)/.test(speakerName)) gender = 'F';
@@ -69,7 +73,6 @@ export default async function handler(req, res) {
       };
     });
 
-    // 🎯 속마음(독백) 연출 지시어 처리
     let directorPrompt = "";
     let speechConfig = {};
 
@@ -78,7 +81,6 @@ export default async function handler(req, res) {
             const emotionText = d.emotion === '속마음' ? `(whispering, as an internal monologue) ` : (d.emotion ? `[${d.emotion} 감정으로] ` : "");
             return `${emotionText}${d.text}`;
         }).join('\n\n');
-        
         directorPrompt = `당신은 전문 성우입니다. 다음 대본을 상황에 맞게 연기해주세요.\n\n${singleTranscript}`;
         speechConfig = { voiceConfig: { prebuiltVoiceConfig: { voiceName: speakerConfigs[0].voiceConfig.prebuiltVoiceConfig.voiceName } } };
     } else {
@@ -86,18 +88,24 @@ export default async function handler(req, res) {
             const emotionText = d.emotion === '속마음' ? `(whispering to self, internal thought) ` : (d.emotion ? `(in a ${d.emotion} tone) ` : "");
             return `${d.cleanSpeaker}: ${emotionText}${d.text}`;
         }).join('\n\n');
-
         directorPrompt = `Perform this scene realistically. Distinctly change voices based on the speaker. Pay special attention to 'internal thought' or whispering directions.\n\n# TRANSCRIPT\n${combinedTranscript}`;
         speechConfig = { multiSpeakerVoiceConfig: { speakerVoiceConfigs: speakerConfigs } };
     }
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-tts",
-      contents: [{ parts: [{ text: directorPrompt }] }],
-      config: { responseModalities: ['AUDIO'], speechConfig: speechConfig },
+    // 🎯 Vertex AI 전용 TTS 모델 호출
+    const generativeModel = vertex_ai.getGenerativeModel({
+      model: 'gemini-2.5-flash-preview-tts',
     });
 
-    const data = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    const response = await generativeModel.generateContent({
+      contents: [{ parts: [{ text: directorPrompt }] }],
+      generationConfig: { 
+        responseModalities: ['AUDIO'], 
+        speechConfig: speechConfig 
+      },
+    });
+
+    const data = response.response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
     if (!data) throw new Error("오디오 데이터를 반환받지 못했습니다.");
 
     const pcmBuffer = Buffer.from(data, 'base64');
@@ -105,12 +113,11 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true, audioUrl: `data:audio/wav;base64,${wavBuffer.toString('base64')}` });
 
   } catch (error) {
-    console.error("Audio API Error:", error);
+    console.error("Vertex AI Audio Error:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 }
 
-// PCM 데이터를 WAV 형식으로 변환하는 인코더 함수
 function encodeWAV(pcmBuffer, sampleRate) {
   const header = Buffer.alloc(44); const length = pcmBuffer.length;
   header.write('RIFF', 0); header.writeUInt32LE(36 + length, 4); header.write('WAVE', 8); header.write('fmt ', 12);
