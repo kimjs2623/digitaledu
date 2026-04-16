@@ -1,7 +1,7 @@
 {
   "name": "my-oscar-project",
   "version": "1.0.0",
-  "description": "내 머릿속 오스카 - Vertex AI 통합 및 빌드 생략 버전",
+  "description": "내 머릿속 오스카 - Vertex AI 통합 및 빌드 오류 해결",
   "type": "module",
   "engines": {
     "node": "20"
@@ -13,6 +13,6 @@
     "openai": "^4.28.0"
   },
   "scripts": {
-    "build": "echo 'No build step required for static HTML'"
+    "build": "mkdir -p public && cp index.html public/"
   }
 }
