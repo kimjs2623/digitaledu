@@ -1,18 +1,10 @@
 {
   "name": "my-oscar-project",
   "version": "1.0.0",
-  "description": "내 머릿속 오스카 - Vertex AI 통합 및 빌드 오류 해결",
+  "description": "내 머릿속 오스카 - Gemini Native TTS 적용",
   "type": "module",
-  "engines": {
-    "node": "20"
-  },
   "dependencies": {
-    "@google-cloud/vertexai": "^1.9.2",
     "@google/genai": "latest",
-    "google-auth-library": "^9.15.0",
     "openai": "^4.28.0"
-  },
-  "scripts": {
-    "build": "mkdir -p public && cp index.html public/"
   }
 }
