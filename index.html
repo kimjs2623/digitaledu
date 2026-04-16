@@ -33,6 +33,7 @@
     @keyframes ken-burns { 0% { transform: scale(1) translate(0, 0); } 100% { transform: scale(1.15) translate(-1%, -1%); } }
     .anim-ken-burns { animation: ken-burns 15s ease-in-out forwards; }
     .anim-fade { transition: opacity 1s ease-in-out; }
+    .anim-cut { transition: none !important; }
   </style>
 </head>
 <body class="min-h-screen relative">
@@ -71,7 +72,7 @@
         
         <div class="lg:col-span-7 space-y-12">
           
-          <!-- STEP 1: 입력 (심플한 오리지널 버전) -->
+          <!-- STEP 1: 입력 -->
           <div id="inputSection" class="space-y-12">
             
             <section class="space-y-6">
@@ -125,7 +126,7 @@
           <div id="reviewSection" class="hidden space-y-8 animate-in fade-in">
              <div class="border-b border-white/10 pb-4">
                 <h2 class="text-2xl font-black text-white tracking-widest">콘티 & 프롬프트 수정</h2>
-                <p class="text-zinc-400 mt-2 text-sm">AI가 생성한 <span class="text-blue-400 font-bold">한국어 이미지 프롬프트</span>와 화자별 대사를 수정하세요.</p>
+                <p class="text-zinc-400 mt-2 text-sm">학생이 한국어로 수정한 프롬프트를 AI가 렌더링 시 자동으로 <span class="text-blue-400 font-bold">브릿지(최적화)</span>하여 적용합니다.</p>
              </div>
 
              <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
@@ -175,7 +176,6 @@
                  <img id="playerImage" class="w-full h-full object-cover anim-fade" src="" alt="Scene">
                  <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40 pointer-events-none"></div>
                  
-                 <!-- 하단 다중 화자 대사 자막 (빈 자막 숨김 처리 적용됨) -->
                  <div id="playerSubtitle" class="absolute bottom-20 left-8 right-8 flex flex-col items-center justify-end gap-2 pointer-events-none"></div>
                  
                  <div class="absolute top-6 left-6 bg-black/60 px-3 py-1.5 rounded-lg text-[10px] font-bold text-[#d4af37] border border-[#d4af37]/20 backdrop-blur-md tracking-[0.2em]">
@@ -183,7 +183,6 @@
                  </div>
               </div>
               
-              <!-- 오버레이 시작 버튼 -->
               <div id="playStartOverlay" class="hidden absolute inset-0 z-40 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center">
                  <button onclick="startPlayerViaClick()" class="btn-gold px-10 py-5 rounded-full font-black text-xl flex items-center gap-3 shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-105 transition-transform">
                     <i data-lucide="play" class="w-6 h-6 fill-current"></i> 상영 시작하기
@@ -191,7 +190,6 @@
                  <p class="text-zinc-400 text-sm mt-4">클릭 시 오디오와 함께 영상이 재생됩니다.</p>
               </div>
 
-              <!-- 플레이어 컨트롤 -->
               <div id="playerControls" class="hidden absolute bottom-0 left-0 w-full h-16 bg-black/80 backdrop-blur-md border-t border-white/10 flex items-center justify-between px-6 z-20">
                  <div class="flex items-center gap-4">
                    <button onclick="prevFrame(event)" class="text-zinc-400 hover:text-white transition p-2"><i data-lucide="skip-back" class="w-5 h-5"></i></button>
@@ -286,7 +284,10 @@
           </div>
           <!-- 한국어 프롬프트 에디터 -->
           <div class="space-y-1">
-             <label class="text-[10px] text-blue-400 font-bold">한국어 이미지 프롬프트 (수정 가능)</label>
+             <label class="text-[10px] text-blue-400 font-bold flex justify-between">
+                한국어 이미지 프롬프트 (수정 가능)
+                <span class="text-zinc-500 font-normal">전환: ${shot.transition || 'fade'}</span>
+             </label>
              <textarea onchange="updateShot(${index}, 'image_prompt', this.value)" class="w-full bg-blue-900/10 border border-blue-500/20 rounded-lg p-3 text-[12px] text-blue-200 resize-none outline-none focus:border-blue-500/50 h-16 leading-relaxed">${shot.image_prompt || ''}</textarea>
           </div>
           <div class="bg-purple-900/10 border border-purple-500/20 p-3 rounded-lg">
@@ -306,23 +307,22 @@
     function updateDialogue(sIdx, dIdx, f, v) { state.parsedData.storyboard[sIdx].dialogues[dIdx][f] = v; }
     function addDialogue(sIdx, cId) { if(!state.parsedData.storyboard[sIdx].dialogues) state.parsedData.storyboard[sIdx].dialogues=[]; state.parsedData.storyboard[sIdx].dialogues.push({speaker:'이름', text:'', emotion:'자연스럽게'}); renderStoryboardEditor(cId); }
     function removeDialogue(sIdx, dIdx, cId) { state.parsedData.storyboard[sIdx].dialogues.splice(dIdx, 1); renderStoryboardEditor(cId); }
-    function addNewShot(cId = 'editableStoryboardContainer') { state.parsedData.storyboard.push({ shot_composition: "바스트 샷", action: "새로운 장면", image_prompt: "한국어로 된 구체적인 장면 묘사를 적어주세요.", dialogues: [] }); renderStoryboardEditor(cId); }
+    function addNewShot(cId = 'editableStoryboardContainer') { state.parsedData.storyboard.push({ shot_composition: "바스트 샷", action: "새로운 장면", image_prompt: "한국어로 된 구체적인 장면 묘사를 적어주세요.", transition: "fade", dialogues: [] }); renderStoryboardEditor(cId); }
 
-    // 🎯 [STEP 1 -> STEP 2] 분석 로딩 UI 픽스 적용
+    // 🎯 분석 로딩 UI
     async function analyzeScript() {
       const scenario = document.getElementById('scenarioInput').value;
       if(!scenario.trim()) return alert("시나리오 입력 요망.");
 
-      // 1. 버튼 상태 및 로그 UI 업데이트 (분석 중 표시)
       const btnAnalyze = document.getElementById('btn-analyze');
       const originalText = btnAnalyze.innerHTML;
       btnAnalyze.disabled = true;
-      btnAnalyze.innerHTML = `<i data-lucide="loader-2" class="w-6 h-6 animate-spin inline-block mr-2"></i> AI가 씬을 분할하고 프롬프트를 작성 중입니다...`;
+      btnAnalyze.innerHTML = `<i data-lucide="loader-2" class="w-6 h-6 animate-spin inline-block mr-2"></i> AI가 씬을 분할하고 은유 연출을 계획 중입니다...`;
       lucide.createIcons();
 
       const logContent = document.getElementById('logContent');
       if (logContent) {
-        logContent.innerHTML += `<p class="text-amber-400 text-[13px]">> AI 감독이 대본 분석을 시작합니다. (약 10~20초 소요)</p>`;
+        logContent.innerHTML += `<p class="text-amber-400 text-[13px]">> AI 감독이 대본 분석 및 시각적 은유(Show, Don't Tell) 연출을 시작합니다...</p>`;
         logContent.scrollTop = logContent.scrollHeight;
       }
       
@@ -337,7 +337,6 @@
         if(!data.scenes) throw new Error(data.message || "분석 실패");
         state.parsedData.storyboard = data.scenes;
         
-        // 2. 분석 완료 후 화면 넘김
         document.getElementById('inputSection').classList.add('hidden');
         document.getElementById('reviewSection').classList.remove('hidden');
         document.getElementById('displayOriginal').innerText = scenario; 
@@ -345,7 +344,7 @@
         renderStoryboardEditor('editableStoryboardContainer');
         
         if (logContent) {
-          logContent.innerHTML += `<p class="text-blue-400 text-[13px]">> 분석 완료! 컷 편집기에서 생성된 한국어 프롬프트를 확인하세요.</p>`;
+          logContent.innerHTML += `<p class="text-blue-400 text-[13px]">> 분석 완료! 에디터에서 생성된 한국어 프롬프트를 확인하세요.</p>`;
           logContent.scrollTop = logContent.scrollHeight;
         }
 
@@ -353,14 +352,13 @@
         alert("분석 오류: " + err.message); 
         if (logContent) logContent.innerHTML += `<p class="text-red-400 text-[13px]">> 오류 발생: ${err.message}</p>`;
       } finally {
-        // 3. 버튼 원상복구
         btnAnalyze.disabled = false;
         btnAnalyze.innerHTML = originalText;
         lucide.createIcons();
       }
     }
 
-    // 렌더링 시작
+    // 🎯 프롬프트 브릿지 및 렌더링
     async function startSequenceGeneration() {
       if(state.currentAudioElement) state.currentAudioElement.pause();
       clearTimeout(state.frameTimeoutId);
@@ -374,39 +372,60 @@
       document.getElementById('playStartOverlay').classList.add('hidden');
       document.getElementById('playerControls').classList.add('hidden');
       
+      const logContent = document.getElementById('logContent');
       let progress = 0;
       state.sequenceData = [];
 
       try {
         for(let i=0; i<shots.length; i++) {
           const shot = shots[i];
-          document.getElementById('progressText').innerText = `[컷 ${i+1}/${shots.length}] 이미지 및 음성 생성 중...`;
+          document.getElementById('progressText').innerText = `[컷 ${i+1}/${shots.length}] AI 프롬프트 브릿지 통과 중...`;
+          if (logContent) {
+            logContent.innerHTML += `<p class="text-zinc-400 text-[13px]">> Shot ${i+1} 학생의 한국어 콘티를 Imagen 전용 지시서로 변환합니다...</p>`;
+            logContent.scrollTop = logContent.scrollHeight;
+          }
           
           let imgUrl = "", audioUrl = "";
           try {
-            const imgRes = await fetch('/api/generate-images', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: shot.image_prompt }) });
+            // 브릿지 호출 (style 포함)
+            const imgRes = await fetch('/api/generate-images', { 
+              method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+              body: JSON.stringify({ prompt: shot.image_prompt, style: document.getElementById('styleSelect').value }) 
+            });
             const imgData = await imgRes.json();
-            if(imgData.success) imgUrl = imgData.imageUrl;
+            if(imgData.success) {
+               imgUrl = imgData.imageUrl;
+               if (logContent) logContent.innerHTML += `<p class="text-zinc-500 text-[11px] ml-4">> 번역된 프롬프트: ${imgData.techPrompt}</p>`;
+            }
           } catch(e) { console.error(e); }
           if(!imgUrl) imgUrl = `https://placehold.co/1280x720/000000/FF0000?text=Image+Failed`;
 
           if(shot.dialogues && shot.dialogues.length > 0) {
             try {
-              // 🎯 백엔드에 다이얼로그뿐만 아니라 캐릭터 정보(characters)도 함께 보냅니다!
-              const audRes = await fetch('/api/generate-audio', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dialogues: shot.dialogues, characters: state.characters }) });
+              // 스마트 오디오 맵핑 (characters 포함)
+              const audRes = await fetch('/api/generate-audio', { 
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ dialogues: shot.dialogues, characters: state.characters }) 
+              });
               const audData = await audRes.json();
               if(audData.success) audioUrl = audData.audioUrl;
             } catch(e) { console.error(e); }
           }
           
-          state.sequenceData.push({ imageUrl: imgUrl, subtitle: shot.action || '', dialogues: shot.dialogues || [], audioUrl: audioUrl });
+          state.sequenceData.push({ 
+            imageUrl: imgUrl, 
+            subtitle: shot.action || '', 
+            dialogues: shot.dialogues || [], 
+            audioUrl: audioUrl,
+            transition: shot.transition || 'fade'
+          });
           progress += (100 / shots.length);
           document.getElementById('progressBar').style.width = `${progress}%`;
+          if (logContent) logContent.scrollTop = logContent.scrollHeight;
         }
 
         document.getElementById('loadingBox').classList.add('hidden');
         document.getElementById('sequencePlayer').classList.remove('hidden');
-        
         document.getElementById('playStartOverlay').classList.remove('hidden');
         
         const shareBtn = document.getElementById('shareBtn');
@@ -414,6 +433,11 @@
         shareBtn.innerHTML = `✨ 갤러리에 웹 시퀀스 공유`;
         document.getElementById('completedActions').classList.remove('hidden');
         document.getElementById('completedActions').classList.add('flex');
+
+        if (logContent) {
+           logContent.innerHTML += `<p class="text-amber-400 text-[13px] font-bold">> 상영 준비가 완료되었습니다.</p>`;
+           logContent.scrollTop = logContent.scrollHeight;
+        }
 
       } catch (err) { alert("렌더링 실패: " + err.message); }
     }
@@ -436,12 +460,12 @@
       const frame = state.sequenceData[state.currentFrameIndex];
       const imgEl = document.getElementById('playerImage');
       
-      imgEl.classList.remove('anim-ken-burns', 'anim-fade');
+      // 🎯 장면 전환(Transition) 효과 초기화 및 소스 변경
+      imgEl.classList.remove('anim-ken-burns', 'anim-fade', 'anim-cut');
       void imgEl.offsetWidth; 
       imgEl.src = frame.imageUrl;
 
       const subCont = document.getElementById('playerSubtitle');
-      // 빈 자막 숨김 처리
       if(frame.dialogues && frame.dialogues.length > 0) {
         subCont.innerHTML = frame.dialogues.map(d => `<div class="mb-2"><span class="text-[11px] font-black text-[#d4af37] bg-black/60 px-2 py-0.5 rounded mr-2 align-middle">${d.speaker}</span><span class="text-lg md:text-xl font-bold text-[#fbf5b7] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed serif-text align-middle">"${d.text}"</span></div>`).join('');
       } else if (frame.subtitle && frame.subtitle.trim() !== '') {
@@ -451,20 +475,29 @@
       }
       
       document.getElementById('playerShotCounter').innerText = `Shot ${state.currentFrameIndex + 1} / ${state.sequenceData.length}`;
-      if(state.isPlaying) imgEl.classList.add('anim-ken-burns', 'anim-fade');
+      
+      if(state.isPlaying) {
+        imgEl.classList.add('anim-ken-burns');
+        if (frame.transition === 'cut') {
+            imgEl.classList.add('anim-cut'); // 빠른 컷
+        } else {
+            imgEl.classList.add('anim-fade'); // 부드러운 페이드
+        }
+      }
+      
       if(!state.isPlaying) return;
 
       if(state.currentAudioElement) { state.currentAudioElement.pause(); state.currentAudioElement = null; }
       clearTimeout(state.frameTimeoutId);
 
-      // 🎯 마지막 컷 재생 종료 및 잘림 방지 로직
+      // 🎯 마지막 컷 재생 종료 및 잘림 방지 (0.8초 여운) 로직
       const handleFrameEnd = () => {
          if (!state.isPlaying) return;
          if (state.currentFrameIndex >= state.sequenceData.length - 1) {
-            togglePlay(); // 마지막 장면이면 무한 루프하지 않고 상영을 정지합니다.
-            state.currentFrameIndex = 0; // 다음 상영을 위해 0번 컷으로 되돌려 놓습니다.
+            togglePlay(); 
+            state.currentFrameIndex = 0; 
          } else {
-            nextFrameManual(); // 마지막이 아니면 다음 컷으로 넘어갑니다.
+            nextFrameManual(); 
          }
       };
 
@@ -477,7 +510,7 @@
         
         state.currentAudioElement.onended = () => { 
           if(state.isPlaying) {
-             state.frameTimeoutId = setTimeout(() => handleFrameEnd(), 800); // 0.8초의 여운
+             state.frameTimeoutId = setTimeout(() => handleFrameEnd(), 800); 
           }
         }; 
       } else {
