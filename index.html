@@ -95,14 +95,14 @@
                   <input id="noteInput" type="text" class="w-full p-4 rounded-xl text-[13px]" value="어둡고 쓸쓸한 분위기">
                   
                   <label class="text-[12px] font-bold text-zinc-400 mt-4 block">작화 스타일</label>
-                 <select id="styleSelect" class="w-full p-4 rounded-xl text-[13px] font-bold cursor-pointer">
-  <option value="Cinematic, 35mm film, photorealistic">🎬 실사 영화 (Cinematic)</option>
-  <option value="Studio Ghibli anime style, 2D animation">🌸 지브리 애니메이션풍</option>
-  <option value="Korean webtoon, Manhwa style">📖 현대 웹툰 스타일</option>
-  <option value="Dark Noir, high contrast, black and white">🕵️‍♂️ 흑백 느와르 (Noir)</option>
-  <option value="Soft watercolor painting, artistic">🎨 감성 수채화</option>
-  <option value="Rough pencil sketch, ink drawing">✏️ 연필 스케치 (Sketch)</option>
-</select>
+                  <select id="styleSelect" class="w-full p-4 rounded-xl text-[13px] font-bold cursor-pointer">
+                    <option value="Cinematic, 35mm film, photorealistic">🎬 실사 영화 (Cinematic)</option>
+                    <option value="Studio Ghibli anime style, 2D animation">🌸 지브리 애니메이션풍</option>
+                    <option value="Korean webtoon, Manhwa style">📖 현대 웹툰 스타일</option>
+                    <option value="Dark Noir, high contrast, black and white">🕵️‍♂️ 흑백 느와르 (Noir)</option>
+                    <option value="Soft watercolor painting, artistic">🎨 감성 수채화</option>
+                    <option value="Rough pencil sketch, ink drawing">✏️ 연필 스케치 (Sketch)</option>
+                  </select>
                 </div>
               </div>
             </section>
@@ -112,10 +112,8 @@
                 <label class="text-[14px] font-black text-[#d4af37] tracking-[0.2em]">STEP 3. 대본 입력</label>
               </div>
               <textarea id="scenarioInput" class="w-full glass-panel p-8 rounded-[2rem] text-xl font-light leading-[1.8] resize-none serif-text min-h-[180px]">"학생님, 어디까지 가시나요?"
-"학생님, 어디까지 가시나요?"
 "남대문 정거장까지 가오."
-"아이구, 거긴 너무 멉니다."
-"멀긴 무엇이 멀어. 돈 일 원 줄 테니 갑시다."일 원이란 말에 김 첨지는 눈이 번쩍 뜨였다. 하지만 그와 동시에 머릿속에는 아침에 본 아내의 해쓱한 얼굴이 떠올라 가슴이 철렁했다. "아니, 일 원은 고맙지만... 오늘은 이만 들어가 봐야 해서요."</textarea>
+김 첨지는 아내 생각에 눈물이 났다.</textarea>
             </section>
             
             <button id="btn-analyze" onclick="analyzeScript()" class="w-full py-6 rounded-2xl border border-[#d4af37]/50 text-[#d4af37] bg-[#d4af37]/5 font-black text-xl tracking-[0.2em] hover:bg-[#d4af37]/10 transition-all shadow-lg">
@@ -126,7 +124,7 @@
           <div id="reviewSection" class="hidden space-y-8 animate-in fade-in">
              <div class="border-b border-white/10 pb-4">
                 <h2 class="text-2xl font-black text-white tracking-widest">콘티 & 프롬프트 수정</h2>
-                <p class="text-zinc-400 mt-2 text-sm">렌더링 시 AI가 브릿지 엔진을 통해 프롬프트를 최적화합니다.</p>
+                <p class="text-zinc-400 mt-2 text-sm">렌더링 시 AI가 프롬프트를 최적화합니다. (수정된 컷만 다시 렌더링됩니다)</p>
              </div>
 
              <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
@@ -217,7 +215,7 @@
 
   <script>
     let state = {
-      characters: [{ id: 'char_0', name: '김 첨지', desc: "낡은 한복, 슬픈 표정의 40대 남성" }],
+      characters: [{ id: 'char_0', name: '김 첨지', desc: "낡은 한복, 슬픈 표정의 40대 남성" }, { id: 'char_1', name: '학생', desc: "낡은 교복과 안경을 쓴 10대 소년" }],
       parsedData: { storyboard: [] },
       sequenceData: [], 
       currentFrameIndex: 0,
@@ -240,7 +238,7 @@
       list.innerHTML = state.characters.map(char => `
         <div class="flex gap-2 bg-white/[0.02] p-3 rounded-xl border border-white/5">
           <input onchange="updateChar('${char.id}', 'name', this.value)" value="${char.name}" class="w-1/4 p-2 rounded-lg text-[13px] font-bold" placeholder="이름">
-          <input onchange="updateChar('${char.id}', 'desc', this.value)" value="${char.desc}" class="flex-1 p-2 rounded-lg text-[13px]" placeholder="묘사">
+          <input onchange="updateChar('${char.id}', 'desc', this.value)" value="${char.desc}" class="flex-1 p-2 rounded-lg text-[13px]" placeholder="묘사 (예: 40대, 한복)">
           <button onclick="removeCharacter('${char.id}')" class="px-2 text-zinc-600 hover:text-red-400"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>`).join('');
       lucide.createIcons();
@@ -256,7 +254,7 @@
         let dialoguesHtml = (shot.dialogues && shot.dialogues.length > 0) ? shot.dialogues.map((d, dIdx) => `
             <div class="flex gap-2 items-center bg-black/40 p-2 rounded-lg border border-purple-500/10 mb-2">
               <input onchange="updateDialogue(${index}, ${dIdx}, 'speaker', this.value)" value="${d.speaker || ''}" class="w-1/4 bg-transparent border-b border-purple-500/30 p-2 text-[11px] text-purple-200 font-bold outline-none">
-              <input onchange="updateDialogue(${index}, ${dIdx}, 'emotion', this.value)" value="${d.emotion || ''}" class="w-1/4 bg-transparent border-b border-purple-500/30 p-2 text-[11px] text-purple-300 italic outline-none">
+              <input onchange="updateDialogue(${index}, ${dIdx}, 'emotion', this.value)" value="${d.emotion || ''}" class="w-1/4 bg-transparent border-b border-purple-500/30 p-2 text-[11px] text-purple-300 italic outline-none" placeholder="속마음 등">
               <input onchange="updateDialogue(${index}, ${dIdx}, 'text', this.value)" value="${d.text || ''}" class="flex-1 bg-transparent border-b border-purple-500/30 p-2 text-[12px] text-white outline-none">
               <button onclick="removeDialogue(${index}, ${dIdx}, '${containerId}')" class="text-zinc-600 hover:text-red-400 p-1"><i data-lucide="x" class="w-3 h-3"></i></button>
             </div>
@@ -280,7 +278,7 @@
           </div>
           <div class="bg-purple-900/10 border border-purple-500/20 p-3 rounded-lg">
              <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-bold text-purple-400 uppercase">다중 화자 대사</span>
+                <span class="text-[10px] font-bold text-purple-400 uppercase">대사 / 내레이션 설정</span>
                 <button onclick="addDialogue(${index}, '${containerId}')" class="text-[10px] text-purple-300 hover:text-white flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i>추가</button>
              </div>
              ${dialoguesHtml}
@@ -416,7 +414,12 @@
 
       const subCont = document.getElementById('playerSubtitle');
       if(frame.dialogues && frame.dialogues.length > 0) {
-        subCont.innerHTML = frame.dialogues.map(d => `<div class="mb-2"><span class="text-[11px] font-black text-[#d4af37] bg-black/60 px-2 py-0.5 rounded mr-2 align-middle">${d.speaker}</span><span class="text-lg md:text-xl font-bold text-[#fbf5b7] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed serif-text align-middle">"${d.text}"</span></div>`).join('');
+        subCont.innerHTML = frame.dialogues.map(d => {
+          const isThought = d.emotion === '속마음';
+          const formatText = isThought ? `(속마음) "${d.text}"` : `"${d.text}"`;
+          const textColor = isThought ? "text-blue-300 italic" : "text-[#fbf5b7]";
+          return `<div class="mb-2"><span class="text-[11px] font-black text-[#d4af37] bg-black/60 px-2 py-0.5 rounded mr-2 align-middle">${d.speaker}</span><span class="text-lg md:text-xl font-bold ${textColor} drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed serif-text align-middle">${formatText}</span></div>`;
+        }).join('');
       } else if (frame.subtitle && frame.subtitle.trim() !== '') {
         subCont.innerHTML = `<span class="text-lg md:text-xl font-bold text-zinc-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed serif-text">${frame.subtitle}</span>`;
       } else { subCont.innerHTML = ''; }
