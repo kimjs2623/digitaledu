@@ -53,7 +53,7 @@
     
     <div id="page-presets" class="hidden min-h-[60vh] flex flex-col items-center justify-center border border-white/5 bg-white/[0.01] rounded-[2.5rem] space-y-6">
        <i data-lucide="library" class="w-16 h-16 text-zinc-700"></i><h2 class="text-3xl font-black text-white serif-text tracking-wide">작품 프리셋</h2>
-       <p class="text-zinc-500 text-sm font-light">운수 좋은 날, 메밀꽃 필 무렵 등 문학 작품 템플릿이 곧 추가됩니다.</p>
+       <p class="text-zinc-500 text-sm font-light">문학 작품 템플릿이 곧 추가됩니다.</p>
     </div>
 
     <!-- 스튜디오 메인 -->
@@ -63,7 +63,7 @@
           <div class="bg-gradient-to-br from-[#fbf5b7] via-[#d4af37] to-[#aa771c] p-4 rounded-2xl shadow-lg shadow-[#d4af37]/20"><i data-lucide="camera" class="text-black w-8 h-8"></i></div>
           <div>
             <h1 class="text-5xl font-black italic tracking-tight font-['Playfair_Display'] gold-text-gradient drop-shadow-sm">STUDIO</h1>
-            <p class="text-[12px] text-zinc-400 tracking-[0.2em] font-bold mt-2">대본을 시네마틱 컷툰과 오디오로 렌더링하는 공간</p>
+            <p class="text-[12px] text-zinc-400 tracking-[0.2em] font-bold mt-2">대본을 시네마틱 컷툰과 오디오로 렌더링</p>
           </div>
         </div>
       </header>
@@ -72,36 +72,33 @@
         
         <div class="lg:col-span-7 space-y-12">
           
-          <!-- STEP 1: 입력 -->
           <div id="inputSection" class="space-y-12">
-            
             <section class="space-y-6">
               <div class="flex items-center justify-between border-b border-white/10 pb-2">
-                <label class="text-[14px] font-black text-[#d4af37] tracking-[0.2em]">STEP 1. 등장인물 프로필 설정</label>
-                <button onclick="addCharacter()" class="flex items-center gap-2 text-[12px] font-bold text-zinc-400 hover:text-[#d4af37]"><i data-lucide="plus" class="w-4 h-4"></i> 인물 추가</button>
+                <label class="text-[14px] font-black text-[#d4af37] tracking-[0.2em]">STEP 1. 등장인물 설정</label>
+                <button onclick="addCharacter()" class="flex items-center gap-2 text-[12px] font-bold text-zinc-400 hover:text-[#d4af37]"><i data-lucide="plus" class="w-4 h-4"></i> 추가</button>
               </div>
               <div id="characterList" class="space-y-4"></div>
             </section>
 
             <section class="space-y-6">
               <div class="border-b border-white/10 pb-2">
-                <label class="text-[14px] font-black text-[#d4af37] tracking-[0.2em]">STEP 2. 장소 및 연출 디자인</label>
+                <label class="text-[14px] font-black text-[#d4af37] tracking-[0.2em]">STEP 2. 배경 및 스타일</label>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="space-y-3">
-                  <label class="text-[12px] font-bold text-zinc-400">장소 및 시대 배경</label>
-                  <input id="placeInput" type="text" class="w-full p-4 rounded-xl text-[13px]" value="1920년대, 비가 내리는 어두운 경성 거리">
+                  <label class="text-[12px] font-bold text-zinc-400">장소/시대</label>
+                  <input id="placeInput" type="text" class="w-full p-4 rounded-xl text-[13px]" value="1920년대, 비 내리는 거리">
                 </div>
                 <div class="space-y-3">
-                  <label class="text-[12px] font-bold text-zinc-400">감독 연출 의도 (분위기)</label>
-                  <input id="noteInput" type="text" class="w-full p-4 rounded-xl text-[13px]" value="어둡고 쓸쓸한 분위기, 내적 갈등 극대화">
+                  <label class="text-[12px] font-bold text-zinc-400">연출 의도</label>
+                  <input id="noteInput" type="text" class="w-full p-4 rounded-xl text-[13px]" value="어둡고 쓸쓸한 분위기">
                   
                   <label class="text-[12px] font-bold text-zinc-400 mt-4 block">작화 스타일</label>
                   <select id="styleSelect" class="w-full p-4 rounded-xl text-[13px] font-bold cursor-pointer">
-                    <option value="cinematic">🎬 실사 시네마틱 (Photorealistic)</option>
-                    <option value="anime">🌸 애니메이션풍 (Anime style)</option>
-                    <option value="webtoon">📖 웹툰 스타일 (Manhwa style)</option>
-                    <option value="watercolor">🎨 수채화풍 (Watercolor art)</option>
+                    <option value="cinematic">🎬 실사 시네마틱</option>
+                    <option value="anime">🌸 애니메이션풍</option>
+                    <option value="webtoon">📖 웹툰 스타일</option>
                   </select>
                 </div>
               </div>
@@ -109,75 +106,70 @@
 
             <section class="space-y-4">
               <div class="border-b border-white/10 pb-2">
-                <label class="text-[14px] font-black text-[#d4af37] tracking-[0.2em]">STEP 3. 시나리오 원문 입력</label>
+                <label class="text-[14px] font-black text-[#d4af37] tracking-[0.2em]">STEP 3. 대본 입력</label>
               </div>
               <textarea id="scenarioInput" class="w-full glass-panel p-8 rounded-[2rem] text-xl font-light leading-[1.8] resize-none serif-text min-h-[180px]">"학생님, 어디까지 가시나요?"
+"학생님, 어디까지 가시나요?"
 "남대문 정거장까지 가오."
-"멀긴 무엇이 멀어. 돈 일 원 줄 테니 갑시다."
-일 원이란 말에 김 첨지는 눈이 번쩍 뜨였다.</textarea>
+"아이구, 거긴 너무 멉니다."
+"멀긴 무엇이 멀어. 돈 일 원 줄 테니 갑시다."일 원이란 말에 김 첨지는 눈이 번쩍 뜨였다. 하지만 그와 동시에 머릿속에는 아침에 본 아내의 해쓱한 얼굴이 떠올라 가슴이 철렁했다. "아니, 일 원은 고맙지만... 오늘은 이만 들어가 봐야 해서요."</textarea>
             </section>
             
-            <button id="btn-analyze" onclick="analyzeScript()" class="w-full py-6 rounded-2xl border border-[#d4af37]/50 text-[#d4af37] bg-[#d4af37]/5 font-black text-xl tracking-[0.2em] hover:bg-[#d4af37]/10 transition-all shadow-lg shadow-[#d4af37]/5">
-              🧠 AI 연출 콘티 자동 생성
+            <button id="btn-analyze" onclick="analyzeScript()" class="w-full py-6 rounded-2xl border border-[#d4af37]/50 text-[#d4af37] bg-[#d4af37]/5 font-black text-xl tracking-[0.2em] hover:bg-[#d4af37]/10 transition-all shadow-lg">
+              🧠 콘티 자동 생성
             </button>
           </div>
 
-          <!-- STEP 2: 검토/수정 -->
           <div id="reviewSection" class="hidden space-y-8 animate-in fade-in">
              <div class="border-b border-white/10 pb-4">
                 <h2 class="text-2xl font-black text-white tracking-widest">콘티 & 프롬프트 수정</h2>
-                <p class="text-zinc-400 mt-2 text-sm">학생이 한국어로 수정한 프롬프트를 AI가 렌더링 시 자동으로 <span class="text-blue-400 font-bold">브릿지(최적화)</span>하여 적용합니다.</p>
+                <p class="text-zinc-400 mt-2 text-sm">렌더링 시 AI가 브릿지 엔진을 통해 프롬프트를 최적화합니다.</p>
              </div>
 
              <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
                 <div class="md:col-span-4 space-y-3">
-                   <label class="text-[12px] font-black text-[#d4af37] tracking-widest flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4"></i> 나의 원문</label>
+                   <label class="text-[12px] font-black text-[#d4af37] tracking-widest flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4"></i> 원문</label>
                    <div id="displayOriginal" class="w-full bg-black/40 border border-white/5 p-5 rounded-2xl h-[650px] overflow-y-auto text-zinc-400 text-[13px] leading-relaxed serif-text whitespace-pre-wrap"></div>
                 </div>
                 <div class="md:col-span-8 space-y-4">
-                   <label class="text-[12px] font-black text-blue-400 tracking-widest flex items-center gap-2"><i data-lucide="film" class="w-4 h-4"></i> 프롬프트 및 오디오 에디터</label>
+                   <label class="text-[12px] font-black text-blue-400 tracking-widest flex items-center gap-2"><i data-lucide="film" class="w-4 h-4"></i> 에디터</label>
                    <div id="editableStoryboardContainer" class="space-y-4 h-[650px] overflow-y-auto pr-2"></div>
-                   <button onclick="addNewShot()" class="w-full py-3 border border-dashed border-zinc-600 rounded-xl text-zinc-400 hover:text-white transition-colors text-[12px] font-bold tracking-widest flex justify-center gap-2"><i data-lucide="plus-circle" class="w-4 h-4"></i> 컷 추가하기</button>
+                   <button onclick="addNewShot()" class="w-full py-3 border border-dashed border-zinc-600 rounded-xl text-zinc-400 hover:text-white transition-colors text-[12px] font-bold tracking-widest flex justify-center gap-2"><i data-lucide="plus-circle" class="w-4 h-4"></i> 컷 추가</button>
                 </div>
              </div>
              
              <div class="flex gap-4 pt-4">
                <button onclick="document.getElementById('reviewSection').classList.add('hidden'); document.getElementById('inputSection').classList.remove('hidden');" class="py-5 px-6 rounded-xl border border-white/20 bg-black/50 text-zinc-300 font-bold tracking-widest hover:bg-white/10"><i data-lucide="arrow-left" class="w-4 h-4 inline-block mr-2 mb-0.5"></i> 이전</button>
-               <button onclick="startSequenceGeneration()" class="flex-1 py-5 rounded-xl btn-gold text-black font-black tracking-widest shadow-xl flex items-center justify-center gap-2"><i data-lucide="images" class="w-5 h-5"></i> 🖼️ 영상 렌더링 슛 들어가기</button>
+               <button onclick="startSequenceGeneration()" class="flex-1 py-5 rounded-xl btn-gold text-black font-black tracking-widest shadow-xl flex items-center justify-center gap-2"><i data-lucide="images" class="w-5 h-5"></i> 🖼️ 렌더링 시작</button>
              </div>
           </div>
         </div>
 
         <div class="lg:col-span-5" id="logPanel">
           <div class="glass-panel rounded-[2rem] flex flex-col h-[600px] lg:h-[800px] overflow-hidden sticky top-24">
-             <div class="p-5 border-b border-white/5 bg-black/30"><span class="text-[12px] font-black text-zinc-400 tracking-[0.2em] flex items-center gap-2"><i data-lucide="monitor-play" class="text-[#d4af37] w-4 h-4"></i> 실시간 연출 로그</span></div>
+             <div class="p-5 border-b border-white/5 bg-black/30"><span class="text-[12px] font-black text-zinc-400 tracking-[0.2em] flex items-center gap-2"><i data-lucide="monitor-play" class="text-[#d4af37] w-4 h-4"></i> 실시간 로그</span></div>
              <div id="logContent" class="flex-1 p-6 space-y-6 overflow-y-auto text-[13px] text-zinc-300 leading-relaxed scrollbar-hide"></div>
           </div>
         </div>
       </div>
 
-      <!-- STEP 3: 렌더링 & 플레이어 -->
+      <!-- STEP 3: 플레이어 -->
       <div id="renderingAndPlayerSection" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-12 animate-in fade-in">
          <div class="lg:col-span-7 space-y-6">
             <h3 class="text-2xl font-black text-white italic tracking-wide serif-text flex items-center gap-3"><i data-lucide="clapperboard" class="text-[#d4af37]"></i> Cinematic Player</h3>
             
             <div class="relative bg-black rounded-[2.5rem] border border-white/10 aspect-video flex flex-col items-center justify-between overflow-hidden shadow-2xl glass-panel group">
-              
-              <!-- 로딩 UI -->
               <div id="loadingBox" class="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-30">
                  <div class="w-16 h-16 border-2 border-white/5 border-t-[#d4af37] rounded-full animate-spin mb-6"></div>
-                 <p class="text-xl font-black italic text-white font-['Playfair_Display'] animate-pulse-soft" id="loadingTitle">Generating Scenes...</p>
+                 <p class="text-xl font-black italic text-white font-['Playfair_Display'] animate-pulse-soft">Generating...</p>
                  <div class="w-64 bg-white/5 h-1.5 rounded-full overflow-hidden mt-4"><div id="progressBar" class="bg-gradient-to-r from-[#aa771c] to-[#fbf5b7] h-full w-0 transition-all duration-300"></div></div>
-                 <p class="text-[11px] font-mono text-amber-500 tracking-[0.2em] mt-3 font-bold" id="progressText">실제 AI 렌더링 중입니다...</p>
+                 <p class="text-[11px] font-mono text-amber-500 tracking-[0.2em] mt-3 font-bold" id="progressText">렌더링 중...</p>
               </div>
 
-              <!-- 🎯 실제 플레이어 영역 -->
               <div id="sequencePlayer" class="hidden w-full h-full relative cursor-pointer" onclick="togglePlay(event)">
                  <img id="playerImage" class="w-full h-full object-cover anim-fade" src="" alt="Scene">
                  <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40 pointer-events-none"></div>
-                 
                  <div id="playerSubtitle" class="absolute bottom-20 left-8 right-8 flex flex-col items-center justify-end gap-2 pointer-events-none"></div>
-                 
                  <div class="absolute top-6 left-6 bg-black/60 px-3 py-1.5 rounded-lg text-[10px] font-bold text-[#d4af37] border border-[#d4af37]/20 backdrop-blur-md tracking-[0.2em]">
                    <span id="playerShotCounter">Shot 1</span>
                  </div>
@@ -185,9 +177,8 @@
               
               <div id="playStartOverlay" class="hidden absolute inset-0 z-40 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center">
                  <button onclick="startPlayerViaClick()" class="btn-gold px-10 py-5 rounded-full font-black text-xl flex items-center gap-3 shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-105 transition-transform">
-                    <i data-lucide="play" class="w-6 h-6 fill-current"></i> 상영 시작하기
+                    <i data-lucide="play" class="w-6 h-6 fill-current"></i> 상영 시작
                  </button>
-                 <p class="text-zinc-400 text-sm mt-4">클릭 시 오디오와 함께 영상이 재생됩니다.</p>
               </div>
 
               <div id="playerControls" class="hidden absolute bottom-0 left-0 w-full h-16 bg-black/80 backdrop-blur-md border-t border-white/10 flex items-center justify-between px-6 z-20">
@@ -203,34 +194,27 @@
             </div>
 
             <div id="completedActions" class="hidden flex gap-4">
-               <button onclick="activateVideoEditMode()" class="flex-1 py-4 rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-300 font-bold text-[13px] tracking-wider flex items-center justify-center gap-2 hover:bg-blue-500/20 transition"><i data-lucide="edit-3" class="w-4 h-4"></i> 콘티 재수정</button>
+               <button onclick="activateVideoEditMode()" class="flex-1 py-4 rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-300 font-bold text-[13px] tracking-wider flex items-center justify-center gap-2 hover:bg-blue-500/20 transition"><i data-lucide="edit-3" class="w-4 h-4"></i> 부분 수정(캐싱)</button>
                <button onclick="location.reload()" class="py-4 px-6 rounded-xl border border-white/20 bg-white/5 text-zinc-300 font-bold text-[13px] tracking-wider flex items-center justify-center gap-2 hover:bg-white/10 transition"><i data-lucide="refresh-cw" class="w-4 h-4"></i> 처음으로</button>
             </div>
          </div>
 
-         <!-- 오른쪽: 다이내믹 패널 (감독 노트) -->
          <div id="dynamicRightPanel" class="lg:col-span-5 h-[600px] flex flex-col">
             <div id="notePanel" class="flex-1 glass-panel p-8 rounded-[2.5rem] flex flex-col space-y-6 shadow-xl">
                <div class="flex items-center justify-between border-b border-white/10 pb-4">
                  <h3 class="text-xl font-black text-white italic serif-text flex items-center gap-2"><i data-lucide="pen-tool" class="text-[#d4af37] w-5 h-5"></i> Director's Note</h3>
                </div>
-               <input id="noteTitle" type="text" class="w-full bg-transparent text-xl font-bold text-white focus:outline-none !p-0" placeholder="작품의 제목을 지어주세요">
-               
-               <textarea id="noteText" class="flex-1 w-full bg-black/20 p-5 rounded-2xl text-[14px] leading-relaxed text-zinc-200 resize-none border border-white/5" placeholder="작품을 재구성하며 거친 사고 과정이나, 연출 시 가장 중요하게 생각한 핵심 의도를 자유롭게 기록해보세요."></textarea>
-               
-               <button id="shareBtn" disabled class="w-full py-5 rounded-xl btn-gold font-black text-[14px] tracking-[0.2em] flex items-center justify-center gap-2 disabled:opacity-30">
-                  <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 대기 중...
-               </button>
+               <input id="noteTitle" type="text" class="w-full bg-transparent text-xl font-bold text-white focus:outline-none !p-0" placeholder="제목을 지어주세요">
+               <textarea id="noteText" class="flex-1 w-full bg-black/20 p-5 rounded-2xl text-[14px] leading-relaxed text-zinc-200 resize-none border border-white/5" placeholder="핵심 의도 기록..."></textarea>
             </div>
          </div>
-
       </div>
     </div>
   </div>
 
   <script>
     let state = {
-      characters: [{ id: 'char_0', name: '김 첨지', desc: "낡은 한복, 슬픈 표정의 40대 남성" }, { id: 'char_1', name: '학생', desc: "낡은 교복과 안경을 쓴 10대 소년" }],
+      characters: [{ id: 'char_0', name: '김 첨지', desc: "낡은 한복, 슬픈 표정의 40대 남성" }],
       parsedData: { storyboard: [] },
       sequenceData: [], 
       currentFrameIndex: 0,
@@ -252,8 +236,8 @@
       const list = document.getElementById('characterList');
       list.innerHTML = state.characters.map(char => `
         <div class="flex gap-2 bg-white/[0.02] p-3 rounded-xl border border-white/5">
-          <input onchange="updateChar('${char.id}', 'name', this.value)" value="${char.name}" class="w-1/4 p-2 rounded-lg text-[13px] font-bold" placeholder="이름 (예: 김첨지)">
-          <input onchange="updateChar('${char.id}', 'desc', this.value)" value="${char.desc}" class="flex-1 p-2 rounded-lg text-[13px]" placeholder="외모 상세 묘사">
+          <input onchange="updateChar('${char.id}', 'name', this.value)" value="${char.name}" class="w-1/4 p-2 rounded-lg text-[13px] font-bold" placeholder="이름">
+          <input onchange="updateChar('${char.id}', 'desc', this.value)" value="${char.desc}" class="flex-1 p-2 rounded-lg text-[13px]" placeholder="묘사">
           <button onclick="removeCharacter('${char.id}')" class="px-2 text-zinc-600 hover:text-red-400"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>`).join('');
       lucide.createIcons();
@@ -268,31 +252,32 @@
       container.innerHTML = state.parsedData.storyboard.map((shot, index) => {
         let dialoguesHtml = (shot.dialogues && shot.dialogues.length > 0) ? shot.dialogues.map((d, dIdx) => `
             <div class="flex gap-2 items-center bg-black/40 p-2 rounded-lg border border-purple-500/10 mb-2">
-              <input onchange="updateDialogue(${index}, ${dIdx}, 'speaker', this.value)" value="${d.speaker || ''}" class="w-1/4 bg-transparent border-b border-purple-500/30 p-2 text-[11px] text-purple-200 font-bold outline-none" placeholder="화자 이름">
-              <input onchange="updateDialogue(${index}, ${dIdx}, 'emotion', this.value)" value="${d.emotion || ''}" class="w-1/4 bg-transparent border-b border-purple-500/30 p-2 text-[11px] text-purple-300 italic outline-none" placeholder="감정(예: 슬프게)">
-              <input onchange="updateDialogue(${index}, ${dIdx}, 'text', this.value)" value="${d.text || ''}" class="flex-1 bg-transparent border-b border-purple-500/30 p-2 text-[12px] text-white outline-none" placeholder="순수 대사만 입력">
+              <input onchange="updateDialogue(${index}, ${dIdx}, 'speaker', this.value)" value="${d.speaker || ''}" class="w-1/4 bg-transparent border-b border-purple-500/30 p-2 text-[11px] text-purple-200 font-bold outline-none">
+              <input onchange="updateDialogue(${index}, ${dIdx}, 'emotion', this.value)" value="${d.emotion || ''}" class="w-1/4 bg-transparent border-b border-purple-500/30 p-2 text-[11px] text-purple-300 italic outline-none">
+              <input onchange="updateDialogue(${index}, ${dIdx}, 'text', this.value)" value="${d.text || ''}" class="flex-1 bg-transparent border-b border-purple-500/30 p-2 text-[12px] text-white outline-none">
               <button onclick="removeDialogue(${index}, ${dIdx}, '${containerId}')" class="text-zinc-600 hover:text-red-400 p-1"><i data-lucide="x" class="w-3 h-3"></i></button>
             </div>
-          `).join('') : `<p class="text-[11px] text-zinc-500 mb-2">대사가 없는 장면입니다.</p>`;
+          `).join('') : `<p class="text-[11px] text-zinc-500 mb-2">대사 없음</p>`;
+
+        const statusBadge = shot.isDirty !== false 
+            ? `<span class="text-amber-400 font-bold flex items-center gap-1"><i data-lucide="alert-circle" class="w-3 h-3"></i> 렌더링 대기</span>`
+            : `<span class="text-green-400 font-bold flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> 캐싱 완료</span>`;
 
         return `
-        <div class="shot-block bg-black/40 p-4 rounded-xl border border-white/10 space-y-3 relative group">
+        <div class="shot-block bg-black/40 p-4 rounded-xl border ${shot.isDirty !== false ? 'border-amber-500/30' : 'border-white/10'} space-y-3 relative group transition-colors">
           <div class="absolute -left-2 -top-2 bg-[#d4af37] text-black w-6 h-6 rounded-full flex justify-center items-center font-bold text-[10px]">${index+1}</div>
+          <div class="flex justify-end mb-1 text-[10px]">${statusBadge}</div>
           <div class="flex gap-3 pl-2">
-            <input type="text" onchange="updateShot(${index}, 'shot_composition', this.value)" class="w-1/3 bg-transparent border-b border-white/20 text-[12px] text-amber-300 font-bold focus:border-[#d4af37] outline-none pb-1" value="${shot.shot_composition || ''}" title="카메라/구도">
-            <input type="text" onchange="updateShot(${index}, 'action', this.value)" class="w-2/3 bg-transparent border-b border-white/20 text-[12px] text-zinc-300 focus:border-white outline-none pb-1" value="${shot.action || ''}" title="상황 설명 자막">
+            <input type="text" onchange="updateShot(${index}, 'shot_composition', this.value)" class="w-1/3 bg-transparent border-b border-white/20 text-[12px] text-amber-300 font-bold outline-none pb-1" value="${shot.shot_composition || ''}">
+            <input type="text" onchange="updateShot(${index}, 'action', this.value)" class="w-2/3 bg-transparent border-b border-white/20 text-[12px] text-zinc-300 outline-none pb-1" value="${shot.action || ''}">
           </div>
-          <!-- 한국어 프롬프트 에디터 -->
           <div class="space-y-1">
-             <label class="text-[10px] text-blue-400 font-bold flex justify-between">
-                한국어 이미지 프롬프트 (수정 가능)
-                <span class="text-zinc-500 font-normal">전환: ${shot.transition || 'fade'}</span>
-             </label>
-             <textarea onchange="updateShot(${index}, 'image_prompt', this.value)" class="w-full bg-blue-900/10 border border-blue-500/20 rounded-lg p-3 text-[12px] text-blue-200 resize-none outline-none focus:border-blue-500/50 h-16 leading-relaxed">${shot.image_prompt || ''}</textarea>
+             <label class="text-[10px] text-blue-400 font-bold flex justify-between">한국어 프롬프트 <span class="text-zinc-500">전환: ${shot.transition || 'fade'}</span></label>
+             <textarea onchange="updateShot(${index}, 'image_prompt', this.value)" class="w-full bg-blue-900/10 border border-blue-500/20 rounded-lg p-3 text-[12px] text-blue-200 resize-none outline-none h-16">${shot.image_prompt || ''}</textarea>
           </div>
           <div class="bg-purple-900/10 border border-purple-500/20 p-3 rounded-lg">
              <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">다중 화자 대사 편집기</span>
+                <span class="text-[10px] font-bold text-purple-400 uppercase">다중 화자 대사</span>
                 <button onclick="addDialogue(${index}, '${containerId}')" class="text-[10px] text-purple-300 hover:text-white flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i>추가</button>
              </div>
              ${dialoguesHtml}
@@ -303,13 +288,12 @@
       lucide.createIcons();
     }
 
-    function updateShot(sIdx, f, v) { state.parsedData.storyboard[sIdx][f] = v; }
-    function updateDialogue(sIdx, dIdx, f, v) { state.parsedData.storyboard[sIdx].dialogues[dIdx][f] = v; }
-    function addDialogue(sIdx, cId) { if(!state.parsedData.storyboard[sIdx].dialogues) state.parsedData.storyboard[sIdx].dialogues=[]; state.parsedData.storyboard[sIdx].dialogues.push({speaker:'이름', text:'', emotion:'자연스럽게'}); renderStoryboardEditor(cId); }
-    function removeDialogue(sIdx, dIdx, cId) { state.parsedData.storyboard[sIdx].dialogues.splice(dIdx, 1); renderStoryboardEditor(cId); }
-    function addNewShot(cId = 'editableStoryboardContainer') { state.parsedData.storyboard.push({ shot_composition: "바스트 샷", action: "새로운 장면", image_prompt: "한국어로 된 구체적인 장면 묘사를 적어주세요.", transition: "fade", dialogues: [] }); renderStoryboardEditor(cId); }
+    function updateShot(sIdx, f, v) { state.parsedData.storyboard[sIdx][f] = v; state.parsedData.storyboard[sIdx].isDirty = true; renderStoryboardEditor('editableStoryboardContainer'); }
+    function updateDialogue(sIdx, dIdx, f, v) { state.parsedData.storyboard[sIdx].dialogues[dIdx][f] = v; state.parsedData.storyboard[sIdx].isDirty = true; }
+    function addDialogue(sIdx, cId) { if(!state.parsedData.storyboard[sIdx].dialogues) state.parsedData.storyboard[sIdx].dialogues=[]; state.parsedData.storyboard[sIdx].dialogues.push({speaker:'이름', text:'', emotion:'자연스럽게'}); state.parsedData.storyboard[sIdx].isDirty = true; renderStoryboardEditor(cId); }
+    function removeDialogue(sIdx, dIdx, cId) { state.parsedData.storyboard[sIdx].dialogues.splice(dIdx, 1); state.parsedData.storyboard[sIdx].isDirty = true; renderStoryboardEditor(cId); }
+    function addNewShot(cId = 'editableStoryboardContainer') { state.parsedData.storyboard.push({ shot_composition: "바스트 샷", action: "장면 추가", image_prompt: "한국어 묘사", transition: "fade", dialogues: [], isDirty: true, cachedImageUrl: null, cachedAudioUrl: null }); renderStoryboardEditor(cId); }
 
-    // 🎯 분석 로딩 UI
     async function analyzeScript() {
       const scenario = document.getElementById('scenarioInput').value;
       if(!scenario.trim()) return alert("시나리오 입력 요망.");
@@ -317,14 +301,11 @@
       const btnAnalyze = document.getElementById('btn-analyze');
       const originalText = btnAnalyze.innerHTML;
       btnAnalyze.disabled = true;
-      btnAnalyze.innerHTML = `<i data-lucide="loader-2" class="w-6 h-6 animate-spin inline-block mr-2"></i> AI가 씬을 분할하고 은유 연출을 계획 중입니다...`;
+      btnAnalyze.innerHTML = `<i data-lucide="loader-2" class="w-6 h-6 animate-spin inline-block mr-2"></i> 대본 분석 중...`;
       lucide.createIcons();
 
       const logContent = document.getElementById('logContent');
-      if (logContent) {
-        logContent.innerHTML += `<p class="text-amber-400 text-[13px]">> AI 감독이 대본 분석 및 시각적 은유(Show, Don't Tell) 연출을 시작합니다...</p>`;
-        logContent.scrollTop = logContent.scrollHeight;
-      }
+      if (logContent) { logContent.innerHTML += `<p class="text-amber-400 text-[13px]">> AI 분석 시작...</p>`; logContent.scrollTop = logContent.scrollHeight; }
       
       const charStr = state.characters.map(c => `${c.name}(${c.desc})`).join(', ');
       
@@ -335,30 +316,23 @@
         });
         const data = await res.json();
         if(!data.scenes) throw new Error(data.message || "분석 실패");
-        state.parsedData.storyboard = data.scenes;
+        
+        state.parsedData.storyboard = data.scenes.map(scene => ({ ...scene, isDirty: true, cachedImageUrl: null, cachedAudioUrl: null }));
         
         document.getElementById('inputSection').classList.add('hidden');
         document.getElementById('reviewSection').classList.remove('hidden');
         document.getElementById('displayOriginal').innerText = scenario; 
         
         renderStoryboardEditor('editableStoryboardContainer');
-        
-        if (logContent) {
-          logContent.innerHTML += `<p class="text-blue-400 text-[13px]">> 분석 완료! 에디터에서 생성된 한국어 프롬프트를 확인하세요.</p>`;
-          logContent.scrollTop = logContent.scrollHeight;
-        }
-
+        if (logContent) { logContent.innerHTML += `<p class="text-blue-400 text-[13px]">> 분석 완료!</p>`; logContent.scrollTop = logContent.scrollHeight; }
       } catch (err) { 
         alert("분석 오류: " + err.message); 
         if (logContent) logContent.innerHTML += `<p class="text-red-400 text-[13px]">> 오류 발생: ${err.message}</p>`;
       } finally {
-        btnAnalyze.disabled = false;
-        btnAnalyze.innerHTML = originalText;
-        lucide.createIcons();
+        btnAnalyze.disabled = false; btnAnalyze.innerHTML = originalText; lucide.createIcons();
       }
     }
 
-    // 🎯 프롬프트 브릿지 및 렌더링
     async function startSequenceGeneration() {
       if(state.currentAudioElement) state.currentAudioElement.pause();
       clearTimeout(state.frameTimeoutId);
@@ -366,78 +340,55 @@
       const shots = state.parsedData.storyboard;
       document.getElementById('authoringContainer').classList.add('hidden');
       document.getElementById('renderingAndPlayerSection').classList.remove('hidden');
-      
       document.getElementById('loadingBox').classList.remove('hidden');
       document.getElementById('sequencePlayer').classList.add('hidden');
       document.getElementById('playStartOverlay').classList.add('hidden');
-      document.getElementById('playerControls').classList.add('hidden');
       
       const logContent = document.getElementById('logContent');
-      let progress = 0;
-      state.sequenceData = [];
+      let progress = 0; state.sequenceData = [];
 
       try {
         for(let i=0; i<shots.length; i++) {
           const shot = shots[i];
-          document.getElementById('progressText').innerText = `[컷 ${i+1}/${shots.length}] AI 프롬프트 브릿지 통과 중...`;
-          if (logContent) {
-            logContent.innerHTML += `<p class="text-zinc-400 text-[13px]">> Shot ${i+1} 학생의 한국어 콘티를 Imagen 전용 지시서로 변환합니다...</p>`;
-            logContent.scrollTop = logContent.scrollHeight;
+          document.getElementById('progressText').innerText = `[컷 ${i+1}/${shots.length}] 렌더링 중...`;
+
+          if (shot.isDirty === false && shot.cachedImageUrl) {
+              if (logContent) logContent.innerHTML += `<p class="text-green-500 text-[13px]">> Shot ${i+1} 변경사항 없음 (캐시 사용)</p>`;
+              state.sequenceData.push({ imageUrl: shot.cachedImageUrl, subtitle: shot.action || '', dialogues: shot.dialogues || [], audioUrl: shot.cachedAudioUrl, transition: shot.transition || 'fade' });
+              progress += (100 / shots.length); document.getElementById('progressBar').style.width = `${progress}%`;
+              continue; 
           }
+
+          if (logContent) logContent.innerHTML += `<p class="text-zinc-400 text-[13px]">> Shot ${i+1} 새로 렌더링 중...</p>`;
           
           let imgUrl = "", audioUrl = "";
           try {
-            // 브릿지 호출 (style 포함)
-            const imgRes = await fetch('/api/generate-images', { 
-              method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-              body: JSON.stringify({ prompt: shot.image_prompt, style: document.getElementById('styleSelect').value }) 
-            });
+            const imgRes = await fetch('/api/generate-images', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: shot.image_prompt, style: document.getElementById('styleSelect').value }) });
             const imgData = await imgRes.json();
-            if(imgData.success) {
-               imgUrl = imgData.imageUrl;
-               if (logContent) logContent.innerHTML += `<p class="text-zinc-500 text-[11px] ml-4">> 번역된 프롬프트: ${imgData.techPrompt}</p>`;
-            }
+            if(imgData.success) imgUrl = imgData.imageUrl;
           } catch(e) { console.error(e); }
-          if(!imgUrl) imgUrl = `https://placehold.co/1280x720/000000/FF0000?text=Image+Failed`;
+          if(!imgUrl) imgUrl = `https://placehold.co/1280x720/000000/FF0000?text=Failed`;
 
           if(shot.dialogues && shot.dialogues.length > 0) {
             try {
-              // 스마트 오디오 맵핑 (characters 포함)
-              const audRes = await fetch('/api/generate-audio', { 
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ dialogues: shot.dialogues, characters: state.characters }) 
-              });
+              const audRes = await fetch('/api/generate-audio', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dialogues: shot.dialogues, characters: state.characters }) });
               const audData = await audRes.json();
               if(audData.success) audioUrl = audData.audioUrl;
             } catch(e) { console.error(e); }
           }
           
-          state.sequenceData.push({ 
-            imageUrl: imgUrl, 
-            subtitle: shot.action || '', 
-            dialogues: shot.dialogues || [], 
-            audioUrl: audioUrl,
-            transition: shot.transition || 'fade'
-          });
-          progress += (100 / shots.length);
-          document.getElementById('progressBar').style.width = `${progress}%`;
+          shot.cachedImageUrl = imgUrl; shot.cachedAudioUrl = audioUrl; shot.isDirty = false;
+          state.sequenceData.push({ imageUrl: imgUrl, subtitle: shot.action || '', dialogues: shot.dialogues || [], audioUrl: audioUrl, transition: shot.transition || 'fade' });
+          
+          progress += (100 / shots.length); document.getElementById('progressBar').style.width = `${progress}%`;
           if (logContent) logContent.scrollTop = logContent.scrollHeight;
         }
 
         document.getElementById('loadingBox').classList.add('hidden');
         document.getElementById('sequencePlayer').classList.remove('hidden');
         document.getElementById('playStartOverlay').classList.remove('hidden');
-        
-        const shareBtn = document.getElementById('shareBtn');
-        shareBtn.disabled = false;
-        shareBtn.innerHTML = `✨ 갤러리에 웹 시퀀스 공유`;
-        document.getElementById('completedActions').classList.remove('hidden');
-        document.getElementById('completedActions').classList.add('flex');
-
-        if (logContent) {
-           logContent.innerHTML += `<p class="text-amber-400 text-[13px] font-bold">> 상영 준비가 완료되었습니다.</p>`;
-           logContent.scrollTop = logContent.scrollHeight;
-        }
+        renderStoryboardEditor('editableStoryboardContainer');
+        document.getElementById('completedActions').classList.remove('hidden'); document.getElementById('completedActions').classList.add('flex');
 
       } catch (err) { alert("렌더링 실패: " + err.message); }
     }
@@ -445,12 +396,9 @@
     function startPlayerViaClick() {
       document.getElementById('playStartOverlay').classList.add('hidden');
       document.getElementById('playerControls').classList.remove('hidden');
-      
-      state.currentFrameIndex = 0;
-      state.isPlaying = true;
+      state.currentFrameIndex = 0; state.isPlaying = true;
       document.getElementById('playIcon').setAttribute('data-lucide', 'pause');
-      lucide.createIcons();
-      playCurrentFrame();
+      lucide.createIcons(); playCurrentFrame();
     }
 
     function playCurrentFrame() {
@@ -460,80 +408,54 @@
       const frame = state.sequenceData[state.currentFrameIndex];
       const imgEl = document.getElementById('playerImage');
       
-      // 🎯 장면 전환(Transition) 효과 초기화 및 소스 변경
       imgEl.classList.remove('anim-ken-burns', 'anim-fade', 'anim-cut');
-      void imgEl.offsetWidth; 
-      imgEl.src = frame.imageUrl;
+      void imgEl.offsetWidth; imgEl.src = frame.imageUrl;
 
       const subCont = document.getElementById('playerSubtitle');
       if(frame.dialogues && frame.dialogues.length > 0) {
         subCont.innerHTML = frame.dialogues.map(d => `<div class="mb-2"><span class="text-[11px] font-black text-[#d4af37] bg-black/60 px-2 py-0.5 rounded mr-2 align-middle">${d.speaker}</span><span class="text-lg md:text-xl font-bold text-[#fbf5b7] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed serif-text align-middle">"${d.text}"</span></div>`).join('');
       } else if (frame.subtitle && frame.subtitle.trim() !== '') {
         subCont.innerHTML = `<span class="text-lg md:text-xl font-bold text-zinc-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed serif-text">${frame.subtitle}</span>`;
-      } else {
-        subCont.innerHTML = '';
-      }
+      } else { subCont.innerHTML = ''; }
       
       document.getElementById('playerShotCounter').innerText = `Shot ${state.currentFrameIndex + 1} / ${state.sequenceData.length}`;
       
       if(state.isPlaying) {
         imgEl.classList.add('anim-ken-burns');
-        if (frame.transition === 'cut') {
-            imgEl.classList.add('anim-cut'); // 빠른 컷
-        } else {
-            imgEl.classList.add('anim-fade'); // 부드러운 페이드
-        }
+        if (frame.transition === 'cut') imgEl.classList.add('anim-cut'); else imgEl.classList.add('anim-fade'); 
       }
-      
       if(!state.isPlaying) return;
 
       if(state.currentAudioElement) { state.currentAudioElement.pause(); state.currentAudioElement = null; }
       clearTimeout(state.frameTimeoutId);
 
-      // 🎯 마지막 컷 재생 종료 및 잘림 방지 (0.8초 여운) 로직
       const handleFrameEnd = () => {
          if (!state.isPlaying) return;
-         if (state.currentFrameIndex >= state.sequenceData.length - 1) {
-            togglePlay(); 
-            state.currentFrameIndex = 0; 
-         } else {
-            nextFrameManual(); 
-         }
+         if (state.currentFrameIndex >= state.sequenceData.length - 1) { togglePlay(); state.currentFrameIndex = 0; } 
+         else { nextFrameManual(); }
       };
 
       if (frame.audioUrl) {
         state.currentAudioElement = new Audio(frame.audioUrl);
-        state.currentAudioElement.play().catch(e => {
-            console.error("Audio block:", e);
-            state.frameTimeoutId = setTimeout(() => handleFrameEnd(), 4000);
-        });
-        
-        state.currentAudioElement.onended = () => { 
-          if(state.isPlaying) {
-             state.frameTimeoutId = setTimeout(() => handleFrameEnd(), 800); 
-          }
-        }; 
+        state.currentAudioElement.play().catch(e => { state.frameTimeoutId = setTimeout(() => handleFrameEnd(), 4000); });
+        state.currentAudioElement.onended = () => { if(state.isPlaying) state.frameTimeoutId = setTimeout(() => handleFrameEnd(), 800); }; 
       } else {
         state.frameTimeoutId = setTimeout(() => handleFrameEnd(), 4000);
       }
     }
 
     function togglePlay(e) {
-      if(e) e.stopPropagation();
-      state.isPlaying = !state.isPlaying;
+      if(e) e.stopPropagation(); state.isPlaying = !state.isPlaying;
       document.getElementById('playIcon').setAttribute('data-lucide', state.isPlaying ? 'pause' : 'play');
       document.getElementById('playerStatusText').innerText = state.isPlaying ? "PLAYING" : "PAUSED";
       
       const imgEl = document.getElementById('playerImage');
       if(state.isPlaying) {
-        imgEl.classList.add('anim-ken-burns');
-        imgEl.style.animationPlayState = 'running';
-        if(state.currentAudioElement) state.currentAudioElement.play();
-        else playCurrentFrame();
+        imgEl.classList.add('anim-ken-burns'); imgEl.style.animationPlayState = 'running';
+        if(state.currentAudioElement) state.currentAudioElement.play(); else playCurrentFrame();
       } else {
         imgEl.style.animationPlayState = 'paused';
-        if(state.currentAudioElement) state.currentAudioElement.pause();
-        clearTimeout(state.frameTimeoutId);
+        if(state.currentAudioElement) state.currentAudioElement.pause(); clearTimeout(state.frameTimeoutId);
       }
       lucide.createIcons();
     }
