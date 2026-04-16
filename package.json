@@ -1,11 +1,23 @@
 {
   "name": "my-oscar-project",
   "version": "1.0.0",
-  "description": "내 머릿속 오스카 - Gemini Native TTS 적용",
+  "description": "내 머릿속 오스카 - Gemini Native TTS 적용 및 Vertex AI 통합",
   "type": "module",
+  "engines": {
+    "node": "20"
+  },
   "dependencies": {
     "@google/genai": "latest",
-    "openai": "^4.28.0"
-    "@google-cloud/vertexai"
+    "@google-cloud/vertexai": "^1.9.2",
+    "google-auth-library": "^9.15.0",
+    "openai": "^4.28.0",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   }
 }
