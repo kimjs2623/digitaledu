@@ -128,10 +128,28 @@
              </div>
 
              <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
-                <div class="md:col-span-4 space-y-3">
-                   <label class="text-[12px] font-black text-[#d4af37] tracking-widest flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4"></i> 원문</label>
-                   <div id="displayOriginal" class="w-full bg-black/40 border border-white/5 p-5 rounded-2xl h-[650px] overflow-y-auto text-zinc-400 text-[13px] leading-relaxed serif-text whitespace-pre-wrap"></div>
+                <!-- 좌측 패널 -->
+                <div class="md:col-span-4 space-y-6">
+                   <!-- 🎯 미니 플레이어 UI (캐싱 모드 시 등장) -->
+                   <div id="miniPlayerContainer" class="hidden space-y-3 bg-black/40 p-4 rounded-2xl border border-white/5">
+                      <label class="text-[12px] font-black text-amber-400 tracking-widest flex items-center gap-2"><i data-lucide="monitor-play" class="w-4 h-4"></i> 미니 플레이어 <span class="text-zinc-500 font-normal">(이전 결과)</span></label>
+                      <div class="relative bg-black rounded-xl aspect-video overflow-hidden border border-white/10 group">
+                         <img id="miniPlayerImage" class="w-full h-full object-cover" src="" alt="Mini Player">
+                         <div class="absolute bottom-0 w-full bg-black/80 p-3 flex justify-center items-center gap-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="prevMiniFrame()" class="text-zinc-300 hover:text-white"><i data-lucide="skip-back" class="w-4 h-4"></i></button>
+                            <button onclick="toggleMiniPlay()" class="text-[#d4af37] hover:scale-110 transition-transform"><i id="miniPlayIcon" data-lucide="play" class="w-5 h-5 fill-current"></i></button>
+                            <button onclick="nextMiniFrame()" class="text-zinc-300 hover:text-white"><i data-lucide="skip-forward" class="w-4 h-4"></i></button>
+                         </div>
+                      </div>
+                      <div class="text-center text-[10px] text-zinc-500 font-mono tracking-widest" id="miniPlayerCounter">Shot 1</div>
+                   </div>
+
+                   <div class="space-y-2">
+                     <label class="text-[12px] font-black text-[#d4af37] tracking-widest flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4"></i> 원문</label>
+                     <div id="displayOriginal" class="w-full bg-black/40 border border-white/5 p-5 rounded-2xl h-[450px] overflow-y-auto text-zinc-400 text-[13px] leading-relaxed serif-text whitespace-pre-wrap"></div>
+                   </div>
                 </div>
+
                 <div class="md:col-span-8 space-y-4">
                    <label class="text-[12px] font-black text-blue-400 tracking-widest flex items-center gap-2"><i data-lucide="film" class="w-4 h-4"></i> 에디터</label>
                    <div id="editableStoryboardContainer" class="space-y-4 h-[650px] overflow-y-auto pr-2"></div>
@@ -176,9 +194,10 @@
                  </div>
               </div>
               
+              <!-- 🎯 상영 시작 및 다시 재생 공용 오버레이 -->
               <div id="playStartOverlay" class="hidden absolute inset-0 z-40 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center">
                  <button onclick="startPlayerViaClick()" class="btn-gold px-10 py-5 rounded-full font-black text-xl flex items-center gap-3 shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-105 transition-transform">
-                    <i data-lucide="play" class="w-6 h-6 fill-current"></i> 상영 시작
+                    <i id="playStartIcon" data-lucide="play" class="w-6 h-6 fill-current"></i> <span id="playStartText">상영 시작</span>
                  </button>
               </div>
 
@@ -201,12 +220,17 @@
          </div>
 
          <div id="dynamicRightPanel" class="lg:col-span-5 h-[600px] flex flex-col">
-            <div id="notePanel" class="flex-1 glass-panel p-8 rounded-[2.5rem] flex flex-col space-y-6 shadow-xl">
+            <div id="notePanel" class="flex-1 glass-panel p-8 rounded-[2.5rem] flex flex-col space-y-6 shadow-xl relative">
                <div class="flex items-center justify-between border-b border-white/10 pb-4">
                  <h3 class="text-xl font-black text-white italic serif-text flex items-center gap-2"><i data-lucide="pen-tool" class="text-[#d4af37] w-5 h-5"></i> Director's Note</h3>
                </div>
                <input id="noteTitle" type="text" class="w-full bg-transparent text-xl font-bold text-white focus:outline-none !p-0" placeholder="제목을 지어주세요">
                <textarea id="noteText" class="flex-1 w-full bg-black/20 p-5 rounded-2xl text-[14px] leading-relaxed text-zinc-200 resize-none border border-white/5" placeholder="핵심 의도 기록..."></textarea>
+               
+               <!-- 🎯 작품 최종 제출 버튼 -->
+               <button id="submitBtn" onclick="submitProject()" disabled class="w-full py-5 rounded-xl border border-white/20 bg-white/5 text-zinc-500 font-black text-[14px] tracking-[0.2em] flex items-center justify-center gap-2 transition-all">
+                  <i data-lucide="send" class="w-4 h-4"></i> 작품 최종 제출하기
+               </button>
             </div>
          </div>
       </div>
@@ -221,7 +245,12 @@
       currentFrameIndex: 0,
       currentAudioElement: null,
       isPlaying: false,
-      frameTimeoutId: null
+      frameTimeoutId: null,
+      // 🎯 미니 플레이어 상태 변수
+      miniFrameIndex: 0,
+      miniIsPlaying: false,
+      miniTimeoutId: null,
+      miniAudioElement: null
     };
 
     window.onload = () => { lucide.createIcons(); renderCharacters(); };
@@ -264,6 +293,9 @@
             ? `<span class="text-amber-400 font-bold flex items-center gap-1"><i data-lucide="alert-circle" class="w-3 h-3"></i> 렌더링 대기</span>`
             : `<span class="text-green-400 font-bold flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> 캐싱 완료</span>`;
 
+        // 🎯 한국어 프롬프트에 영어 뜨는 현상 방지: 정규식으로 대괄호로 감싸진 [영어 속성]을 임시 제거하여 화면에 표시
+        const displayPrompt = (shot.image_prompt || '').replace(/\[.*?\]/g, '').replace(/,?\s*[a-zA-Z0-9\s-]+스타일, 고품질\./g, '').trim();
+
         return `
         <div class="shot-block bg-black/40 p-4 rounded-xl border ${shot.isDirty !== false ? 'border-amber-500/30' : 'border-white/10'} space-y-3 relative group transition-colors">
           <div class="absolute -left-2 -top-2 bg-[#d4af37] text-black w-6 h-6 rounded-full flex justify-center items-center font-bold text-[10px]">${index+1}</div>
@@ -274,7 +306,7 @@
           </div>
           <div class="space-y-1">
              <label class="text-[10px] text-blue-400 font-bold flex justify-between">한국어 프롬프트 <span class="text-zinc-500">전환: ${shot.transition || 'fade'}</span></label>
-             <textarea onchange="updateShot(${index}, 'image_prompt', this.value)" class="w-full bg-blue-900/10 border border-blue-500/20 rounded-lg p-3 text-[12px] text-blue-200 resize-none outline-none h-16">${shot.image_prompt || ''}</textarea>
+             <textarea onchange="updateShot(${index}, 'image_prompt', this.value)" class="w-full bg-blue-900/10 border border-blue-500/20 rounded-lg p-3 text-[12px] text-blue-200 resize-none outline-none h-16">${displayPrompt}</textarea>
           </div>
           <div class="bg-purple-900/10 border border-purple-500/20 p-3 rounded-lg">
              <div class="flex items-center justify-between mb-2">
@@ -324,6 +356,9 @@
         document.getElementById('reviewSection').classList.remove('hidden');
         document.getElementById('displayOriginal').innerText = scenario; 
         
+        // 분석이 완료되었으므로 미니 플레이어는 다시 숨김
+        document.getElementById('miniPlayerContainer').classList.add('hidden');
+        
         renderStoryboardEditor('editableStoryboardContainer');
         if (logContent) { logContent.innerHTML += `<p class="text-blue-400 text-[13px]">> 분석 완료!</p>`; logContent.scrollTop = logContent.scrollHeight; }
       } catch (err) { 
@@ -337,6 +372,8 @@
     async function startSequenceGeneration() {
       if(state.currentAudioElement) state.currentAudioElement.pause();
       clearTimeout(state.frameTimeoutId);
+      if(state.miniAudioElement) state.miniAudioElement.pause();
+      clearTimeout(state.miniTimeoutId);
 
       const shots = state.parsedData.storyboard;
       document.getElementById('authoringContainer').classList.add('hidden');
@@ -387,13 +424,27 @@
 
         document.getElementById('loadingBox').classList.add('hidden');
         document.getElementById('sequencePlayer').classList.remove('hidden');
-        document.getElementById('playStartOverlay').classList.remove('hidden');
+        
+        // 처음 상영 시작 모드로 오버레이 셋팅
+        const overlay = document.getElementById('playStartOverlay');
+        overlay.classList.remove('hidden');
+        document.getElementById('playStartIcon').setAttribute('data-lucide', 'play');
+        document.getElementById('playStartText').innerText = "상영 시작";
+        lucide.createIcons();
+        
         renderStoryboardEditor('editableStoryboardContainer');
         document.getElementById('completedActions').classList.remove('hidden'); document.getElementById('completedActions').classList.add('flex');
+        
+        // 🎯 렌더링 완료 시 제출 버튼 활성화
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('border-white/20', 'bg-white/5', 'text-zinc-500');
+        submitBtn.classList.add('btn-gold', 'text-black', 'hover:scale-[1.02]', 'shadow-lg');
 
       } catch (err) { alert("렌더링 실패: " + err.message); }
     }
 
+    // --- 메인 플레이어 로직 ---
     function startPlayerViaClick() {
       document.getElementById('playStartOverlay').classList.add('hidden');
       document.getElementById('playerControls').classList.remove('hidden');
@@ -437,7 +488,17 @@
 
       const handleFrameEnd = () => {
          if (!state.isPlaying) return;
-         if (state.currentFrameIndex >= state.sequenceData.length - 1) { togglePlay(); state.currentFrameIndex = 0; } 
+         if (state.currentFrameIndex >= state.sequenceData.length - 1) { 
+            // 🎯 상영 종료 시 다시 재생 버튼 노출
+            state.isPlaying = false;
+            document.getElementById('playIcon').setAttribute('data-lucide', 'play');
+            
+            const overlay = document.getElementById('playStartOverlay');
+            overlay.classList.remove('hidden');
+            document.getElementById('playStartIcon').setAttribute('data-lucide', 'rotate-ccw');
+            document.getElementById('playStartText').innerText = "다시 처음부터 재생";
+            lucide.createIcons();
+         } 
          else { nextFrameManual(); }
       };
 
@@ -468,11 +529,79 @@
 
     function nextFrameManual(e) { if(e) e.stopPropagation(); state.currentFrameIndex++; playCurrentFrame(); }
     function prevFrame(e) { if(e) e.stopPropagation(); state.currentFrameIndex--; playCurrentFrame(); }
+    
+    // --- 에디터 및 미니 플레이어 로직 ---
     function activateVideoEditMode() {
       if(state.currentAudioElement) state.currentAudioElement.pause();
       clearTimeout(state.frameTimeoutId);
       document.getElementById('renderingAndPlayerSection').classList.add('hidden');
       document.getElementById('authoringContainer').classList.remove('hidden');
+
+      // 🎯 부분 수정 모드로 돌아오면 미니 플레이어 활성화
+      if(state.sequenceData.length > 0) {
+          document.getElementById('miniPlayerContainer').classList.remove('hidden');
+          state.miniFrameIndex = 0;
+          state.miniIsPlaying = false;
+          updateMiniPlayerUI();
+      }
+    }
+
+    function updateMiniPlayerUI() {
+        if(state.sequenceData.length === 0) return;
+        const frame = state.sequenceData[state.miniFrameIndex];
+        document.getElementById('miniPlayerImage').src = frame.imageUrl;
+        document.getElementById('miniPlayerCounter').innerText = `Shot ${state.miniFrameIndex + 1} / ${state.sequenceData.length}`;
+    }
+
+    function toggleMiniPlay() {
+        state.miniIsPlaying = !state.miniIsPlaying;
+        document.getElementById('miniPlayIcon').setAttribute('data-lucide', state.miniIsPlaying ? 'pause' : 'play');
+        lucide.createIcons();
+        if(state.miniIsPlaying) playMiniFrame();
+        else {
+            clearTimeout(state.miniTimeoutId);
+            if(state.miniAudioElement) state.miniAudioElement.pause();
+        }
+    }
+
+    function playMiniFrame() {
+        updateMiniPlayerUI();
+        const frame = state.sequenceData[state.miniFrameIndex];
+
+        if(state.miniAudioElement) { state.miniAudioElement.pause(); state.miniAudioElement = null; }
+        clearTimeout(state.miniTimeoutId);
+        
+        const nextMini = () => {
+            if(!state.miniIsPlaying) return;
+            if(state.miniFrameIndex >= state.sequenceData.length - 1) {
+                toggleMiniPlay(); 
+                state.miniFrameIndex = 0;
+                updateMiniPlayerUI();
+            } else {
+                state.miniFrameIndex++;
+                playMiniFrame();
+            }
+        };
+
+        if (frame.audioUrl) {
+            state.miniAudioElement = new Audio(frame.audioUrl);
+            state.miniAudioElement.play().catch(() => { state.miniTimeoutId = setTimeout(nextMini, 4000); });
+            state.miniAudioElement.onended = () => { if(state.miniIsPlaying) state.miniTimeoutId = setTimeout(nextMini, 800); };
+        } else {
+            state.miniTimeoutId = setTimeout(nextMini, 4000);
+        }
+    }
+    
+    function nextMiniFrame() { state.miniFrameIndex = Math.min(state.miniFrameIndex + 1, state.sequenceData.length - 1); updateMiniPlayerUI(); }
+    function prevMiniFrame() { state.miniFrameIndex = Math.max(state.miniFrameIndex - 1, 0); updateMiniPlayerUI(); }
+
+    // 🎯 최종 제출 로직
+    function submitProject() {
+        const btn = document.getElementById('submitBtn');
+        btn.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5"></i> 제출 완료!`;
+        btn.className = "w-full py-5 rounded-xl bg-green-600 text-white font-black text-[15px] tracking-[0.2em] flex items-center justify-center gap-2 shadow-lg transition-all";
+        lucide.createIcons();
+        alert("작품이 성공적으로 제출되었습니다. 갤러리에서 확인 가능합니다!");
     }
   </script>
 </body>
