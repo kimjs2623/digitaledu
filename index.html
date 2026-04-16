@@ -130,7 +130,7 @@
              <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
                 <!-- 좌측 패널 -->
                 <div class="md:col-span-4 space-y-6">
-                   <!-- 🎯 미니 플레이어 UI (캐싱 모드 시 등장) -->
+                   <!-- 미니 플레이어 -->
                    <div id="miniPlayerContainer" class="hidden space-y-3 bg-black/40 p-4 rounded-2xl border border-white/5">
                       <label class="text-[12px] font-black text-amber-400 tracking-widest flex items-center gap-2"><i data-lucide="monitor-play" class="w-4 h-4"></i> 미니 플레이어 <span class="text-zinc-500 font-normal">(이전 결과)</span></label>
                       <div class="relative bg-black rounded-xl aspect-video overflow-hidden border border-white/10 group">
@@ -150,13 +150,12 @@
                    </div>
                 </div>
 
-                <!-- 우측 패널 -->
+                <!-- 우측 에디터 패널 -->
                 <div class="md:col-span-8 space-y-4">
                    <label class="text-[12px] font-black text-blue-400 tracking-widest flex items-center gap-2"><i data-lucide="film" class="w-4 h-4"></i> 설정 및 에디터</label>
                    
-                   <!-- 🎯 작품 기본 설정 수정 패널 (STEP 2에서 수정 가능) -->
                    <div id="step2SettingsContainer" class="bg-black/40 p-5 rounded-2xl border border-white/10 space-y-4">
-                       <!-- JS에서 내용 주입 -->
+                       <!-- JS에서 주입 -->
                    </div>
 
                    <div id="editableStoryboardContainer" class="space-y-4 h-[480px] overflow-y-auto pr-2"></div>
@@ -243,7 +242,6 @@
   </div>
 
   <script>
-    // 🎯 상태 관리에 설정 정보(place, note, style) 통합
     let state = {
       characters: [{ id: 'char_0', name: '김 첨지', desc: "낡은 한복, 슬픈 표정의 40대 남성" }, { id: 'char_1', name: '학생', desc: "낡은 교복과 안경을 쓴 10대 소년" }],
       place: "1920년대, 비 내리는 거리",
@@ -270,7 +268,6 @@
       document.getElementById(`page-${pageId}`)?.classList.remove('hidden');
     }
 
-    // 🎯 STEP 1과 STEP 2 양쪽의 캐릭터 정보를 동시 업데이트
     function renderCharacters() {
       const list = document.getElementById('characterList');
       if (list) {
@@ -281,7 +278,7 @@
               <button onclick="removeCharacter('${char.id}')" class="px-2 text-zinc-600 hover:text-red-400"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>`).join('');
       }
-      renderStep2Settings(); // STEP 2 패널 동기화
+      renderStep2Settings(); 
       lucide.createIcons();
     }
     
@@ -289,7 +286,6 @@
     function removeCharacter(id) { if(state.characters.length>1){ state.characters = state.characters.filter(c => c.id !== id); renderCharacters(); } }
     function updateChar(id, field, value) { const c = state.characters.find(c => c.id === id); if(c) c[field] = value; renderCharacters(); }
 
-    // 🎯 STEP 2 (수정 화면) 전용 글로벌 설정 패널
     function renderStep2Settings() {
         const container = document.getElementById('step2SettingsContainer');
         if(!container) return;
@@ -339,7 +335,6 @@
     function renderStoryboardEditor(containerId) {
       const container = document.getElementById(containerId);
       container.innerHTML = state.parsedData.storyboard.map((shot, index) => {
-        // 🎯 수동 목소리(성우) 드롭다운 추가
         let dialoguesHtml = (shot.dialogues && shot.dialogues.length > 0) ? shot.dialogues.map((d, dIdx) => `
             <div class="flex gap-2 items-center bg-black/40 p-2 rounded-lg border border-purple-500/10 mb-2 flex-wrap">
               <input onchange="updateDialogue(${index}, ${dIdx}, 'speaker', this.value)" value="${d.speaker || ''}" class="w-20 bg-transparent border-b border-purple-500/30 p-2 text-[11px] text-purple-200 font-bold outline-none" placeholder="화자">
@@ -368,7 +363,17 @@
         return `
         <div class="shot-block bg-black/40 p-4 rounded-xl border ${shot.isDirty !== false ? 'border-amber-500/30' : 'border-white/10'} space-y-3 relative group transition-colors">
           <div class="absolute -left-2 -top-2 bg-[#d4af37] text-black w-6 h-6 rounded-full flex justify-center items-center font-bold text-[10px]">${index+1}</div>
-          <div class="flex justify-end mb-1 text-[10px]">${statusBadge}</div>
+          
+          <div class="flex justify-between items-center mb-1">
+             <div class="text-[10px] text-zinc-500 font-bold tracking-widest">SHOT ${index+1}</div>
+             <div class="flex items-center gap-3 text-[10px]">
+                ${statusBadge}
+                <button onclick="removeShot(${index})" class="text-zinc-500 hover:text-red-500 transition-colors p-1 bg-white/5 rounded-md" title="컷 삭제">
+                    <i data-lucide="trash-2" class="w-3 h-3"></i>
+                </button>
+             </div>
+          </div>
+
           <div class="flex gap-3 pl-2">
             <input type="text" onchange="updateShot(${index}, 'shot_composition', this.value)" class="w-1/3 bg-transparent border-b border-white/20 text-[12px] text-amber-300 font-bold outline-none pb-1" value="${shot.shot_composition || ''}">
             <input type="text" onchange="updateShot(${index}, 'action', this.value)" class="w-2/3 bg-transparent border-b border-white/20 text-[12px] text-zinc-300 outline-none pb-1" value="${shot.action || ''}">
@@ -391,6 +396,14 @@
     }
 
     function updateShot(sIdx, f, v) { state.parsedData.storyboard[sIdx][f] = v; state.parsedData.storyboard[sIdx].isDirty = true; renderStoryboardEditor('editableStoryboardContainer'); }
+    
+    function removeShot(sIdx) { 
+        if(confirm("이 컷을 정말 삭제하시겠습니까?")) {
+            state.parsedData.storyboard.splice(sIdx, 1); 
+            renderStoryboardEditor('editableStoryboardContainer'); 
+        }
+    }
+
     function updateDialogue(sIdx, dIdx, f, v) { state.parsedData.storyboard[sIdx].dialogues[dIdx][f] = v; state.parsedData.storyboard[sIdx].isDirty = true; }
     function addDialogue(sIdx, cId) { if(!state.parsedData.storyboard[sIdx].dialogues) state.parsedData.storyboard[sIdx].dialogues=[]; state.parsedData.storyboard[sIdx].dialogues.push({speaker:'이름', voice:'auto', text:'', emotion:'자연스럽게'}); state.parsedData.storyboard[sIdx].isDirty = true; renderStoryboardEditor(cId); }
     function removeDialogue(sIdx, dIdx, cId) { state.parsedData.storyboard[sIdx].dialogues.splice(dIdx, 1); state.parsedData.storyboard[sIdx].isDirty = true; renderStoryboardEditor(cId); }
@@ -400,7 +413,6 @@
       const scenario = document.getElementById('scenarioInput').value;
       if(!scenario.trim()) return alert("시나리오 입력 요망.");
 
-      // STEP 1의 입력값을 글로벌 State로 갱신
       state.place = document.getElementById('placeInput').value;
       state.note = document.getElementById('noteInput').value;
       state.style = document.getElementById('styleSelect').value;
@@ -432,7 +444,6 @@
         
         document.getElementById('miniPlayerContainer').classList.add('hidden');
         
-        // 🎯 STEP 2 화면 진입 시, 설정 패널과 에디터를 그림
         renderStep2Settings();
         renderStoryboardEditor('editableStoryboardContainer');
         if (logContent) { logContent.innerHTML += `<p class="text-blue-400 text-[13px]">> 분석 완료!</p>`; logContent.scrollTop = logContent.scrollHeight; }
@@ -460,23 +471,34 @@
       const logContent = document.getElementById('logContent');
       let progress = 0; state.sequenceData = [];
 
+      // 🎯 대기 함수 (딜레이용)
+      const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
       try {
         for(let i=0; i<shots.length; i++) {
           const shot = shots[i];
-          document.getElementById('progressText').innerText = `[컷 ${i+1}/${shots.length}] 렌더링 중...`;
-
+          
           if (shot.isDirty === false && shot.cachedImageUrl) {
+              document.getElementById('progressText').innerText = `[컷 ${i+1}/${shots.length}] 캐시 불러오는 중...`;
               if (logContent) logContent.innerHTML += `<p class="text-green-500 text-[13px]">> Shot ${i+1} 변경사항 없음 (캐시 사용)</p>`;
               state.sequenceData.push({ imageUrl: shot.cachedImageUrl, subtitle: shot.action || '', dialogues: shot.dialogues || [], audioUrl: shot.cachedAudioUrl, transition: shot.transition || 'fade' });
               progress += (100 / shots.length); document.getElementById('progressBar').style.width = `${progress}%`;
               continue; 
           }
 
+          // 🎯 API 429 과부하 방지를 위한 쿨다운 로직 (첫 번째 컷 이후부터 3.5초 대기)
+          if (i > 0) {
+             document.getElementById('progressText').innerText = `[컷 ${i+1}/${shots.length}] API 과부하 방지 쿨다운 중... (3.5초)`;
+             if (logContent) logContent.innerHTML += `<p class="text-amber-500 text-[13px]">> 구글 API 한도 방지를 위해 3.5초 대기합니다...</p>`;
+             if (logContent) logContent.scrollTop = logContent.scrollHeight;
+             await wait(3500);
+          }
+
+          document.getElementById('progressText').innerText = `[컷 ${i+1}/${shots.length}] 이미지 렌더링 중...`;
           if (logContent) logContent.innerHTML += `<p class="text-zinc-400 text-[13px]">> Shot ${i+1} 새로 렌더링 중...</p>`;
           
           let imgUrl = "", audioUrl = "";
           try {
-            // 🎯 state.style 로 최신 적용 스타일 전달
             const imgRes = await fetch('/api/generate-images', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: shot.image_prompt, style: state.style }) });
             const imgData = await imgRes.json();
             if(imgData.success) imgUrl = imgData.imageUrl;
@@ -601,7 +623,6 @@
     function nextFrameManual(e) { if(e) e.stopPropagation(); state.currentFrameIndex++; playCurrentFrame(); }
     function prevFrame(e) { if(e) e.stopPropagation(); state.currentFrameIndex--; playCurrentFrame(); }
     
-    // --- 에디터 및 미니 플레이어 로직 ---
     function activateVideoEditMode() {
       if(state.currentAudioElement) state.currentAudioElement.pause();
       clearTimeout(state.frameTimeoutId);
