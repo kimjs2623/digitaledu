@@ -47,14 +47,14 @@ export default async function handler(req, res) {
       let gender = 'M'; 
       let age = 'young'; 
 
-      // 외모 묘사에서 키워드 추출
+      // 외모 묘사에서 키워드 추출 (키워드 대폭 확장)
       if (desc) {
           if (/(여|소녀|아줌마|할머니|부인|엄마|딸|아내|girl|woman|female)/.test(desc)) gender = 'F';
           if (/(40대|50대|60대|70대|노인|할아|할머|중년|아저씨|아줌마|엄마|아빠|old|elderly)/.test(desc)) age = 'old';
       } else {
           // 이름으로 유추
-          if (/(할머니|아주머니|소녀|아내|여)/.test(speakerName)) gender = 'F';
-          if (/(할아버지|할아|아저씨|영감|첨지|노인)/.test(speakerName)) age = 'old';
+          if (/(할머니|아주머니|소녀|아내|여|엄마|딸)/.test(speakerName)) gender = 'F';
+          if (/(할아버지|할아|아저씨|영감|첨지|노인|아빠)/.test(speakerName)) age = 'old';
       }
 
       return {
@@ -63,15 +63,18 @@ export default async function handler(req, res) {
       };
     });
 
-    // 3. 🎯 핵심 에러 픽스: 화자 수에 따른 API 요청 분기
+    // 3. 🎯 핵심 에러 픽스 및 감정(Emotion) 연출 강화
     let directorPrompt = "";
     let speechConfig = {};
 
     if (uniqueSpeakers.length === 1) {
-        // [단일 화자] 400 에러를 피하기 위해 일반 음성 모드 사용
-        const singleTranscript = cleanDialogues.map(d => d.text).join('\n\n');
+        // [단일 화자] 400 에러 우회 + 단일 화자일 때도 감정 지시어 맵핑 추가
+        const singleTranscript = cleanDialogues.map(d => {
+            const emotionText = d.emotion ? `[${d.emotion} 감정으로] ` : "";
+            return `${emotionText}${d.text}`;
+        }).join('\n\n');
         
-        directorPrompt = `자연스럽게 연기하듯 읽어주세요.\n\n${singleTranscript}`;
+        directorPrompt = `당신은 전문 성우입니다. 다음 대본을 괄호 안의 감정과 상황에 맞게 매우 자연스럽게 연기하듯 읽어주세요.\n\n${singleTranscript}`;
         speechConfig = {
             voiceConfig: { prebuiltVoiceConfig: { voiceName: speakerConfigs[0].voiceConfig.prebuiltVoiceConfig.voiceName } }
         };
@@ -82,7 +85,7 @@ export default async function handler(req, res) {
             return `${d.cleanSpeaker}: ${emotionText}${d.text}`;
         }).join('\n\n');
 
-        directorPrompt = `Perform this scene realistically. Distinctly change voices based on the speaker.\n\n# TRANSCRIPT\n${combinedTranscript}`;
+        directorPrompt = `Perform this scene realistically. Distinctly change voices based on the speaker. Express the emotions perfectly.\n\n# TRANSCRIPT\n${combinedTranscript}`;
         speechConfig = {
             multiSpeakerVoiceConfig: { speakerVoiceConfigs: speakerConfigs }
         };
