@@ -10,21 +10,19 @@ export default async function handler(req, res) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    // 🎯 감독님이 주신 코드 바탕 + 장면 전환(Transition)과 회상 컷 분리 로직 추가
+    // 🎯 속마음 처리(Option 2) 및 캐릭터 일관성(Character Bible) 로직 강화
     const systemPrompt = `
 당신은 아카데미상을 수상한 시네마틱 아트 디렉터입니다.
-주어진 대본을 분석하여, 정지된 웹툰(컷툰)의 컷들로 변환할 수 있는 JSON 데이터를 완벽하게 설계하세요.
+주어진 대본을 분석하여 컷툰 콘티 JSON을 설계하세요.
 
 [필수 규칙 - 매우 중요]
-1. 인물 일관성 (Character Consistency): 'character_bible'에 모든 등장인물의 외모를 한국어로 고정하세요.
-2. 멈춘 순간의 예술: 행동의 변화를 묘사하지 마세요. 감정과 역동성을 보여주는 "단 한 장의 정지된 시네마틱 사진"을 묘사하세요.
-3. 🎯 내면 묘사 금지 (Show, Don't Tell): "아내를 생각하며 슬퍼한다" 같은 추상적인 심리나 생각을 절대 글로 적지 마세요. 이미지 AI는 생각을 그릴 수 없습니다.
-   - [필수 치환법]: 내면의 생각은 반드시 "손에 쥔 낡은 은비녀", "빗물에 젖은 구겨진 사진", "눈물이 고인 채 먼 곳의 흐릿한 불빛을 응시하는 시선" 같은 눈에 보이는 물리적 소품과 연출 기법으로 완벽히 치환하여 묘사하세요.
-   - [회상 컷 분리]: 만약 회상이나 과거의 대상이 직접적으로 등장해야 한다면, 한 화면에 합성(이중노출 등)하지 말고 아예 과거의 장면을 별도의 새로운 컷(Scene)으로 분리하세요.
-4. 🎯 장면 전환 (Transition): 컷과 컷 사이의 시간/감정선에 맞춰 'transition' 필드에 "cut" (빠른 전환), "fade" (일반 전환/여운) 중 하나를 기입하세요.
-5. 역동적 대화 장면: 대화 장면은 반드시 '투 샷(Two-shot)' 또는 '어깨 너머 샷'을 명시하고 표정과 제스처, 손동작을 묘사하세요.
-6. 다중 대사 분리: 한 장면에서 여러 명이 말하면, 'dialogues' 배열에 발화자(speaker)별로 대사를 나누어 담으세요. 대사가 없으면 빈 배열([])을 넣으세요.
-7. 텍스트 배제: 'image_prompt' 안에는 대사 내용, 지시사항, '자막', 'Text' 같은 단어를 절대 넣지 마세요. 
+1. 🎯 캐릭터 일관성 (Character Bible): 'character_bible'에 모든 등장인물의 외모를 '매우 구체적인 영어 키워드'로 정의하세요. (예: 40-year-old Korean man, short messy hair, traditional hanbok, tired face). 이 영어 키워드가 일관성의 핵심이 됩니다.
+2. 🎯 내면 묘사는 '속마음(독백)'으로 처리: "아내를 생각한다", "그리워한다" 같은 내면 지문이 있을 때, 절대 화면에 그 대상을(예: 아내) 등장시키거나 기괴한 이중노출로 그리지 마세요.
+   - [이미지]: 주인공이 고개를 숙이거나, 비 오는 창밖을 멍하니 바라보는 등 '현재의 쓸쓸한 상태'만 구체적으로 묘사하세요.
+   - [오디오]: 생각하는 내용은 'dialogues'에 추가하고, 반드시 \`emotion: "속마음"\` 이라고 기입하세요.
+3. 멈춘 순간의 예술: 한 컷 안에서 일어나는 행동의 변화를 적지 마세요. 단 한 장의 정지된 사진을 묘사하세요.
+4. 다중 대사 분리: 한 장면에서 여러 명이 말하면 발화자별로 대사를 나누세요.
+5. 텍스트 배제: 이미지 프롬프트 안에 대사나 글씨를 절대 넣지 마세요.
 
 [입력 정보]
 - 등장인물: ${chars}
@@ -35,15 +33,15 @@ export default async function handler(req, res) {
 [JSON 출력 규격]
 {
   "character_bible": {
-    "인물명": "구체적인 외모 및 의상 묘사 (한국어)"
+    "인물명": "구체적인 외모 및 의상 영어 키워드 (예: 40-year-old Korean man, traditional hat...)"
   },
   "scenes": [
     {
-      "shot_composition": "바스트 샷 / 투 샷 / 클로즈업 등",
-      "image_prompt": "장면을 묘사하는 구체적인 한국어 프롬프트 (추상적 심리 묘사 절대 금지, 소품/시선/연출을 활용한 구체적 시각화)",
+      "shot_composition": "바스트 샷 / 클로즈업 등",
+      "image_prompt": "화면에 그려질 현재의 구체적 상황 (한국어)",
       "transition": "cut | fade",
       "dialogues": [
-        { "speaker": "인물명", "text": "순수 대사 내용", "emotion": "감정 지시" }
+        { "speaker": "인물명", "text": "대사 (또는 생각 내용)", "emotion": "자연스럽게 / 속마음 / 분노 등" }
       ]
     }
   ]
@@ -60,14 +58,16 @@ export default async function handler(req, res) {
     responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
     let sceneData = JSON.parse(responseText);
 
+    // 🎯 생성된 영어 캐릭터 바이블을 매 프롬프트마다 백그라운드로 강제 주입하여 일관성 보장!
     sceneData.scenes = sceneData.scenes.map(scene => {
       let injectedPrompt = `${scene.image_prompt}, ${scene.shot_composition}. `;
       Object.keys(sceneData.character_bible || {}).forEach(charName => {
+        // 해당 컷에 인물이 등장하거나 대사를 치면 외모 키워드 강제 삽입
         if (injectedPrompt.includes(charName) || (scene.dialogues && scene.dialogues.some(d => d.speaker === charName))) {
-          injectedPrompt = `[${charName}: ${sceneData.character_bible[charName]}], ${injectedPrompt}`;
+          injectedPrompt = `[Character Appearance: ${sceneData.character_bible[charName]}], ${injectedPrompt}`;
         }
       });
-      injectedPrompt = `${injectedPrompt} ${style} 스타일, 고품질 시네마틱 명작.`;
+      injectedPrompt = `${injectedPrompt} ${style} 스타일, 고품질.`;
       return { ...scene, image_prompt: injectedPrompt };
     });
 
