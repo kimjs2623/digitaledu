@@ -49,7 +49,7 @@ export default async function handler(req, res) {
 
     // 🎯 1단계: 프롬프트 브릿지 (재시도 로직 적용)
     const bridgeResult = await executeWithRetry(() => ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.1-flash-lite',
         contents: bridgePrompt
     }));
     
