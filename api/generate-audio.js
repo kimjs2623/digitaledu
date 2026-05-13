@@ -92,7 +92,7 @@ export default async function handler(req, res) {
     }
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-tts",
+      model: "gemini-2.5-flash-preview-tts",
       contents: [{ parts: [{ text: directorPrompt }] }],
       config: { responseModalities: ['AUDIO'], speechConfig: speechConfig },
     });
