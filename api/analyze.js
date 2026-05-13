@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     `;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash", 
+      model: "gemini-3.1-flash-lite", 
       contents: [{ parts: [{ text: `${systemPrompt}\n\n[입력 대본]\n${script}` }] }],
       config: { responseMimeType: "application/json" }
     });
